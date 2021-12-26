@@ -1,0 +1,275 @@
+2021-12-26 15:41:39,107 - bid.py[line:62] INFO - not query_time value: , set query_time:9999
+2021-12-26 15:41:39,577 - nanfangdianwang_fuwu_gongshi.py[line:65] INFO - all pages :1, 计量
+2021-12-26 15:41:39,742 - bid.py[line:285] DEBUG - project_title: 2021年计量机房修理项目基础环境运维服务  （采购项目编号：XM20210245）  成交结果公告
+2021-12-26 15:41:39,743 - bid.py[line:285] DEBUG - publish_time: 2021-11-30
+2021-12-26 15:41:39,743 - bid.py[line:285] DEBUG - project_number: （采购项目编号：XM20210245）项目名称：2021年计量机房修理项目基础环境运维服务（采购项目编号：XM20210245），确定成交人如下：
+2021-12-26 15:41:39,743 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:39,743 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:39,744 - bid.py[line:285] DEBUG - project_leader: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:39,744 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:39,744 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:39,744 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:39,744 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=DEE4D7C25A8141FA9B19ADA38664A9E3&objectType=1&typeid=4
+2021-12-26 15:41:39,745 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:39,745 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:39,745 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:39,745 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:39,745 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:39,745 - bid.py[line:285] DEBUG - agency: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:39,746 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:39,746 - bid.py[line:285] DEBUG - bid_winner: 
+2021-12-26 15:41:39,746 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:39,746 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:39,746 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:39,747 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:39,747 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:39,747 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:39,747 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:39,747 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:39,747 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:39,897 - bid.py[line:285] DEBUG - project_title: 2021年专变用户计量装置维护、修理及改造工程项目（第一标的第一标段）专变计量装置数据分析监控技术服务  （采购项目编号：XM20210233）  成交结果公告
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - publish_time: 2021-11-17
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - project_number: （采购项目编号：XM20210233）项目名称：2021年专变用户计量装置维护、修理及改造工程项目（第一标的第一标段）专变计量装置数据分析监控技术服务（采购项目编号：XM20210233），确定成交人如下：
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - project_leader: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:39,898 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=DADAC61680444719B6C328BE13C7429E&objectType=1&typeid=4
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - agency: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:39,899 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - bid_winner: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:39,900 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:40,050 - bid.py[line:285] DEBUG - project_title: 2021年深圳计量管理所西部片区负荷管理终端修理项目南山及宝安石岩片区劳务采购（采购项目编号：XM20210169）  成交结果公告
+2021-12-26 15:41:40,050 - bid.py[line:285] DEBUG - publish_time: 2021-10-19
+2021-12-26 15:41:40,050 - bid.py[line:285] DEBUG - project_number: （采购项目编号：XM20210169）项目名称：2021年深圳计量管理所西部片区负荷管理终端修理项目南山及宝安石岩片区劳务采购（采购项目编号：XM20210169），确定成交人如下：
+2021-12-26 15:41:40,050 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:40,050 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:40,050 - bid.py[line:285] DEBUG - project_leader: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：李基稳采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - phone: 0755-21834714
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=B0BB347BF34D40DCB295BB112B34D03C&objectType=1&typeid=4
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:40,051 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - agency: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：李基稳采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - bid_winner: 
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:40,052 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:40,053 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:40,053 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:40,053 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:40,053 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - project_title: 2021年“计量设备逆向管理装置”等9个项目加工测试采购项目  成交结果公告
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - publish_time: 2021-10-15
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - project_number: 
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - project_leader: 
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - phone: 0750-8285826
+2021-12-26 15:41:40,205 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=02D91C4775F84A48922BCDF953EBC2A6&objectType=1&typeid=4
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - agency: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：周生
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:40,206 - bid.py[line:285] DEBUG - bid_winner: 成交单位
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:40,207 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:40,438 - bid.py[line:285] DEBUG - project_title: 2021年专变用户计量装置维护项目（第一标的第一标段）辅助支持服务  （采购项目编号：XM20210166）  成交结果公告
+2021-12-26 15:41:40,438 - bid.py[line:285] DEBUG - publish_time: 2021-09-30
+2021-12-26 15:41:40,438 - bid.py[line:285] DEBUG - project_number: （采购项目编号：XM20210166）项目名称：2021年专变用户计量装置维护项目（第一标的第一标段）辅助支持服务（采购项目编号：XM20210166），确定成交人如下：
+2021-12-26 15:41:40,438 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:40,438 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:40,438 - bid.py[line:285] DEBUG - project_leader: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=EFBB98C67E71402D9B64926A9BF1A803&objectType=1&typeid=4
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:40,439 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - agency: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - bid_winner: 
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:40,440 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:40,441 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:40,591 - bid.py[line:285] DEBUG - project_title: 2021年深圳供电局计量自动化主站系统运维项目一体机硬件及oracle数据库软件运维服务  （采购项目编号：XM20210141）  成交结果公告
+2021-12-26 15:41:40,591 - bid.py[line:285] DEBUG - publish_time: 2021-09-22
+2021-12-26 15:41:40,591 - bid.py[line:285] DEBUG - project_number: （采购项目编号：XM20210141）项目名称：2021年深圳供电局计量自动化主站系统运维项目一体机硬件及oracle数据库软件运维服务（采购项目编号：XM20210141），确定成交人如下：
+2021-12-26 15:41:40,591 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - project_leader: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=2941B8EB25C54CC58C82968EA6B701FA&objectType=1&typeid=4
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:40,592 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - agency: 采购人（或采购代理机构）主要负责人或授权的项目负责人（签名）：吴工采购人或其采购代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - bid_winner: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:40,593 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:40,594 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:40,594 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:40,594 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:40,739 - bid.py[line:285] DEBUG - project_title: 2021年深圳供电局计量自动化系统维护运行监控及主动性维护服务（三次招标）  成交结果公告
+2021-12-26 15:41:40,739 - bid.py[line:285] DEBUG - publish_time: 2021-09-03
+2021-12-26 15:41:40,739 - bid.py[line:285] DEBUG - project_number: 
+2021-12-26 15:41:40,739 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:40,739 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:40,739 - bid.py[line:285] DEBUG - project_leader: 招标人或其招标代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=C1507248593A4C218881FE9BE7B98AB9&objectType=1&typeid=4
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - agency: 招标人或其招标代理机构名称：深圳市深鹏达电网科技有限公司
+2021-12-26 15:41:40,740 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - bid_winner: 成交单位
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:40,741 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - project_title: 2021年深圳供电局计量自动化系统维护过保硬件维修服务  成交结果公告
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - publish_time: 2021-08-23
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - project_number: 
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - project_leader: 招标人或其招标代理机构名称：
+2021-12-26 15:41:40,928 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=D1711C3B4F0B486782AB929FBD7F95CF&objectType=1&typeid=4
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:40,929 - bid.py[line:285] DEBUG - agency: 招标人或其招标代理机构名称：
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - bid_winner: 成交单位
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:40,930 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:41,065 - bid.py[line:285] DEBUG - project_title: 2021年深圳供电局计量自动化系统维护项目主站硬件运行维护服务  成交结果公告
+2021-12-26 15:41:41,065 - bid.py[line:285] DEBUG - publish_time: 2021-08-20
+2021-12-26 15:41:41,065 - bid.py[line:285] DEBUG - project_number: 
+2021-12-26 15:41:41,065 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - project_leader: 招标人或其招标代理机构名称：
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - phone: 21834722
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=DA7F9A5F2AAC4E4190312C2AC0C91DAC&objectType=1&typeid=4
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:41,066 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - agency: 招标人或其招标代理机构名称：
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - bid_winner: 成交单位
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - keyword: 计量
+2021-12-26 15:41:41,067 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:41,068 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:41,068 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:41,068 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:41,569 - nanfangdianwang_fuwu_gongshi.py[line:65] INFO - all pages :1, 校准
+2021-12-26 15:41:41,732 - bid.py[line:285] DEBUG - project_title: 2021—2023年基建、大修技改设备试验校准项目框架采购 成交公告
+2021-12-26 15:41:41,732 - bid.py[line:285] DEBUG - publish_time: 2021-08-25
+2021-12-26 15:41:41,732 - bid.py[line:285] DEBUG - project_number: 2021—2023年基建、大修技改设备试验校准项目框架采购（采购编号：竞字【2021】33号），经采购工作组推荐，确定成交单位如下：
+2021-12-26 15:41:41,733 - bid.py[line:285] DEBUG - tender_unit: 
+2021-12-26 15:41:41,733 - bid.py[line:285] DEBUG - tender_price: 
+2021-12-26 15:41:41,733 - bid.py[line:285] DEBUG - project_leader: 
+2021-12-26 15:41:41,733 - bid.py[line:285] DEBUG - phone: 3582315
+2021-12-26 15:41:41,733 - bid.py[line:285] DEBUG - project_location: 
+2021-12-26 15:41:41,734 - bid.py[line:285] DEBUG - industry_type: 
+2021-12-26 15:41:41,734 - bid.py[line:285] DEBUG - article_url: https://ecsg.com.cn/cms/NoticeDetail.html?objectId=362C1E0B45B14FC2A70A6B508CC637BE&objectType=1&typeid=4
+2021-12-26 15:41:41,734 - bid.py[line:285] DEBUG - source: 南方电网电子采购交易平台
+2021-12-26 15:41:41,734 - bid.py[line:285] DEBUG - content: 
+2021-12-26 15:41:41,734 - bid.py[line:285] DEBUG - bid_finish_time: 
+2021-12-26 15:41:41,735 - bid.py[line:285] DEBUG - bid_end_time: 
+2021-12-26 15:41:41,735 - bid.py[line:285] DEBUG - project_overview: 
+2021-12-26 15:41:41,735 - bid.py[line:285] DEBUG - agency: 
+2021-12-26 15:41:41,736 - bid.py[line:285] DEBUG - bid_evaluation_rule: 
+2021-12-26 15:41:41,736 - bid.py[line:285] DEBUG - bid_winner: 
+2021-12-26 15:41:41,736 - bid.py[line:285] DEBUG - win_bid_price: 
+2021-12-26 15:41:41,736 - bid.py[line:285] DEBUG - win_bid_announcement_time: 
+2021-12-26 15:41:41,736 - bid.py[line:285] DEBUG - channel: 服务-公示公告
+2021-12-26 15:41:41,737 - bid.py[line:285] DEBUG - attachment_url: 
+2021-12-26 15:41:41,737 - bid.py[line:285] DEBUG - keyword: 校准
+2021-12-26 15:41:41,737 - bid.py[line:285] DEBUG - harvested_time: 2021-12-26
+2021-12-26 15:41:41,737 - bid.py[line:285] DEBUG - spare_1: 
+2021-12-26 15:41:41,737 - bid.py[line:285] DEBUG - spare_2: 
+2021-12-26 15:41:41,738 - bid.py[line:285] DEBUG - spare_3: 
+2021-12-26 15:41:41,738 - bid.py[line:288] INFO - have stored items count:10
+2021-12-26 15:41:41,815 - bid.py[line:306] INFO - write db counts: 10 done
