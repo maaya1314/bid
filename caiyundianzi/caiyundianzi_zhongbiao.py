@@ -14,9 +14,9 @@ from lxml.html import etree
 sys.path.append('..')
 sys.path.append('../..')
 sys.path.append('../../..')
-from sites.common import util
+
 from bid_tools.loghandler import getLogger
-from sites.common.requests_with_proxy import get_proxy
+
 from bid_conf.conf import parse_dict
 from bid import Bid
 urllib3.disable_warnings()
