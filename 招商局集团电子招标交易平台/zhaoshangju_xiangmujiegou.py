@@ -96,48 +96,45 @@ class BidZS(Bid):
 
     def list_parse(self, content, url):
         html = etree.HTML(content)
-        url_list = html.xpath("//span[@class='list-content-start']/a/@href")
-        url_list = list(set(url_list))
+        url_list = html.xpath("//div/table//tr/td[2]")
         # url_list = re.findall('guid=(.*?)(?=&|$)', content)
         for item in url_list:
             if self.exit_flag:
                 return
-            detail_url = urljoin(url, item)
-            # detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(item)
+            href = item.xpath("string(.//a/@href)")
+            detail_url = urljoin(url, href)
             list_headers = {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Accept-Language': 'zh-CN,zh;q=0.9',
                 'Cache-Control': 'no-cache',
                 'Connection': 'keep-alive',
-                'Host': 'common.dzzb.ciesco.com.cn',
+                'Host': 'node.dzzb.ciesco.com.cn',
                 'Pragma': 'no-cache',
-                'Referer': 'https://dzzb.ciesco.com.cn/',
-                'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"macOS"',
-                'Sec-Fetch-Dest': 'iframe',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'same-site',
                 'Upgrade-Insecure-Requests': '1',
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
             }
-            guid = re.findall('guid=(.*?)(?=&|$)', detail_url)[0]
-            detail_type = re.findall('banBenHao=(.*?)(?=&|$)', detail_url)[0]
-            if 'xjcg' in detail_url:
-                if detail_type == '2':
-                    detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/jieGuo_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
-                else:
-                    detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/jieGuo_view_1.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
             try:
                 detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
             except Exception as e:
                 self.log.exception(e)
                 continue
+            html = etree.HTML(detail_content)
+            iframe_url = html.xpath("string(//iframe[@scrolling='auto']/@src)")
+            if iframe_url:
+                try:
+                    detail_content = self.req(url=iframe_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
+                except Exception as e:
+                    self.log.exception(e)
+                    continue
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
                 continue
-            self.detail_parse(detail_content, detail_url)
+            data = {}
+            data['tender_unit'] = item.xpath("string(./div[@class='list-content-between'][2]/span[@class='list-content-start']/span[@class='list-content-end'])")
+            data['publish_time'] = item.xpath("string(./div[@class='list-content-between'][1]/span[@class='list-content-end'])")
+            data['industry_type'] = item.xpath("string(./div[@class='list-content-between'][2]/span[@class='list-content-end']/span)")
+            self.detail_parse(detail_content, detail_url, data)
 
     def fix_data(self, data, detail_content):
         pass

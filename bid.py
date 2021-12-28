@@ -73,6 +73,7 @@ class Bid(object):
         self.keyword = keyword
 
     def format_time(self, time_str):
+        time_str = time_str.replace("：", "").replace("时间", "").strip()
         try:
             time_str = datetime.datetime.strptime(time_str, '%Y-%m-%d').strftime('%Y-%m-%d')
             return time_str
@@ -123,6 +124,7 @@ class Bid(object):
     def detail_parse(self, detail_content, detail_url, data=None):
         if not data:
             data = {}
+        detail_content = detail_content.replace(" ", " ").replace("&nbsp;", "")
         html = etree.HTML(detail_content)
         # html_string = html.xpath("string(.)")
         for key, items in self.parse_dict.items():
@@ -157,7 +159,10 @@ class Bid(object):
                         for v in x_xpath_value:
                             temp_result = v if isinstance(v, str) else v.xpath("string(.)")
                             if temp_result:
-                                data[key] += temp_result.replace("\r", "").replace("\n", "").strip()
+                                if not data.get(key):
+                                    data[key] += temp_result.replace("\r", "").replace("\n", "").strip()
+                                else:
+                                    data[key] += "," + temp_result.replace("\r", "").replace("\n", "").strip()
                     elif isinstance(x_xpath_value, str):
                         temp_result = x_xpath_value
                         if temp_result:
@@ -191,10 +196,12 @@ class Bid(object):
         if phone:
             phone_list = re.findall(r'\d[a-zA-Z0-9\-、－—\转\(\)（）]{1,}', phone)
             phone = phone if not phone_list else phone_list[0]
+            phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "").strip()
             data["phone"] = phone
 
         tender_price = data.get("tender_price")
         if tender_price:
+            tender_price = tender_price.replace(",", "")
             price_list = re.findall("([0-9\.]{1,})", tender_price)
             if price_list:
                 if '万' in tender_price or '万元' in detail_content:
@@ -207,10 +214,11 @@ class Bid(object):
 
         win_bid_price = data.get("win_bid_price")
         if win_bid_price:
+            win_bid_price = win_bid_price.replace(",", "")
             price_list = re.findall("([0-9\.]{1,})", win_bid_price)
             if price_list:
                 if '万' in win_bid_price:
-                    new_win_bid_price = "{}元".format(float(price_list[0]) * 10000)
+                    new_win_bid_price = "{}元".format(int(float(price_list[0]) * 10000))
                 else:
                     new_win_bid_price = "{}元".format(price_list[0])
             else:
@@ -219,8 +227,28 @@ class Bid(object):
 
         project_leader = data.get("project_leader")
         if project_leader:
-            project_leader = project_leader.replace("  ", "").strip()
+            project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "").strip()
             data['project_leader'] = project_leader
+
+        tender_unit = data.get("tender_unit")
+        if tender_unit:
+            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace(" ", "").replace("采购人", "").replace("：", "").replace("名称", "").strip()
+            data['tender_unit'] = tender_unit
+
+        agency = data.get("agency")
+        if agency:
+            agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("代理机构", "").replace("：", "").replace("名称", "").strip()
+            data['agency'] = agency
+
+        industry_type = data.get("industry_type")
+        if industry_type:
+            industry_type = industry_type.replace("项目类型", "").replace("：", "").replace("\r", "").replace("\n", "").strip()
+            data['industry_type'] = industry_type
+
+        bid_winner = data.get("bid_winner")
+        if bid_winner:
+            bid_winner = bid_winner.replace("：", "").replace("\r", "").replace("\n", "").strip()
+            data['bid_winner'] = bid_winner
 
         data['keyword'] = self.keyword
         data['article_url'] = detail_url
@@ -302,7 +330,13 @@ class Bid(object):
                     key_field_2 = item.get(self.key_field_2)
                     op = UpdateOne({self.key_field: key_field, self.key_field_2: key_field_2}, {'$set': item}, upsert=True)
                     update_operations.append(op)
-                self.db.db[self.collection_name].bulk_write(update_operations, ordered=False)
+                while True:
+                    try:
+                        self.db.db[self.collection_name].bulk_write(update_operations, ordered=False)
+                        break
+                    except Exception as e:
+                        self.log.exception(e)
+                        time.sleep(10)
                 self.log.info("write db counts: {} done".format(self.counts))
                 self.items_list = []
 

@@ -659,7 +659,7 @@ parse_dict = {
             "xpath": ['']
         },  # 所属频道
         "attachment_url": {
-            "re": [''],
+            "re": ['load\("(.*?)"\)'],
             "xpath": ['']
         },  # 附件链接
         "keyword": {
@@ -709,11 +709,11 @@ parse_dict = {
         },  # 发布时
         "project_leader": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"联系人")]/following-sibling::td[1]']
+            "xpath": ['string(//th[contains(text(),"联系人")]/following-sibling::td[1])']
         },  # 招标项目负责
         "phone": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"联系方式")]/following-sibling::td[1]']
+            "xpath": ['string(//th[contains(text(),"联系方式")]/following-sibling::td[1])']
         },  # 联系电
         "project_location": {
             "re": [''],
@@ -841,7 +841,7 @@ parse_dict = {
         },  # 项目所在
         "industry_type": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//th[contains(text(),"项目类型")]/following-sibling::td[1]']
         },  # 项目行业类
         "article_url": {
             "re": [''],
@@ -877,15 +877,15 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [''],
-            "xpath": ['']  # //th[contains(text(),"中标候选单位名称")]/following-sibling::td[1] 评标不等于中标
+            "xpath": ['//th[contains(text(),"中标候选单位名称")]/following-sibling::td[1]']
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//th[contains(text(),"投标报价")]/following-sibling::td[1]']
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//th[contains(text(),"公示开始时间")]/following-sibling::td[1]']
         },  # 中标公告发布时
         "channel": {
             "re": [''],
@@ -996,15 +996,17 @@ parse_dict = {
         "bid_winner": {
             "re": [''],
             "xpath": ['//th[contains(text(),"中标人")]/following-sibling::td[1]',
+                      '//td[@class="bj"][contains(text(), "供应商名称")]/../following::*/td[count(//td[@class="bj"][contains(text(), "供应商名称")]) + 1]'
                       ]
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//th[contains(text(),"中标价")]/following-sibling::td[1]',]
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"评标时间")]/following-sibling::td[1]']
+            "xpath": ['//th[contains(text(),"公示开始时间")]/following-sibling::td[1]', '//th[contains(text(),"评标时间")]/following-sibling::td[1]']
+
         },  # 中标公告发布时
         "channel": {
             "re": [''],
@@ -1069,11 +1071,11 @@ parse_dict = {
         },  # 联系电
         "project_location": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"采购人地址")]/following-sibling::td[1]']
+            "xpath": ['']  # //th[contains(text(),"采购人地址")]/following-sibling::td[1]
         },  # 项目所在
         "industry_type": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//th[contains(text(),"项目类型")]/following-sibling::td[1]']
         },  # 项目行业类
         "article_url": {
             "re": [''],
@@ -1162,8 +1164,8 @@ parse_dict = {
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['']
-        },  # 招标单位 金额单位而不是公司单位
+            "xpath": ['//th[contains(string(),"采购人名称")]/following-sibling::td[1]']
+        },  # 招标单位
         "tender_price": {
             "re": [''],
             "xpath": ['']  # //th[contains(text(),"投标报价")]/following-sibling::td[1] 投标金额不采集
@@ -1235,7 +1237,7 @@ parse_dict = {
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['string(//th[contains(text(),"公示开始时间")]/following-sibling::td[1])']
         },  # 中标公告发布时
         "channel": {
             "re": [''],
@@ -1273,47 +1275,35 @@ parse_dict = {
             "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
         },  # 项目标
         "project_number": {
-            "re": ['项目编号：(.*?)(?=（|<)'],
+            "re": ['项目编号：(.+?)(?=（|<)'],
             "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
-            "re": ['预算金额：.*?(万元|元).*?<'],
+            "re": [''],
             "xpath": ['']
         },  # 招标单位
         "tender_price": {
-            "re": ["预算金额<.*?'>(.*?)<",
-                   '预算金额：(.*?)(?=<|，)',
-                   '预算金额：.*?">(.*?)(?=<|，)'],
-            "xpath": ['//*[contains(text(),"预算金额")]/span']
+            "re": ['>预算金额：(.+?)<', '金额：</b> (.*?)<'],
+            "xpath": ['']
         },  # 标的金额
         "publish_time": {
             "re": [''],
             "xpath": ['//span[@id="pubTime"]'],
         },  # 发布时
         "project_leader": {
-            "re": [">项目联系人.*?'>(.*?)<",
-                   '采购人信息.*?联 系 人：.*?/>(.*?)<',
-                   '项目联系人：[\s\S]*?(?=">|）|>)(.*?)(?=（|<)'],
-            "xpath": ['//span[contains(text(),"项目联系人")]/following-sibling::span[1]',
-                      '//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"项目联系人")]',
+            "re": ['项目联系人(.*?)</tr>', '项目联系人：(.+?)(?=（|<)', '负责人: (.+?) '],
+            "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"项目联系人")]',
                       '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": [">项目联系电话.*?'>(.*?)<",
-                   '采购人信息.*?联 系 人.*?联系方式：(.*?)<',
-                   '>电.*?话：(.*?)(?=<|，)',
-                   '电　话：(?=<u>)(.*?)(?=<|，)',
-                   '联系人电话：(.*?)<',
-                   '项目联系人：.*?联系方式：(.*?)<',
-                   '项目联系人：[\s\S]*?联系方式：[\s\S]*?(?=">|）|<u>)(.*?)(?=（|<)'],
-            "xpath": ['//span[contains(string(),"话：")]/span',
-                      '//span[contains(text(),"话：")]/following-sibling::span[1]',
-                      '//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
-                      'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])']
+            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
+            "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
+                      'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
+                      '']
         },  # 联系电
         "project_location": {
-            "re": ['地　址：(.*?)(?=（|<)'],
-            "xpath": ['//div[contains(text(),"地址：")]/following-sibling::div[1]', '//p[contains(text(),"地点：")]/span']
+            "re": [''],
+            "xpath": ['']
         },  # 项目所在
         "industry_type": {
             "re": [''],
@@ -1332,32 +1322,31 @@ parse_dict = {
             "xpath": ['//div[@class="vF_detail_content_container"]']
         },  # 正
         "bid_finish_time": {
-            "re": ["获取采购文件时间.*?'>(.*?)至", '获取采购文件[\s\S]*?时间[：|>](.*?)至'],
-            "xpath": ['//span[contains(text(),"开始时间")]/following-sibling::span[1]']
+            "re": ['开标时间：(.+?)<'],
+            "xpath": ['']
         },  # 开标时
         "bid_end_time": {
-            "re": ['获取采购文件时间.*?至(.*?)[<|（|，]', '获取采购文件[\s\S]*?时间[：|>].*?至(.*?)[<|（|，]'],
-            "xpath": ['//span[contains(text(),"截止时间")]/following-sibling::span[1]']
+            "re": [''],
+            "xpath": ['']
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": ['采购代理机构信息[\s\S]*?名[&emsp;| ]称：(?=<u>)(.*?)(?=（|<)'],
-            "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]',
-                      '//p[contains(text(),"采购代理机构信息")]/following::*[contains(text(),"名")]/following-sibling::*[1]']
+            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
+            "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
-            "re": [''],
+            "re": ['资格要求：</strong>([\s\S]*?)<strong', '供应商资格条件</strong>([\s\S]*?)<strong'],
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": ['供应商名称：(.*?)(?=（|<)'],
+            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
             "xpath": ['']
         },  # 中标
         "win_bid_price": {
-            "re": ['中标（成交）金额：(.*?)<'],
+            "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
             "xpath": ['']
         },  # 中标金
         "win_bid_announcement_time": {
@@ -1370,8 +1359,7 @@ parse_dict = {
         },  # 所属频
         "attachment_url": {
             "re": [''],
-            "xpath": ['//td[contains(text(),"附件")]//a/@href', "//p[@class='content_p']/span[@class='left_span']/a/@href",
-                      "//table//p/a/@href"]
+            "xpath": ['//td[contains(text(),"附件")]//a/@href']
         },  # 附件链
         "keyword": {
             "re": [''],
@@ -1401,50 +1389,35 @@ parse_dict = {
             "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
         },  # 项目标
         "project_number": {
-            "re": ['项目编号：(.*?)(?=（|<)'],
+            "re": ['项目编号：(.+?)(?=（|<)'],
             "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
-            "re": ['预算金额：.*?(万元|元).*?<'],
+            "re": [''],
             "xpath": ['']
         },  # 招标单位
         "tender_price": {
-            "re": ['本项目预算金额为(.*?)(?=，|。)',
-                   "预算金额<.*?'>(.*?)<",
-                   '预算金额：(.*?)(?=<|，)',
-                   '预算金额：.*?">(.*?)(?=<|，)',
-                   ],
-            "xpath": ['//*[contains(text(),"预算金额")]/span']
+            "re": ['>预算金额：(.+?)<', '金额：</b> (.*?)<'],
+            "xpath": ['']
         },  # 标的金额
         "publish_time": {
             "re": [''],
             "xpath": ['//span[@id="pubTime"]'],
         },  # 发布时
         "project_leader": {
-            "re": [">项目联系人.*?'>(.*?)<",
-                   '采购人信息.*?联 系 人：.*?/>(.*?)<',
-                   '项目联系人：[\s\S]*?(?=">|）|>)(.*?)(?=（|<)',
-                   '项目联系人：[\s\S]*?>）(.*?)</u'],
-            "xpath": ['//span[contains(text(),"项目联系人")]/following-sibling::span[1]',
-                      '//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"项目联系人")]',
+            "re": ['项目联系人(.*?)</tr>', '项目联系人：(.+?)(?=（|<)', '负责人: (.+?) '],
+            "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"项目联系人")]',
                       '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": [">项目联系电话.*?'>(.*?)<",
-                   '采购人信息.*?联 系 人.*?联系方式：(.*?)<',
-                   '>电.*?话：(.*?)(?=<|，)',
-                   '电　话：(?=<u>)(.*?)(?=<|，)',
-                   '联系人电话：(.*?)<',
-                   '项目联系人：.*?联系方式：(.*?)<',
-                   '项目联系人：[\s\S]*?联系方式：[\s\S]*?(?=">|）|<u>)(.*?)(?=（|<)'],
-            "xpath": ['//span[contains(string(),"话：")]/span',
-                      '//span[contains(text(),"话：")]/following-sibling::span[1]',
-                      '//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
-                      'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])']
+            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
+            "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
+                      'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
+                      '']
         },  # 联系电
         "project_location": {
-            "re": ['地　址：(.*?)(?=（|<)'],
-            "xpath": ['//div[contains(text(),"地址：")]/following-sibling::div[1]', '//p[contains(text(),"地点：")]/span']
+            "re": [''],
+            "xpath": ['']
         },  # 项目所在
         "industry_type": {
             "re": [''],
@@ -1463,32 +1436,31 @@ parse_dict = {
             "xpath": ['//div[@class="vF_detail_content_container"]']
         },  # 正
         "bid_finish_time": {
-            "re": ["获取采购文件时间.*?'>(.*?)至", '获取采购文件[\s\S]*?时间[：|>](.*?)至'],
-            "xpath": ['//span[contains(text(),"开始时间")]/following-sibling::span[1]']
+            "re": ['开标时间：(.+?)<'],
+            "xpath": ['']
         },  # 开标时
         "bid_end_time": {
-            "re": ['获取采购文件时间.*?至(.*?)[<|（|，]', '获取采购文件[\s\S]*?时间[：|>].*?至(.*?)[<|（|，]'],
-            "xpath": ['//span[contains(text(),"截止时间")]/following-sibling::span[1]']
+            "re": [''],
+            "xpath": ['']
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": ['采购代理机构信息[\s\S]*?名[&emsp;| ]称：(?=<u>)(.*?)(?=（|<)'],
-            "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]',
-                      '//p[contains(text(),"采购代理机构信息")]/following::*[contains(text(),"名")]/following-sibling::*[1]']
+            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
+            "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
-            "re": [''],
+            "re": ['资格要求：</strong>([\s\S]*?)<strong', '供应商资格条件</strong>([\s\S]*?)<strong'],
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": ['供应商名称：(.*?)(?=（|<)'],
+            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
             "xpath": ['']
         },  # 中标
         "win_bid_price": {
-            "re": ['中标（成交）金额：(.*?)<'],
+            "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
             "xpath": ['']
         },  # 中标金
         "win_bid_announcement_time": {
@@ -1501,8 +1473,7 @@ parse_dict = {
         },  # 所属频
         "attachment_url": {
             "re": [''],
-            "xpath": ['//td[contains(text(),"附件")]//a/@href', "//p[@class='content_p']/span[@class='left_span']/a/@href",
-                      "//table//p/a/@href"]
+            "xpath": ['//td[contains(text(),"附件")]//a/@href']
         },  # 附件链
         "keyword": {
             "re": [''],
@@ -1532,7 +1503,7 @@ parse_dict = {
             "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
         },  # 项目标
         "project_number": {
-            "re": ['项目编号：(.*?)(?=（|<)'],
+            "re": ['项目编号：(.+?)(?=（|<)'],
             "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
@@ -1540,7 +1511,7 @@ parse_dict = {
             "xpath": ['']
         },  # 招标单位
         "tender_price": {
-            "re": ['>预算金额：(.*?)<'],
+            "re": ['>预算金额：(.+?)<', '金额：</b> (.*?)<'],
             "xpath": ['']
         },  # 标的金额
         "publish_time": {
@@ -1548,12 +1519,12 @@ parse_dict = {
             "xpath": ['//span[@id="pubTime"]'],
         },  # 发布时
         "project_leader": {
-            "re": ['项目联系人：(.*?)(?=（|<)'],
+            "re": ['项目联系人(.*?)</tr>', '项目联系人：(.+?)(?=（|<)', '负责人: (.+?) '],
             "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"项目联系人")]',
                       '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]*?)(?=<|，)'],
+            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
             "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
                       'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
                       '']
@@ -1579,7 +1550,7 @@ parse_dict = {
             "xpath": ['//div[@class="vF_detail_content_container"]']
         },  # 正
         "bid_finish_time": {
-            "re": [''],
+            "re": ['开标时间：(.+?)<'],
             "xpath": ['']
         },  # 开标时
         "bid_end_time": {
@@ -1591,19 +1562,19 @@ parse_dict = {
             "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": ['采购代理机构信息[\s\S]*?名 称：(.*?)(?=（|<)'],
+            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
             "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
-            "re": ['资格要求：</strong>([\s\S]*?)<strong'],
+            "re": ['资格要求：</strong>([\s\S]*?)<strong', '供应商资格条件</strong>([\s\S]*?)<strong'],
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": ['供应商名称：(.*?)(?=（|<)'],
+            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
             "xpath": ['']
         },  # 中标
         "win_bid_price": {
-            "re": ['中标（成交）金额：(.*?)<'],
+            "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
             "xpath": ['']
         },  # 中标金
         "win_bid_announcement_time": {
@@ -1643,31 +1614,34 @@ parse_dict = {
     "中国采购网-中央批量集中采购": {
         "project_title": {
             "re": [''],
-            "xpath": ['//*[contains(text(),"项目名称")]/following-sibling::td[1]']
+            "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
         },  # 项目标
         "project_number": {
-            "re": [''],
-            "xpath": ['//*[contains(text(),"项目编号")]/following-sibling::td[1]']
+            "re": ['项目编号：(.+?)(?=（|<)'],
+            "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['//*[contains(text(),"采购人信息")]/../../../following-sibling::p//*[contains(text(),"采购人名称")]']
-        },  # 招标单
-        "tender_price": {
-            "re": [''],
             "xpath": ['']
-        },  # 标的金
+        },  # 招标单位
+        "tender_price": {
+            "re": ['>预算金额：(.+?)<', '金额：</b> (.*?)<'],
+            "xpath": ['']
+        },  # 标的金额
         "publish_time": {
             "re": [''],
             "xpath": ['//span[@id="pubTime"]'],
         },  # 发布时
         "project_leader": {
-            "re": [''],
-            "xpath": ['//*[contains(text(),"项目联系方式")]/../../../following-sibling::p//*[contains(text(),"项目联系人")]/..']
+            "re": ['项目联系人(.*?)</tr>', '项目联系人：(.+?)(?=（|<)', '负责人: (.+?) '],
+            "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"项目联系人")]',
+                      '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": [''],
-            "xpath": ['//*[contains(text(),"项目联系方式")]/../../../following-sibling::p//*[contains(text(),"联系电话")]/../..']
+            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
+            "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
+                      'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
+                      '']
         },  # 联系电
         "project_location": {
             "re": [''],
@@ -1690,7 +1664,7 @@ parse_dict = {
             "xpath": ['//div[@class="vF_detail_content_container"]']
         },  # 正
         "bid_finish_time": {
-            "re": [''],
+            "re": ['开标时间：(.+?)<'],
             "xpath": ['']
         },  # 开标时
         "bid_end_time": {
@@ -1699,23 +1673,23 @@ parse_dict = {
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": [''],
-            "xpath": ['//*[contains(text(),"采购执行机构信息")]/../../../following-sibling::p//*[contains(text(),"采购人名称")]']
+            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
+            "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
-            "re": [''],
+            "re": ['资格要求：</strong>([\s\S]*?)<strong', '供应商资格条件</strong>([\s\S]*?)<strong'],
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": [''],
-            "xpath": ['//span[contains(text(),"包")][contains(text(),"公司")]']
+            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
+            "xpath": ['']
         },  # 中标
         "win_bid_price": {
-            "re": [''],
-            "xpath": ['//span[contains(text(),"包")][contains(text(),"人民币")]/../following-sibling::span[1]']
+            "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
+            "xpath": ['']
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
@@ -1723,11 +1697,11 @@ parse_dict = {
         },  # 中标公告发布时
         "channel": {
             "re": [''],
-            "xpath": ['//p[contains(text(),"当前位置")]']
+            "xpath": ['']
         },  # 所属频
         "attachment_url": {
             "re": [''],
-            "xpath": ['//td[contains(text(),"附件")]//a']
+            "xpath": ['//td[contains(text(),"附件")]//a/@href']
         },  # 附件链
         "keyword": {
             "re": [''],
@@ -1749,6 +1723,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
+
     },
     "彩云电子招标采购平台-异常公告": {
         "project_title": {
@@ -2195,7 +2170,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
     "阳光采购网-物资招标": {
         "project_title": {
             "re": [''],
@@ -2305,7 +2280,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
     "国e招标采购平台-业务公告": {
         "project_title": {
             "re": [''],
@@ -2439,7 +2414,7 @@ parse_dict = {
             "xpath": ['//h3']
         },  # 项目标题
         "project_number": {
-            "re": [''],
+            "re": ['采购项目编号：(.+?)(?=）|<)'],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
                       "//span[contains(text(),'项目编号：')]", "//span[contains(text(),'采购编号')]/..",
@@ -2448,7 +2423,15 @@ parse_dict = {
         },  # 项目编号  需正则两步以上
         "tender_unit": {
             "re": [''],
-            "xpath": ['']
+            "xpath": [
+                "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]"
+                "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
+                "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "//span[contains(string(),'招 标 人：')]",
+                "//span[contains(string(),'招标人：')]",
+                "//span[contains(string(),'采 购 人：')]",
+                "//span[contains(string(),'采购人：')]",
+            ]
         },  # 招标单位
         "tender_price": {
             "re": [''],
@@ -2460,18 +2443,15 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招 标 人')]", "//span[contains(text(),'招标人名称')]",
-                      "//span[contains(text(),'招标人')]",
-                      "//span[text()='招标人信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采购人')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span",
-                      "//span[contains(text(),'招标人')]/../../../following-sibling::p//span[text()='联']/../..",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'招')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span[1]"]
+            "xpath": ["string(//span[contains(string(),'联 系 人：')])",
+                      "//td[contains(string(),'项目联系人：')]/following-sibling::*[1]",
+                      "string(//span[contains(string(),'联系人：')])"]
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'电话')]/..", "//span[contains(text(),'电  话')]",
+            "xpath": ["//span[contains(string(),'联系电话：')]/following-sibling::*",
+                      "//td[contains(string(),'联系电话：')]/following-sibling::*[1]",
+                      "//span[contains(text(),'电话')]/..", "//span[contains(text(),'电  话')]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电')]/following-sibling::span[1]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电话')]/..",
                       "//span[contains(text(),'联系方式')]/../following-sibling::p//span[contains(text(),'电话')]/..",
@@ -2498,7 +2478,7 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ["//div[@class='edit-container']"]
+            "xpath": ["//p"]
         },  # 正文
         "bid_finish_time": {
             "re": [''],
@@ -2518,10 +2498,9 @@ parse_dict = {
         },  # 项目概况
         "agency": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招标代理机构')]", "//span[contains(text(),'采购代理机构')]",
-                      "//span[text()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'代理')]/../.."]
+            "xpath": ["//span[contains(string(),'招标代理机构：')]", "//span[contains(string(),'采购代理机构：')]",
+                      "//span[string()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
+                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",]
         },  # 代理机构  需正则两步以上
         "bid_evaluation_rule": {
             "re": [''],
@@ -2533,7 +2512,7 @@ parse_dict = {
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ["//span[contains(string(),'价：')]/following-sibling::*[1]"]
         },  # 中标金额
         "win_bid_announcement_time": {
             "re": [''],
@@ -2567,7 +2546,8 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+
+    },  # 已修
     "南方电网电子采购交易平台-货物-招标公告": {
         "project_title": {
             "re": [''],
@@ -2710,7 +2690,7 @@ parse_dict = {
             "xpath": ['//h3']
         },  # 项目标题
         "project_number": {
-            "re": [''],
+            "re": ['采购项目编号：(.+?)(?=）|<)'],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
                       "//span[contains(text(),'项目编号：')]", "//span[contains(text(),'采购编号')]/..",
@@ -2719,7 +2699,15 @@ parse_dict = {
         },  # 项目编号  需正则两步以上
         "tender_unit": {
             "re": [''],
-            "xpath": ['']
+            "xpath": [
+                "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]"
+                "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
+                "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "//span[contains(string(),'招 标 人：')]",
+                "//span[contains(string(),'招标人：')]",
+                "//span[contains(string(),'采 购 人：')]",
+                "//span[contains(string(),'采购人：')]",
+            ]
         },  # 招标单位
         "tender_price": {
             "re": [''],
@@ -2731,18 +2719,15 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招 标 人')]", "//span[contains(text(),'招标人名称')]",
-                      "//span[contains(text(),'招标人')]",
-                      "//span[text()='招标人信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采购人')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span",
-                      "//span[contains(text(),'招标人')]/../../../following-sibling::p//span[text()='联']/../..",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'招')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span[1]"]
+            "xpath": ["string(//span[contains(string(),'联 系 人：')])",
+                      "//td[contains(string(),'项目联系人：')]/following-sibling::*[1]",
+                      "string(//span[contains(string(),'联系人：')])"]
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'电话')]/..", "//span[contains(text(),'电  话')]",
+            "xpath": ["//span[contains(string(),'联系电话：')]/following-sibling::*",
+                      "//td[contains(string(),'联系电话：')]/following-sibling::*[1]",
+                      "//span[contains(text(),'电话')]/..", "//span[contains(text(),'电  话')]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电')]/following-sibling::span[1]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电话')]/..",
                       "//span[contains(text(),'联系方式')]/../following-sibling::p//span[contains(text(),'电话')]/..",
@@ -2769,7 +2754,7 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ["//div[@class='edit-container']"]
+            "xpath": ["//p"]
         },  # 正文
         "bid_finish_time": {
             "re": [''],
@@ -2789,10 +2774,9 @@ parse_dict = {
         },  # 项目概况
         "agency": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招标代理机构')]", "//span[contains(text(),'采购代理机构')]",
-                      "//span[text()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'代理')]/../.."]
+            "xpath": ["//span[contains(string(),'招标代理机构：')]", "//span[contains(string(),'采购代理机构：')]",
+                      "//span[string()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
+                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",]
         },  # 代理机构  需正则两步以上
         "bid_evaluation_rule": {
             "re": [''],
@@ -2804,7 +2788,7 @@ parse_dict = {
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ["//span[contains(string(),'价：')]/following-sibling::*[1]"]
         },  # 中标金额
         "win_bid_announcement_time": {
             "re": [''],
@@ -2839,7 +2823,7 @@ parse_dict = {
             "xpath": ['']
         },  # 预留字段3
 
-    },
+    },# 已修
     "南方电网电子采购交易平台-工程-招标公告": {
         "project_title": {
             "re": [''],
@@ -2982,7 +2966,7 @@ parse_dict = {
             "xpath": ['//h3']
         },  # 项目标题
         "project_number": {
-            "re": [''],
+            "re": ['采购项目编号：(.+?)(?=）|<)'],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
                       "//span[contains(text(),'项目编号：')]", "//span[contains(text(),'采购编号')]/..",
@@ -2991,11 +2975,19 @@ parse_dict = {
         },  # 项目编号  需正则两步以上
         "tender_unit": {
             "re": [''],
-            "xpath": ['']
+            "xpath": [
+                "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]"
+                "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
+                "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "//span[contains(string(),'招 标 人：')]",
+                "//span[contains(string(),'招标人：')]",
+                "//span[contains(string(),'采 购 人：')]",
+                "//span[contains(string(),'采购人：')]",
+            ]
         },  # 招标单位
         "tender_price": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'成交人')]/../../../following-sibling::p//span[contains(text(),'最终报价')]/.."]
+            "xpath": ['']
         },  # 标的金额
         "publish_time": {
             "re": [''],
@@ -3003,28 +2995,22 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招 标 人')]", "//span[contains(text(),'招标人名称')]",
-                      "//span[contains(text(),'招标人')]",
-                      "//span[text()='招标人信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采购人')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span",
-                      "//span[contains(text(),'招标人')]/../../../following-sibling::p//span[text()='联']/../..",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'招')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span[1]",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'招')]/../following-sibling::span[1]"]
+            "xpath": ["string(//span[contains(string(),'联 系 人：')])",
+                      "//td[contains(string(),'项目联系人：')]/following-sibling::*[1]",
+                      "string(//span[contains(string(),'联系人：')])"]
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'电话')]/..", "//span[contains(text(),'电  话')]",
+            "xpath": ["//span[contains(string(),'联系电话：')]/following-sibling::*",
+                      "//td[contains(string(),'联系电话：')]/following-sibling::*[1]",
+                      "//span[contains(text(),'电话')]/..", "//span[contains(text(),'电  话')]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电')]/following-sibling::span[1]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电话')]/..",
                       "//span[contains(text(),'联系方式')]/../following-sibling::p//span[contains(text(),'电话')]/..",
                       "//span[contains(text(),'招标人')]/../../../following-sibling::p//span[text()='联系方式：']/../following-sibling::span[1]",
                       "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'联')]/../following-sibling::span[1]",
                       "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电')]/..",
-                      "//span[contains(text(),'联系电话：')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'话')]/..",
-                      "//span[contains(text(),'联系方式')]/../following-sibling::p//span[contains(text(),'联系')]/.."]
+                      "//span[contains(text(),'联系电话：')]/../following-sibling::span[1]"]
         },  # 联系电话  需正则两步以上
         "project_location": {
             "re": [''],
@@ -3044,7 +3030,7 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ["//div[@class='edit-container']"]
+            "xpath": ["//p"]
         },  # 正文
         "bid_finish_time": {
             "re": [''],
@@ -3064,12 +3050,9 @@ parse_dict = {
         },  # 项目概况
         "agency": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招标代理机构')]", "//span[contains(text(),'采购代理机构')]",
-                      "//span[text()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'代理')]/../..",
-                      "//span[contains(text(),'联系方式')]/../following-sibling::p//span[contains(text(),'代理')]/..",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'代理')]/../.."]
+            "xpath": ["//span[contains(string(),'招标代理机构：')]", "//span[contains(string(),'采购代理机构：')]",
+                      "//span[string()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
+                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",]
         },  # 代理机构  需正则两步以上
         "bid_evaluation_rule": {
             "re": [''],
@@ -3077,14 +3060,11 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [''],
-            "xpath": ["//td[contains(text(),'成交单位')]",
-                      "//span[contains(text(),'中标人')]/../following-sibling::p//span[contains(text(),'中标人')]/following-sibling::span[1]",
-                      "//span[contains(text(),'中标人')]/../following-sibling::p//span[contains(text(),'中标人')]"]
+            "xpath": ['']
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'中标人')]/../following-sibling::p//span[contains(text(),'中标人')]/../..",
-                      "//span[contains(text(),'中标人')]/../following-sibling::p//span[contains(text(),'中标人')]/../.."]
+            "xpath": ["//span[contains(string(),'价：')]/following-sibling::*[1]"]
         },  # 中标金额
         "win_bid_announcement_time": {
             "re": [''],
@@ -3119,7 +3099,7 @@ parse_dict = {
             "xpath": ['']
         },  # 预留字段3
 
-    },
+    },# 已修
     "南方电网电子采购交易平台-服务-招标公告": {
         "project_title": {
             "re": [''],
@@ -3135,7 +3115,7 @@ parse_dict = {
         },  # 项目编号  需正则两步以上
         "tender_unit": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ["//span[contains(string(),'招 标 人：')]", "//p[contains(string(),'采 购 人：')]", "//span[contains(string(),'采 购 人：')]", ]
         },  # 招标单位
         "tender_price": {
             "re": [''],
@@ -3147,14 +3127,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [''],
-            "xpath": ["//span[contains(text(),'招 标 人')]", "//span[contains(text(),'招标人名称')]",
-                      "//span[contains(text(),'招标人')]",
-                      "//span[text()='招标人信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采购人')]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span",
-                      "//span[contains(text(),'招标人')]/../../../following-sibling::p//span[text()='联']/../..",
-                      "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'招')]/../following-sibling::span[1]",
-                      "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'采 购')]/following-sibling::span[1]"]
+            "xpath": ["//p[contains(string(),'联 系 人：')]"]
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [''],
@@ -5731,11 +5704,13 @@ parse_dict = {
         },  # 项目标
         "project_number": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标编号")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标编号")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单号")]/following-sibling::*[1]']
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标单位")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标单位")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单位")]/following-sibling::*[1]']
         },  # 招标单
         "tender_price": {
             "re": [''],
@@ -5748,7 +5723,8 @@ parse_dict = {
         },  # 发布时
         "project_leader": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "采购联系人")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "采购联系人")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(),"提交人")]/following-sibling::*[1]']
         },  # 招标项目负责
         "phone": {
             "re": [''],
@@ -5784,7 +5760,7 @@ parse_dict = {
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"项目概况")]/following-sibling::*[1]']
         },  # 项目概
         "agency": {
             "re": [''],
@@ -5834,7 +5810,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
     # "广东能源商务网-煤炭灰、石膏招标公告": {
     #     "project_title": {
     #         "re": [''],
@@ -6064,11 +6040,13 @@ parse_dict = {
         },  # 项目标
         "project_number": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标编号")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标编号")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单号")]/following-sibling::*[1]']
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标单位")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标单位")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单位")]/following-sibling::*[1]']
         },  # 招标单
         "tender_price": {
             "re": [''],
@@ -6081,7 +6059,8 @@ parse_dict = {
         },  # 发布时
         "project_leader": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(),"提交人")]/following-sibling::*[1]']
         },  # 招标项目负责
         "phone": {
             "re": [''],
@@ -6117,7 +6096,7 @@ parse_dict = {
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"项目概况")]/following-sibling::*[1]']
         },  # 项目概
         "agency": {
             "re": [''],
@@ -6167,7 +6146,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
     "广东能源商务网-已完成的采购": {
         "project_title": {
             "re": [''],
@@ -6175,11 +6154,13 @@ parse_dict = {
         },  # 项目标
         "project_number": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标编号")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标编号")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单号")]/following-sibling::*[1]']
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标单位")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标单位")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单位")]/following-sibling::*[1]']
         },  # 招标单
         "tender_price": {
             "re": [''],
@@ -6192,7 +6173,8 @@ parse_dict = {
         },  # 发布时
         "project_leader": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(),"提交人")]/following-sibling::*[1]']
         },  # 招标项目负责
         "phone": {
             "re": [''],
@@ -6228,7 +6210,7 @@ parse_dict = {
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"项目概况")]/following-sibling::*[1]']
         },  # 项目概
         "agency": {
             "re": [''],
@@ -6278,7 +6260,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
     "广东能源商务网-招标公告": {
         "project_title": {
             "re": [''],
@@ -6286,11 +6268,13 @@ parse_dict = {
         },  # 项目标
         "project_number": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标编号")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标编号")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单号")]/following-sibling::*[1]']
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标单位")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标单位")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单位")]/following-sibling::*[1]']
         },  # 招标单
         "tender_price": {
             "re": [''],
@@ -6303,7 +6287,8 @@ parse_dict = {
         },  # 发布时
         "project_leader": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(),"提交人")]/following-sibling::*[1]']
         },  # 招标项目负责
         "phone": {
             "re": [''],
@@ -6327,7 +6312,7 @@ parse_dict = {
         },  # 信息来
         "content": {
             "re": [''],
-            "xpath": ['//span[text()="招标公告"]/../../../following-sibling::tr[1]']
+            "xpath": ["//td[@class='searchborder']"]
         },  # 正
         "bid_start_time": {
             "re": [''],
@@ -6339,7 +6324,7 @@ parse_dict = {
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"项目概况")]/following-sibling::*[1]']
         },  # 项目概
         "agency": {
             "re": [''],
@@ -6389,7 +6374,7 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
     "广东能源商务网-中标公告": {
         "project_title": {
             "re": [''],
@@ -6397,11 +6382,13 @@ parse_dict = {
         },  # 项目标
         "project_number": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标编号")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标编号")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单号")]/following-sibling::*[1]']
         },  # 项目编
         "tender_unit": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"招标单位")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(), "招标单位")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(), "询价单位")]/following-sibling::*[1]']
         },  # 招标单
         "tender_price": {
             "re": [''],
@@ -6414,7 +6401,8 @@ parse_dict = {
         },  # 发布时
         "project_leader": {
             "re": [''],
-            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"采购联系人")]/following-sibling::*[1]',
+                      '//td[@class="tabledowntitle"][contains(string(),"提交人")]/following-sibling::*[1]']
         },  # 招标项目负责
         "phone": {
             "re": [''],
@@ -6438,7 +6426,7 @@ parse_dict = {
         },  # 信息来
         "content": {
             "re": [''],
-            "xpath": ['//span[text()="中标公告"]/../../../following-sibling::tr[1]']
+            "xpath": ["//td[@class='searchborder']"]
         },  # 正
         "bid_start_time": {
             "re": [''],
@@ -6450,7 +6438,7 @@ parse_dict = {
         },  # 投标截止时
         "project_overview": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[@class="tabledowntitle"][contains(string(),"项目概况")]/following-sibling::*[1]']
         },  # 项目概
         "agency": {
             "re": [''],
@@ -6500,5 +6488,5 @@ parse_dict = {
             "re": [''],
             "xpath": ['']
         },  # 预留字段3
-    },
+    },  # 已修
 }

@@ -11,6 +11,7 @@ import requests
 import random
 import datetime
 from lxml.html import etree
+from tenacity import retry, stop_after_attempt, wait_fixed
 sys.path.append('..')
 sys.path.append('../..')
 sys.path.append('../../..')
@@ -22,7 +23,7 @@ from bid import Bid
 urllib3.disable_warnings()
 
 
-class BidZS(Bid):
+class BidZG(Bid):
 
     def __init__(self):
         Bid.__init__(self)
@@ -32,30 +33,14 @@ class BidZS(Bid):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '招商局集团电子招标交易平台-有效投标人公示'
+        self.file_name = '中国采购与招标网-废标公告'
         self.parse_dict = parse_dict.get(self.file_name)
-
-    def process_item(self, params):
-        if not self.parse_dict:
-            self.log.error("error conf site name {}".format(self.file_name))
-            return
-        try:
-            query_time = int(params.get("query_time"))
-        except:
-            self.log.error(f"error query_time value: {params.get('query_time')}")
-            query_time = 2
-        cur_time = datetime.datetime.now()
-        self.query_time = str((cur_time + datetime.timedelta(days=-query_time)).strftime('%Y-%m-%d'))
-        self.proxy_flag = params.get("proxy_flag")
-        self.time_sleep = params.get('time_sleep')
-        keyword_list = params.get("MainKeys")
-        for keyword in keyword_list:
-            self.run(keyword)
 
     def run(self, keyword):
         TIMEOUT = 60
         self.keyword = keyword
-        url = 'https://dzzb.ciesco.com.cn/gg/yytbrList?currentPage={}&xmLeiXing=&zbFangShi=&jiTuanId=&danWei=&xm_BH=&ggName=&zbr=&danWeiName=&keyWord={}'
+        # url = 'https://www.e-bidding.org/cms/category/bulletinList.html?dates=300&categoryId=88&tabName=%E6%8B%9B%E6%A0%87%E6%8A%95%E6%A0%87&page={}&word={}'
+        url = 'http://www.e-bidding.org/cms/category/bulletinList.html?dates=300&categoryId=91&tabName=%E5%BA%9F%E6%A0%87%E5%85%AC%E7%A4%BA&page={}&word={}'
         self.host = urlparse(url).netloc
         self.headers = {
             'Host': self.host,
@@ -77,7 +62,7 @@ class BidZS(Bid):
         # parsing home page
         self.list_parse(content, home_page_url)
         html = etree.HTML(content)
-        pages = html.xpath("string(//div[@class='fenye']/ul/li[last()-1]/a)")
+        pages = html.xpath("string(//div[@class='pages']/label[1])")
         if not pages:
             return
         pages = int(pages)
@@ -91,39 +76,30 @@ class BidZS(Bid):
                 self.log.error("{} no content".format(list_url))
                 continue
             self.list_parse(content, list_url)
-        self.log.info("{} 数据采集完毕！".format(self.keyword))
+        self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, content, url):
         html = etree.HTML(content)
-        url_list = html.xpath("//span[@class='list-content-start']/a/@href")
+        url_list = html.xpath("//ul[@class='newslist']/li/a/@href")
         # url_list = re.findall('guid=(.*?)(?=&|$)', content)
         for item in url_list:
             if self.exit_flag:
                 return
-            detail_url = urljoin(url, item)
+            # detail_url = urljoin(url, item)
+            detail_url = item
             # detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(item)
             list_headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'Host': 'common.dzzb.ciesco.com.cn',
-                'Pragma': 'no-cache',
-                'Referer': 'https://dzzb.ciesco.com.cn/',
-                'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"macOS"',
-                'Sec-Fetch-Dest': 'iframe',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'same-site',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'accept-encoding': 'gzip, deflate',
+                'accept-language': 'zh-CN,zh;q=0.9',
+                'cache-control': 'no-cache',
+                'pragma': 'no-cache',
+                'upgrade-insecure-requests': '1',
+                'cookie': 'XUNJIAZBSESSION=98dc91b1-5523-4ff4-a0a2-5caaeb879111; SF_cookie_64=27399467; style=blue_theme; SF_cookie_14=64309118; Hm_lvt_ecae00c58d422d4792fafb5d505b43b1=1639398337; Hm_lpvt_ecae00c58d422d4792fafb5d505b43b1=1639398346',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
             }
             # guid = re.findall('guid=(.*?)(?=&|$)', detail_url)[0]
-            # detail_type = re.findall('zbFangShi=(.*?)(?=&|$)', detail_url)[0]
-            # if not detail_type == "10":
-            #     detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
+            # actual_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
             detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
@@ -131,17 +107,72 @@ class BidZS(Bid):
             self.detail_parse(detail_content, detail_url)
 
     def fix_data(self, data, detail_content):
-        pass
+        # project_leader = data.get("project_leader")
+        # phone = data.get("phone")
+        html = etree.HTML(detail_content)
+        p_list = html.xpath("//div[@id='main']/div[@class='block']/p")
+        for p in p_list:
+            p_str = p.xpath("string(.)").replace(" ", "").strip()
+            if "招标人：" in p_str:
+                project_leader = re.findall("招标人：(.*?)$", p_str)[0]
+                data['project_leader'] = project_leader
+            elif "电话：" in p_str:
+                phone = re.findall("电话：(.*?)$", p_str)[0]
+                data['phone'] = phone
+        content = data.get("content")
+        if content:
+            content = content.split("附件信息下载")[0]
+            data['content'] = content
+
+    @retry(reraise=True, stop=stop_after_attempt(10), wait=wait_fixed(2))
+    def req(self, url, req_type="get", rsp_type="content", anti_word="", **kwargs):
+        if not kwargs.get("timeout"):
+            kwargs["timeout"] = 60
+        session = requests.session()
+        if kwargs.get("headers"):
+            kwargs["headers"]["User-Agent"] = random.choice(self.user_agent_list)
+        else:
+            kwargs["headers"] = {}
+            kwargs["headers"]["User-Agent"] = random.choice(self.user_agent_list)
+        if self.proxy_flag:
+            session.proxies = self.get_proxy()  # 更换代理
+        if req_type == "get":
+            response = session.get(url, **kwargs)
+            response.encoding = 'utf8'
+        elif req_type == "post":
+            response = session.post(url, **kwargs)
+        else:
+            self.log.error(f"error req_type: {req_type}")
+            raise Exception
+        if not response or response.status_code not in (200, 302):
+            self.log.error(f"error response, {response.status_code}")
+            raise Exception
+        if not rsp_type or rsp_type == "content":
+            content = response.text
+        elif rsp_type == "json":
+            content = response.json()
+        else:
+            self.log.error(f"error content:{response.content}")
+            raise Exception
+        if anti_word and anti_word in content:
+            self.log.error(f"anti_word: {anti_word}")
+            raise Exception
+        # 根据实际情况设置休眠时间
+        # time.sleep(random.randint(2, 5))
+        return content
+
 
 if __name__ == '__main__':
+    
     params = {
-        "proxy_flag": True,
+        "proxy_flag": False,
         "query_time": "30",
         "MainKeys": [
-            ""
-            # "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
+            # ""
+            "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
+            # "校准", "检定", "标物"
         ],
         # "time_sleep": (2, 5)
     }
-    bid = BidZS()
+    bid = BidZG()
     bid.process_item(params)

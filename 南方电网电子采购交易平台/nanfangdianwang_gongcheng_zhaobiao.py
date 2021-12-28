@@ -14,9 +14,7 @@ from lxml.html import etree
 sys.path.append('..')
 sys.path.append('../..')
 sys.path.append('../../..')
-
 from bid_tools.loghandler import getLogger
-
 from bid_conf.conf import parse_dict
 from bid import Bid
 urllib3.disable_warnings()
@@ -32,82 +30,84 @@ class BidCY(Bid):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '彩云电子招标采购平台-中标公告'
+        self.file_name = '南方电网电子采购交易平台-工程-招标公告'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
         TIMEOUT = 60
         self.keyword = keyword
-        url = 'https://www.caiyunzhaobiao.com/ytcms/category/bulletinList.html?searchDate=1996-12-23&dates=300&categoryId=4&tabName=中标公示&industryName=&status=&tendertype=&tenderMethod=&page={}&word={}'
+        url = 'https://ecsg.com.cn/api/tender/tendermanage/gatewayNoticeQueryController/queryGatewayNoticeListPagination'
         self.host = urlparse(url).netloc
         self.headers = {
-            'Host': self.host,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
             'Pragma': 'no-cache',
-            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'no-cache',
+            'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
+            'Accept': '*/*',
+            'Content-Type': 'application/json;charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'sec-ch-ua-mobile': '?0',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+            'Origin': 'https://ecsg.com.cn',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
         }
+        payload = '{{"projectLevel1ClassifyId":"1","noticeType":"1","noticeTitle":"{}","publishTime":"","organizationInfoName":"","pageNo":{},"pageSize":20}}'
         page = 1
-        home_page_url = url.format(page, keyword)
-        content = self.req(home_page_url, req_type="get", rsp_type="content",  headers=self.headers, timeout=TIMEOUT)
+        list_payload = payload.format(keyword, page).encode()
+        content = self.req(url, req_type="post", rsp_type="json", data=list_payload, headers=self.headers, timeout=TIMEOUT)
         if not content:
-            self.log.error(f"{home_page_url} no content")
+            self.log.error(f"{page} no content")
             return
-        # parsing home page
-        html = etree.HTML(content)
-        pages = html.xpath("string(//div[@class='pages']/label[1])")
-        self.list_parse(content, home_page_url)
-        if not pages:
+        total = content.get("count")
+        if not total:
+            self.log.debug("total counts:{}, {}".format(total, keyword))
             return
-        pages = int(pages)
+        pages = total // 20 + 1
         self.log.info("all pages :{}, {}".format(page, keyword))
+        self.list_parse(content, url)
+        pages = int(pages)
         if pages < 2:
             return
         for page in range(2, pages + 1):
             if self.exit_flag:
                 return
             self.log.info("now start page :{}, {}".format(page, keyword))
-            list_url = url.format(page, keyword)
-            content = self.req(list_url, req_type="get", rsp_type="content", anti_word="", headers=self.headers, timeout=TIMEOUT)
+            list_payload = payload.format(keyword, page).encode()
+            content = self.req(url, req_type="post", rsp_type="json", data=list_payload, headers=self.headers, timeout=TIMEOUT)
             if not content:
-                self.log.error("{} no content".format(list_url))
+                self.log.error("{} no content".format(page))
                 continue
-            self.list_parse(content, list_url)
+            self.list_parse(content, url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, content, url):
-        html = etree.HTML(content)
-        url_list = html.xpath("//ul[@class='newslist']/li/a/@href")
+        url_list = content.get("list")
         # url_list = re.findall('guid=(.*?)(?=&|$)', content)
         for item in url_list:
             if self.exit_flag:
                 return
-            detail_url = urljoin(url, item)
-            # detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(item)
-            list_headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'Pragma': 'no-cache',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
-            }
+            object_id = item.get("objectId")
+            objectType = item.get("objectType")
+            # detail_url = urljoin(url, item)
+            detail_payload = '{{objectId: "{}", objectType: "{}"}}'.format(object_id, objectType)
+            detail_url = 'https://ecsg.com.cn/api/tender/tendermanage/gatewayNoticeQueryController/getNotice'
             try:
-                detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
+                detail_content = self.req(url=detail_url, req_type="post", rsp_type='json', data=detail_payload,
+                                          headers=self.headers, verify=False)
             except Exception as e:
                 self.log.exception(e)
                 continue
             if not detail_content:
-                self.log.error("{} no detail_content".format(detail_url))
+                self.log.error("{} no detail_content".format(detail_payload))
                 continue
-            self.detail_parse(detail_content, detail_url)
+            data = {}
+            publish_time = detail_content.get("publishTime")
+            data['project_title'] = detail_content.get("noticeTitle")
+            data['publish_time'] = time.strftime("%Y-%m-%d", time.localtime(publish_time / 1000))
+            detail_str = detail_content.get("noticeContent")
+            actual_url = 'https://ecsg.com.cn/cms/NoticeDetail.html?objectId={}&objectType={}&typeid=4'.format(
+                object_id, objectType)
+            self.detail_parse(detail_str, actual_url, data)
 
     def fix_data(self, data, detail_content):
         pass

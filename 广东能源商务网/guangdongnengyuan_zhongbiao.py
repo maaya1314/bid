@@ -76,12 +76,12 @@ class BidYG(Bid):
             'KeyWord': '输入招标名称进行搜索',
             'ctl00$ContentPlaceHolder1$strKeyWord': '',
             'ctl00$ContentPlaceHolder1$txtte_code': '',
-            'ctl00$ContentPlaceHolder1$txtTitle': '',
+            'ctl00$ContentPlaceHolder1$txtTitle': keyword,
             'ctl00$ContentPlaceHolder1$txtRaiseStart': '',
             'ctl00$ContentPlaceHolder1$txtRaiseEnd': '',
             'ctl00$ContentPlaceHolder1$ddlCompany': '',
             'ctl00_ContentPlaceHolder1_ddlCompany_ClientState': '',
-            'ctl00$ContentPlaceHolder1$txtTI_Content': keyword,
+            'ctl00$ContentPlaceHolder1$txtTI_Content': '',
             'ctl00$ContentPlaceHolder1$pager_input': '1',
         }
         home_page_url = url
@@ -125,12 +125,12 @@ class BidYG(Bid):
                 'KeyWord': '输入招标名称进行搜索',
                 'ctl00$ContentPlaceHolder1$strKeyWord': '',
                 'ctl00$ContentPlaceHolder1$txtte_code': '',
-                'ctl00$ContentPlaceHolder1$txtTitle': '',
+                'ctl00$ContentPlaceHolder1$txtTitle': keyword,
                 'ctl00$ContentPlaceHolder1$txtRaiseStart': '',
                 'ctl00$ContentPlaceHolder1$txtRaiseEnd': '',
                 'ctl00$ContentPlaceHolder1$ddlCompany': '',
                 'ctl00_ContentPlaceHolder1_ddlCompany_ClientState': '',
-                'ctl00$ContentPlaceHolder1$txtTI_Content': keyword,
+                'ctl00$ContentPlaceHolder1$txtTI_Content': '',
                 'ctl00$ContentPlaceHolder1$pager_input': '1',
             }
             content = self.req(url, req_type="post", rsp_type="content", anti_word="", data=post_data, headers=self.headers, timeout=TIMEOUT)

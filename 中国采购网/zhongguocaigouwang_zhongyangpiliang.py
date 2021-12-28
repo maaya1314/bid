@@ -11,6 +11,7 @@ import requests
 import random
 import datetime
 from lxml.html import etree
+from tenacity import retry, stop_after_attempt, wait_fixed
 sys.path.append('..')
 sys.path.append('../..')
 sys.path.append('../../..')
@@ -22,7 +23,7 @@ from bid import Bid
 urllib3.disable_warnings()
 
 
-class BidZS(Bid):
+class BidZGCGW(Bid):
 
     def __init__(self):
         Bid.__init__(self)
@@ -32,54 +33,43 @@ class BidZS(Bid):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '招商局集团电子招标交易平台-采购公告'
+        self.file_name = '中国采购网-中央单位采购公告'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
         TIMEOUT = 60
         self.keyword = keyword
-        url = 'https://dzzb.ciesco.com.cn/gg/cgggList?currentPage={}&xmLeiXing=&zbFangShi=&jiTuanId=&danWei=&xm_BH=&ggName=&zbr=&danWeiName=&keyWord={}'
+        url = 'http://www.ccgp.gov.cn/cggg/zygg/'
         self.host = urlparse(url).netloc
         self.headers = {
             'Host': self.host,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Content-Length': '112',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Origin': 'https://dzzb.ciesco.com.cn',
             'Pragma': 'no-cache',
-            'Referer': 'https://dzzb.ciesco.com.cn/gg/cgggList.do',
-            'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"macOS"',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-User': '?1',
+            'Proxy-Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
         }
-        page = 1
-        home_page_url = url.format(page, keyword)
-        content = self.req(home_page_url, req_type="get", rsp_type="content",  headers=self.headers, timeout=TIMEOUT)
+        content = self.req(url, req_type="get", rsp_type="content",  headers=self.headers, timeout=TIMEOUT)
         if not content:
-            self.log.error(f"{home_page_url} no content")
+            self.log.error(f"{url} no content")
             return
         # parsing home page
-        self.list_parse(content, home_page_url)
+        self.list_parse(content, url)
         html = etree.HTML(content)
-        pages = html.xpath("string(//div[@class='fenye']/ul/li[last()-1]/a)")
+        # pages = html.xpath("string(//div[@class='pagigation']/p[@class='pager']/a[last()-1])")
+        pages = re.findall("Pager\(\{size:(\d+),", content)
         if not pages:
             return
-        pages = int(pages)
-        for page in range(2, pages + 1):
+        pages = int(pages[0])
+        url = 'http://www.ccgp.gov.cn/cggg/zygg/index_{}.htm'
+        for page in range(1, pages + 1):
             if self.exit_flag:
                 return
             self.log.info("now start page :{}, {}".format(page, keyword))
-            list_url = url.format(page, keyword)
+            list_url = url.format(page)
             content = self.req(list_url, req_type="get", rsp_type="content", anti_word="", headers=self.headers, timeout=TIMEOUT)
             if not content:
                 self.log.error("{} no content".format(list_url))
@@ -89,61 +79,64 @@ class BidZS(Bid):
 
     def list_parse(self, content, url):
         html = etree.HTML(content)
-        url_list = html.xpath("//span[@class='list-content-start']/a/@href")
+        items = html.xpath("//ul[@class='c_list_bid']/li")
         # url_list = re.findall('guid=(.*?)(?=&|$)', content)
-        for item in url_list:
+        for item in items:
             if self.exit_flag:
                 return
-            detail_url = urljoin(url, item)
+            data = {}
+            href = item.xpath("string(./a/@href)")
+            spare_1 = item.xpath("string(./em[1])")
+            project_location = item.xpath("string(./em[3])")
+            tender_unit = item.xpath("string(./em[4])")
+            detail_url = urljoin(url, href)
+            # detail_url = item
             # detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(item)
             list_headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'Host': 'common.dzzb.ciesco.com.cn',
-                'Pragma': 'no-cache',
-                'Referer': 'https://dzzb.ciesco.com.cn/',
-                'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"macOS"',
-                'Sec-Fetch-Dest': 'iframe',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'same-site',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'accept-encoding': 'gzip, deflate',
+                'accept-language': 'zh-CN,zh;q=0.9',
+                'cache-control': 'no-cache',
+                'pragma': 'no-cache',
+                'upgrade-insecure-requests': '1',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
             }
-            try:
-                detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
-            except Exception as e:
-                self.log.exception(e)
-                continue
-            html = etree.HTML(detail_content)
-            iframe_url = html.xpath("string(//iframe[@scrolling='auto']/@src)")
-            if iframe_url:
-                try:
-                    detail_content = self.req(url=iframe_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
-                except Exception as e:
-                    self.log.exception(e)
-                    continue
+            # guid = re.findall('guid=(.*?)(?=&|$)', detail_url)[0]
+            # actual_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
+            # detail_url = 'http://www.ccgp.gov.cn/cggg/zygg/cjgg/202112/t20211219_17410596.htm'
+            detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
                 continue
-            self.detail_parse(detail_content, detail_url)
+            data['spare_1'] = spare_1
+            data['project_location'] = project_location
+            data['tender_unit'] = tender_unit
+            self.detail_parse(detail_content, detail_url, data)
 
     def fix_data(self, data, detail_content):
-        pass
+        attachment_url = data.get("attachment_url", "")
+        if not attachment_url:
+            attachment_url_id = re.findall("class='bizDownload' href='' id='(.*?)'", detail_content)
+            for aid in attachment_url_id:
+                attachment_url += "http://download.ccgp.gov.cn/oss/download?uuid={};".format(aid)
+        data['attachment_url'] = attachment_url
+        tender_price = data.get("tender_price")
+        if tender_price:
+            tender_price = tender_price.replace("标包【1】:", "").replace("&yen;", "").replace("标包【2】:", "").strip()
+            data['tender_price'] = tender_price
 
 
 if __name__ == '__main__':
+    
     params = {
-        "proxy_flag": True,
+        "proxy_flag": False,
         "query_time": "",
         "MainKeys": [
-            "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
+            ""
+            # "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
+            # "校准", "检定"
         ],
         # "time_sleep": (2, 5)
     }
-    bid = BidZS()
+    bid = BidZGCGW()
     bid.process_item(params)

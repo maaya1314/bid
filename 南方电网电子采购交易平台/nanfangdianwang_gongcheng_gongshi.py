@@ -60,6 +60,7 @@ class BidCY(Bid):
             return
         total = content.get("count")
         if not total:
+            self.log.debug("total counts:{}, {}".format(total, keyword))
             return
         pages = total // 20 + 1
         self.log.info("all pages :{}, {}".format(page, keyword))
@@ -99,6 +100,7 @@ class BidCY(Bid):
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_payload))
                 continue
+
             data = {}
             publish_time = detail_content.get("publishTime")
             data['project_title'] = detail_content.get("noticeTitle")
