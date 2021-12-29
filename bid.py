@@ -204,10 +204,15 @@ class Bid(object):
             tender_price = tender_price.replace(",", "")
             price_list = re.findall("([0-9\.]{1,})", tender_price)
             if price_list:
-                if '万' in tender_price or '万元' in detail_content:
-                    new_tender_price = "{}元".format(float(price_list[0]) * 10000)
-                else:
-                    new_tender_price = "{}元".format(price_list[0])
+                new_tender_price = price_list[0]
+                try:
+                    if '万' in tender_price or '万元' in detail_content:
+                        new_tender_price = "{}元".format(int(float(new_tender_price) * 10000))
+                    else:
+                        new_tender_price = "{}元".format(int(new_tender_price))
+                except:
+                    self.log.error("error new_tender_price:{}".format(new_tender_price))
+                    new_tender_price = ""
             else:
                 new_tender_price = ""
             data['tender_price'] = new_tender_price
@@ -217,27 +222,35 @@ class Bid(object):
             win_bid_price = win_bid_price.replace(",", "")
             price_list = re.findall("([0-9\.]{1,})", win_bid_price)
             if price_list:
-                if '万' in win_bid_price:
-                    new_win_bid_price = "{}元".format(int(float(price_list[0]) * 10000))
-                else:
-                    new_win_bid_price = "{}元".format(price_list[0])
+                new_win_bid_price = price_list[0]
+                try:
+                    if '万' in win_bid_price:
+                        new_win_bid_price = "{}元".format(int(float(new_win_bid_price) * 10000))
+                    else:
+                        new_win_bid_price = "{}元".format(int(new_win_bid_price))
+                except:
+                    self.log.error("error new_win_bid_price:{}".format(new_win_bid_price))
+                    new_win_bid_price = ""
             else:
                 new_win_bid_price = ""
             data['win_bid_price'] = new_win_bid_price
 
         project_leader = data.get("project_leader")
         if project_leader:
-            project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "").strip()
+            project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "")\
+                .replace("联系", "").replace("方式", "").replace("电话", "").replace("招标", "").replace("中标", "").strip()
+            project_leader = re.sub("[0-9-，]", "", project_leader)
             data['project_leader'] = project_leader
 
         tender_unit = data.get("tender_unit")
         if tender_unit:
-            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace(" ", "").replace("采购人", "").replace("：", "").replace("名称", "").strip()
+            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace("采购人", "")\
+                .replace("：", "").replace("名称", "").replace("招标人", "").strip()
             data['tender_unit'] = tender_unit
 
         agency = data.get("agency")
         if agency:
-            agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("代理机构", "").replace("：", "").replace("名称", "").strip()
+            agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("代理机构", "").replace("招标", "").replace("：", "").replace("名称", "").strip()
             data['agency'] = agency
 
         industry_type = data.get("industry_type")
