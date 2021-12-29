@@ -196,7 +196,8 @@ class Bid(object):
         if phone:
             phone_list = re.findall(r'\d[a-zA-Z0-9\-、－—\转\(\)（）]{1,}', phone)
             phone = phone if not phone_list else phone_list[0]
-            phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "").strip()
+            phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "")\
+                .replace("项目负责", "").replace("人", "").strip()
             data["phone"] = phone
 
         tender_price = data.get("tender_price")
@@ -244,13 +245,14 @@ class Bid(object):
 
         tender_unit = data.get("tender_unit")
         if tender_unit:
-            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace("采购人", "")\
+            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace(" ", "").replace("采购人", "")\
                 .replace("：", "").replace("名称", "").replace("招标人", "").strip()
             data['tender_unit'] = tender_unit
 
         agency = data.get("agency")
         if agency:
-            agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("代理机构", "").replace("招标", "").replace("：", "").replace("名称", "").strip()
+            agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("招标代理机构", "")\
+                .replace("代理机构", "").replace("：", "").replace("名称", "").strip()
             data['agency'] = agency
 
         industry_type = data.get("industry_type")
@@ -262,6 +264,14 @@ class Bid(object):
         if bid_winner:
             bid_winner = bid_winner.replace("：", "").replace("\r", "").replace("\n", "").strip()
             data['bid_winner'] = bid_winner
+
+        project_number = data.get("project_number")
+        if project_number:
+            project_number = project_number.replace("：", "").replace("\r", "").replace("\n", "").replace("项目", "")\
+                .replace("编号", "").replace("招标", "").replace("。", "").strip()
+            if project_number.endswith("）"):
+                project_number = project_number.replace("）", "")
+            data['project_number'] = project_number
 
         data['keyword'] = self.keyword
         data['article_url'] = detail_url

@@ -5,3 +5,5 @@
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/彩云电子招标采购平台 && python3 caiyundianzi_yichang.py
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/彩云电子招标采购平台 && python3 caiyundianzi_zhaobiao.py
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/彩云电子招标采购平台 && python3 caiyundianzi_zhongbiao.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/南方电网电子采购交易平台 && python3 nanfangdianwang_gongcheng_zhaobiao.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/招采云电子招投标交易平台 && python3 zhaocaiyun_liubiaogonggao.py
