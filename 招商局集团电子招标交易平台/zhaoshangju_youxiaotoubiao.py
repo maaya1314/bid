@@ -35,23 +35,6 @@ class BidZS(Bid):
         self.file_name = '招商局集团电子招标交易平台-有效投标人公示'
         self.parse_dict = parse_dict.get(self.file_name)
 
-    def process_item(self, params):
-        if not self.parse_dict:
-            self.log.error("error conf site name {}".format(self.file_name))
-            return
-        try:
-            query_time = int(params.get("query_time"))
-        except:
-            self.log.error(f"error query_time value: {params.get('query_time')}")
-            query_time = 2
-        cur_time = datetime.datetime.now()
-        self.query_time = str((cur_time + datetime.timedelta(days=-query_time)).strftime('%Y-%m-%d'))
-        self.proxy_flag = params.get("proxy_flag")
-        self.time_sleep = params.get('time_sleep')
-        keyword_list = params.get("MainKeys")
-        for keyword in keyword_list:
-            self.run(keyword)
-
     def run(self, keyword):
         TIMEOUT = 60
         self.keyword = keyword
@@ -144,8 +127,8 @@ if __name__ == '__main__':
         "proxy_flag": True,
         "query_time": "30",
         "MainKeys": [
-            ""
-            # "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
+            # ""
+            "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
         ],
         # "time_sleep": (2, 5)
     }

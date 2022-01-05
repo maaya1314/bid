@@ -76,12 +76,12 @@ class BidYG(Bid):
             'KeyWord': '输入招标名称进行搜索',
             'ctl00$ContentPlaceHolder1$strKeyWord': '',
             'ctl00$ContentPlaceHolder1$txtte_code': '',
-            'ctl00$ContentPlaceHolder1$txtTitle': '',
+            'ctl00$ContentPlaceHolder1$txtTitle': keyword,
             'ctl00$ContentPlaceHolder1$txtRaiseStart': '',
             'ctl00$ContentPlaceHolder1$txtRaiseEnd': '',
             'ctl00$ContentPlaceHolder1$ddlCompany': '',
             'ctl00_ContentPlaceHolder1_ddlCompany_ClientState': '',
-            'ctl00$ContentPlaceHolder1$txtTI_Content': keyword,
+            'ctl00$ContentPlaceHolder1$txtTI_Content': '',
             'ctl00$ContentPlaceHolder1$pager_input': '1',
         }
         home_page_url = url
@@ -90,7 +90,6 @@ class BidYG(Bid):
             self.log.error(f"{home_page_url} no content")
             return
         # parsing home page
-        self.list_parse(content, home_page_url)
         html = etree.HTML(content)
         pages_str = html.xpath("string(//a[@class='linkbai'][last()]/@title)")
         try:
@@ -98,6 +97,7 @@ class BidYG(Bid):
         except:
             pages = 0
         self.log.info("all pages :{}, {}".format(pages, keyword))
+        self.list_parse(content, home_page_url)
         if not pages:
             return
         if pages < 2:
@@ -125,12 +125,12 @@ class BidYG(Bid):
                 'KeyWord': '输入招标名称进行搜索',
                 'ctl00$ContentPlaceHolder1$strKeyWord': '',
                 'ctl00$ContentPlaceHolder1$txtte_code': '',
-                'ctl00$ContentPlaceHolder1$txtTitle': '',
+                'ctl00$ContentPlaceHolder1$txtTitle': keyword,
                 'ctl00$ContentPlaceHolder1$txtRaiseStart': '',
                 'ctl00$ContentPlaceHolder1$txtRaiseEnd': '',
                 'ctl00$ContentPlaceHolder1$ddlCompany': '',
                 'ctl00_ContentPlaceHolder1_ddlCompany_ClientState': '',
-                'ctl00$ContentPlaceHolder1$txtTI_Content': keyword,
+                'ctl00$ContentPlaceHolder1$txtTI_Content': '',
                 'ctl00$ContentPlaceHolder1$pager_input': '1',
             }
             content = self.req(url, req_type="post", rsp_type="content", anti_word="", data=post_data, headers=self.headers, timeout=TIMEOUT)
@@ -169,7 +169,10 @@ class BidYG(Bid):
             self.detail_parse(detail_content, detail_url)
 
     def fix_data(self, data, detail_content):
-        pass
+        attachment_url = data.get("attachment_url")
+        if attachment_url:
+            attachment_url = "https://www.gdydb2b.com/" + attachment_url.replace("../", "")
+        data['attachment_url'] = attachment_url
         # content = data.get("content")
         # if content:
         #     content = re.sub("(\$[\s\S]*?)我要报名", "我要报名", content)
