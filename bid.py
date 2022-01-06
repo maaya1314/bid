@@ -80,12 +80,27 @@ class Bid(object):
         except:
             pass
         try:
-            findall = re.findall("[0-9-: /年月日时分秒]+", time_str)
+            findall = re.findall("[0-9-: /年月日时分秒\.]+", time_str)
             extract_time = findall[0].strip()
         except:
             return ""
         try:
             format_time = datetime.datetime.strptime(extract_time, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
+            return format_time
+        except:
+            pass
+        try:
+            format_time = datetime.datetime.strptime(extract_time, '%Y.%m.%d').strftime('%Y-%m-%d')
+            return format_time
+        except:
+            pass
+        try:
+            format_time = datetime.datetime.strptime(extract_time, '%Y/%m/%d').strftime('%Y-%m-%d')
+            return format_time
+        except:
+            pass
+        try:
+            format_time = datetime.datetime.strptime(extract_time, '%Y-%m-%d%H:%M:%S').strftime('%Y-%m-%d')
             return format_time
         except:
             pass
@@ -140,7 +155,7 @@ class Bid(object):
                 try:
                     re_value = re.findall(r, detail_content)
                     for v in re_value:
-                        v = re.sub("<.*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
+                        v = re.sub("<[\s\S]*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
                         data[key] = v
                         break
                 except:
@@ -194,7 +209,7 @@ class Bid(object):
 
         phone = data.get("phone")
         if phone:
-            phone_list = re.findall(r'\d[a-zA-Z0-9\-、－—\转\(\)（）]{1,}', phone)
+            phone_list = re.findall(r'\d[a-zA-Z0-9\-、－—\转\(\)（）/ ]{1,}', phone)
             phone = phone if not phone_list else phone_list[0]
             phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "")\
                 .replace("项目负责", "").replace("人", "").strip()
@@ -210,8 +225,8 @@ class Bid(object):
                     if '万' in tender_price or '万元' in detail_content:
                         new_tender_price = "{}元".format(int(float(new_tender_price) * 10000))
                     else:
-                        new_tender_price = "{}元".format(int(new_tender_price))
-                except:
+                        new_tender_price = "{}元".format(int(float(new_tender_price)))
+                except Exception as e:
                     self.log.error("error new_tender_price:{}".format(new_tender_price))
                     new_tender_price = ""
             else:
@@ -228,8 +243,8 @@ class Bid(object):
                     if '万' in win_bid_price:
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price) * 10000))
                     else:
-                        new_win_bid_price = "{}元".format(int(new_win_bid_price))
-                except:
+                        new_win_bid_price = "{}元".format(int(float(new_win_bid_price)))
+                except Exception as e:
                     self.log.error("error new_win_bid_price:{}".format(new_win_bid_price))
                     new_win_bid_price = ""
             else:
@@ -240,7 +255,7 @@ class Bid(object):
         if project_leader:
             project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "")\
                 .replace("联系", "").replace("方式", "").replace("电话", "").replace("招标", "").replace("中标", "").strip()
-            project_leader = re.sub("[0-9-，]", "", project_leader)
+            project_leader = re.sub("[0-9-，（）]", "", project_leader)
             data['project_leader'] = project_leader
 
         tender_unit = data.get("tender_unit")
@@ -262,16 +277,28 @@ class Bid(object):
 
         bid_winner = data.get("bid_winner")
         if bid_winner:
-            bid_winner = bid_winner.replace("：", "").replace("\r", "").replace("\n", "").strip()
+            bid_winner = bid_winner.replace("：", "").replace("\r", "").replace("\n", "").replace("【", "").replace("】", "").strip()
             data['bid_winner'] = bid_winner
 
         project_number = data.get("project_number")
         if project_number:
             project_number = project_number.replace("：", "").replace("\r", "").replace("\n", "").replace("项目", "")\
-                .replace("编号", "").replace("招标", "").replace("。", "").strip()
+                .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "").strip()
             if project_number.endswith("）"):
                 project_number = project_number.replace("）", "")
+            if project_number.endswith(")"):
+                project_number = project_number.replace(")", "")
             data['project_number'] = project_number
+
+        tender_unit = data.get("tender_unit")
+        project_title = data.get("project_title")
+        if project_title and not tender_unit:
+            try:
+                project_title = re.sub("\d{4}年", "", project_title)
+                tender_unit = re.findall("([\u4e00-\u9fa5]+?公司|[\u4e00-\u9fa5]+?局)", project_title)[0]
+            except:
+                tender_unit = ""
+            data['tender_unit'] = tender_unit
 
         data['keyword'] = self.keyword
         data['article_url'] = detail_url
@@ -343,7 +370,13 @@ class Bid(object):
                 for item in self.items_list:
                     op = InsertOne(item)
                     insert_operations.append(op)
-                self.db.db[self.collection_name].bulk_write(insert_operations, ordered=False)
+                while True:
+                    try:
+                        self.db.db[self.collection_name].bulk_write(insert_operations, ordered=False)
+                        break
+                    except Exception as e:
+                        self.log.exception(e)
+                        time.sleep(10)
                 self.log.info("write db counts: {} done".format(self.counts))
                 self.items_list = []
             else:
@@ -370,7 +403,13 @@ class Bid(object):
                 for item in self.items_list:
                     op = InsertOne(item)
                     insert_operations.append(op)
-                self.db.db[self.collection_name].bulk_write(insert_operations, ordered=False)
+                while True:
+                    try:
+                        self.db.db[self.collection_name].bulk_write(insert_operations, ordered=False)
+                        break
+                    except Exception as e:
+                        self.log.exception(e)
+                        time.sleep(10)
                 self.log.info("write db counts: {} done".format(self.counts))
                 self.items_list = []
             else:
@@ -380,7 +419,13 @@ class Bid(object):
                     key_field_2 = item.get(self.key_field_2)
                     op = UpdateOne({self.key_field: key_field, self.key_field_2: key_field_2}, {'$set': item}, upsert=True)
                     update_operations.append(op)
-                self.db.db[self.collection_name].bulk_write(update_operations, ordered=False)
+                while True:
+                    try:
+                        self.db.db[self.collection_name].bulk_write(update_operations, ordered=False)
+                        break
+                    except Exception as e:
+                        self.log.exception(e)
+                        time.sleep(10)
                 self.log.info("update db counts: {} done".format(self.counts))
                 self.items_list = []
 

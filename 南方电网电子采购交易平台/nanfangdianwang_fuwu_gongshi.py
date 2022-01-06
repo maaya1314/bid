@@ -89,6 +89,7 @@ class BidCY(Bid):
             objectType = item.get("objectType")
             # detail_url = urljoin(url, item)
             detail_payload = '{{objectId: "{}", objectType: "{}"}}'.format(object_id, objectType)
+            # detail_payload = '{"objectId":"C2B832C4A3D5411E9D84924D220519FD","objectType":"1"}'
             detail_url = 'https://ecsg.com.cn/api/tender/tendermanage/gatewayNoticeQueryController/getNotice'
             try:
                 detail_content = self.req(url=detail_url, req_type="post", rsp_type='json', data=detail_payload, headers=self.headers, verify=False)
@@ -101,13 +102,24 @@ class BidCY(Bid):
             data = {}
             publish_time = detail_content.get("publishTime")
             data['project_title'] = detail_content.get("noticeTitle")
+            data['agency'] = item.get("organizationInfoName")
             data['publish_time'] = time.strftime("%Y-%m-%d", time.localtime(publish_time/1000))
             detail_str = detail_content.get("noticeContent")
             actual_url = 'https://ecsg.com.cn/cms/NoticeDetail.html?objectId={}&objectType={}&typeid=4'.format(object_id, objectType)
             self.detail_parse(detail_str, actual_url, data)
 
     def fix_data(self, data, detail_content):
-        pass
+        agency = data.get("agency")
+        if agency and "代理" not in detail_content:
+            data['agency'] = ""
+        project_title = data.get("project_title")
+        project_number = data.get("project_number")
+        if project_title and (not project_number or len(project_number) < 9):
+            try:
+                project_number = re.findall("[A-Za-z][a-zA-Z0-9-]+", project_title)[0]
+            except:
+                project_number = ""
+            data['project_number'] = project_number
 
 
 if __name__ == '__main__':
