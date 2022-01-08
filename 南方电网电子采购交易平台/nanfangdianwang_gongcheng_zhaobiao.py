@@ -119,6 +119,8 @@ class BidCY(Bid):
         if project_title and (not project_number or len(project_number) < 9):
             try:
                 project_number = re.findall("[A-Za-z][a-zA-Z0-9-]+", project_title)[0]
+                if len(project_number) < 8:
+                    project_number = ""
             except:
                 project_number = ""
             data['project_number'] = project_number

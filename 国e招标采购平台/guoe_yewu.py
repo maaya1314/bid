@@ -22,8 +22,8 @@ urllib3.disable_warnings()
 
 class BidCY(Bid):
 
-    def __init__(self):
-        Bid.__init__(self)
+    def __init__(self, debug=True):
+        Bid.__init__(self, debug)
         self.log = getLogger(self.__class__.__name__, console_out=True, level="debug")
         self.user_agent_list = ["Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1", "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"]
         self.headers = {}
@@ -89,6 +89,7 @@ class BidCY(Bid):
             sn_id = item.get("snID")
             if not article_id:
                 detail_url = f'https://www.ebidding.com/portal/announcement/oa/htmlContent?type={html_type}&snId={sn_id}'
+                # detail_url = "https://www.ebidding.com/portal/announcement/oa/detail?&type=%E6%8B%9B%E6%A0%87%E5%85%AC%E5%91%8A&snId=35076"
                 try:
                     detail_content = self.req(url=detail_url, encoding=False, headers=self.headers)
                     # detail_content = detail_content.encode('utf-8').decode('gbk')
@@ -106,7 +107,8 @@ class BidCY(Bid):
                     if not detail_content:
                         self.log.error("{} no detail_content".format(detail_url))
                         continue
-                    actual_url = f'https://www.ebidding.com/portal/html/index.html#page=main:notice_details?&tenderType={tenderType}&etId={article_id}&type={html_type}&txtContentId={sn_id}'
+                    actual_url = f'https://www.ebidding.com/portal/html/index.html#page=main:notice_details?&tenderType={tenderType}&snID={sn_id}&type={html_type}'
+
                     try:
                         data = {}
                         if not detail_content.get("result"):
@@ -143,7 +145,25 @@ class BidCY(Bid):
                 self.detail_parse(detail_str, actual_url, data)
 
     def fix_data(self, data, detail_content):
-        pass
+        html = etree.HTML(detail_content)
+        publish_time = data.get("publish_time")
+        if not publish_time:
+            p_list = html.xpath("//p[@class='p']")
+            p_list.reverse()
+            for p in p_list:
+                try:
+                    publish_time = self.format_time(p.xpath("string(.)"))
+                    if publish_time:
+                        break
+                except:
+                    publish_time = ""
+            data['publish_time'] = publish_time
+        attachment_url = data.get("attachment_url")
+        if attachment_url:
+            if 'http' not in attachment_url:
+                article_url = data.get("article_url")
+                attachment_url = urljoin(article_url, attachment_url)
+                data['attachment_url'] = attachment_url
 
 
 if __name__ == '__main__':

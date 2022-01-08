@@ -14,6 +14,12 @@
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/广东能源商务网 && python3 guangdongnengyuan_yiwancheng.py
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/广东能源商务网 && python3 guangdongnengyuan_zhaobiao.py
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/广东能源商务网 && python3 guangdongnengyuan_zhongbiao.py
-0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/南方电网电子采购交易平台 && python3 nanfangdianwang_gongcheng_zhaobiao.py
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/南方电网电子采购交易平台 && python3 nanfangdianwang_gongcheng_gongshi.py
 0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/南方电网电子采购交易平台 && python3 nanfangdianwang_fuwu_zhaobiao.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/南方电网电子采购交易平台 && python3 nanfangdianwang_fuwu_gongshi.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/南方电网电子采购交易平台 && python3 nanfangdianwang_huowu_gongshi.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/招商局集团电子招标交易平台 && python3 zhaoshangju_caigou.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/招商局集团电子招标交易平台 && python3 zhaoshangju_pingbiaojieguo.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/招商局集团电子招标交易平台 && python3 zhaoshangju_xiangmujiegou.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/中国采购网 && python3 zhongguocaigouwang_zhongyangdanwei.py
+0 */6 * * * source ~/.bash_profile && cd /root/apps/bid/中国采购网 && python3 zhongguocaigouwang_difangdanwei.py

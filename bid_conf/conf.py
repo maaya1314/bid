@@ -686,7 +686,10 @@ parse_dict = {
     "招商局集团电子招标交易平台-采购公告": {
         "project_title": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"采购项目名称")]/following-sibling::td[1]']
+            "xpath": [
+                "//span[@class='title']",
+                '//th[contains(text(),"采购项目名称")]/following-sibling::td[1]',
+            ]
         },  # 项目标
         "project_number": {
             "re": [''],
@@ -737,7 +740,9 @@ parse_dict = {
         },  # 正
         "bid_finish_time": {
             "re": [''],
-            "xpath": ['']
+            "xpath": [
+                'string(//th[contains(string(),"开标时间")]/following-sibling::td[1])',
+            ]
         },  # 开标时
         "bid_end_time": {
             "re": [''],
@@ -749,19 +754,25 @@ parse_dict = {
         },  # 项目概
         "agency": {
             "re": [''],
-            "xpath": ['//th[contains(string(),"代办机构名称")]/following-sibling::td[1]']
+            "xpath": [
+                '//th[contains(string(),"代理机构名称")]/following-sibling::td[1]',
+                '//th[contains(string(),"代办机构名称")]/following-sibling::td[1]',
+                '//th[contains(string(),"机构名称")]/following-sibling::td[1]',
+            ]
         },  # 代理机
         "bid_evaluation_rule": {
             "re": ['投标人资格要求(.+?)<strong>'],
-            "xpath": ['']
+            "xpath": [
+                'string(//th[contains(string(),"资格要求")]/following-sibling::td[1])'
+            ]
         },  # 评标规
         "bid_winner": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['string(//td[contains(string(),"第一中标候选人")]/following-sibling::td[1])']
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['string(//td[contains(string(),"第一中标候选人")]/following-sibling::td[2])']
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
@@ -773,7 +784,9 @@ parse_dict = {
         },  # 所属频
         "attachment_url": {
             "re": [''],
-            "xpath": ['']
+            "xpath": [
+                '//span[@class="title"]/a[contains(string(), "PDF")]/@href',
+            ]
         },  # 附件链
         "keyword": {
             "re": [''],
@@ -877,11 +890,11 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"中标候选单位名称")]/following-sibling::td[1]']
+            "xpath": ['string(//td[contains(string(),"第一中标候选人")]/following-sibling::td[1])']
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"投标报价")]/following-sibling::td[1]']
+            "xpath": ['string(//td[contains(string(),"第一中标候选人")]/following-sibling::td[2])']
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
@@ -995,13 +1008,18 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"中标人")]/following-sibling::td[1]',
-                      '//td[@class="bj"][contains(text(), "供应商名称")]/../following::*/td[count(//td[@class="bj"][contains(text(), "供应商名称")]) + 1]'
+            "xpath": [
+                '//th[contains(text(),"中标人")]/following-sibling::td[1]',
+                '//td[@class="bj"][contains(text(), "供应商名称")]/../following::*/td[count(//td[@class="bj"][contains(text(), "供应商名称")]) + 1]',
+                'string(//td[contains(string(),"第一中标候选人")]/following-sibling::td[1])',
                       ]
         },  # 中标
         "win_bid_price": {
             "re": [''],
-            "xpath": ['//th[contains(text(),"中标价")]/following-sibling::td[1]',]
+            "xpath": [
+                '//th[contains(text(),"中标价")]/following-sibling::td[1]',
+                'string(//td[contains(string(),"第一中标候选人")]/following-sibling::td[2])',
+            ]
         },  # 中标金
         "win_bid_announcement_time": {
             "re": [''],
@@ -1275,7 +1293,9 @@ parse_dict = {
             "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
         },  # 项目标
         "project_number": {
-            "re": ['项目编号：(.+?)(?=（|<)'],
+            "re": [
+                '项目编号：(.+?)(?=（|）|<)'
+            ],
             "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
@@ -1296,7 +1316,14 @@ parse_dict = {
                       '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
+            "re": [
+                '项目联系方式[\s\S]*?电[\s\S]话：(.+?)</p',
+                '项目联系方式[\s\S]*?电话：(.+?)</p',
+                '项目联系方式[\s\S]*?联系方式：(.+?)<input',
+                '电　话：(.*?)(?=<|，)',
+                '项目联系电话(.*?)</tr>',
+                '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
+                '负责人: (.*?) <'],
             "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
                       'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
                       '']
@@ -1319,7 +1346,7 @@ parse_dict = {
         },  # 信息来
         "content": {
             "re": [''],
-            "xpath": ['//div[@class="vF_detail_content_container"]']
+            "xpath": ["//div[@class='vF_detail_content']//p"]
         },  # 正
         "bid_finish_time": {
             "re": ['开标时间：(.+?)<'],
@@ -1334,7 +1361,10 @@ parse_dict = {
             "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
+            "re": [
+                '采购代理机构信息名称： (.+?)(?!<.*?>)地址'
+                '采购代理机构信息[\s\S]*?名.?称：(.+?)<',
+            ],
             "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
@@ -1342,8 +1372,15 @@ parse_dict = {
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
-            "xpath": ['']
+            "re": [
+                '供应商名称：(.+?)(?!<.*?>)</p',
+                '第一包供应商名称：(.+?)<',
+                '供应商名称：(.+?)(?=<|（)',
+            ],
+            "xpath": [
+                '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]',
+                ''
+            ]
         },  # 中标
         "win_bid_price": {
             "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
@@ -1389,7 +1426,9 @@ parse_dict = {
             "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
         },  # 项目标
         "project_number": {
-            "re": ['项目编号：(.+?)(?=（|<)'],
+            "re": [
+                '项目编号：(.+?)(?=（|）|<)'
+            ],
             "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
@@ -1410,7 +1449,14 @@ parse_dict = {
                       '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
+            "re": [
+                '项目联系方式[\s\S]*?电[\s\S]话：(.+?)</p',
+                '项目联系方式[\s\S]*?电话：(.+?)</p',
+                '项目联系方式[\s\S]*?联系方式：(.+?)<input',
+                '电　话：(.*?)(?=<|，)',
+                '项目联系电话(.*?)</tr>',
+                '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
+                '负责人: (.*?) <'],
             "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
                       'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
                       '']
@@ -1433,7 +1479,7 @@ parse_dict = {
         },  # 信息来
         "content": {
             "re": [''],
-            "xpath": ['//div[@class="vF_detail_content_container"]']
+            "xpath": ["//div[@class='vF_detail_content']//p"]
         },  # 正
         "bid_finish_time": {
             "re": ['开标时间：(.+?)<'],
@@ -1448,7 +1494,10 @@ parse_dict = {
             "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
+            "re": [
+                '采购代理机构信息名称： (.+?)(?!<.*?>)地址'
+                '采购代理机构信息[\s\S]*?名.?称：(.+?)<',
+            ],
             "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
@@ -1456,8 +1505,15 @@ parse_dict = {
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
-            "xpath": ['']
+            "re": [
+                '供应商名称：(.+?)(?!<.*?>)</p',
+                '第一包供应商名称：(.+?)<',
+                '供应商名称：(.+?)(?=<|（)',
+            ],
+            "xpath": [
+                '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]',
+                ''
+            ]
         },  # 中标
         "win_bid_price": {
             "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
@@ -1500,10 +1556,16 @@ parse_dict = {
     "中国采购网-中央单位采购公告": {
         "project_title": {
             "re": [''],
-            "xpath": ["//h2[@class='tc']", '//strong[contains(text(),"项目名称")]/../span']
+            "xpath": [
+                "//h2[@class='tc']",
+                '//strong[contains(text(),"项目名称")]/../span',
+
+            ]
         },  # 项目标
         "project_number": {
-            "re": ['项目编号：(.+?)(?=（|<)'],
+            "re": [
+                '项目编号：(.+?)(?=（|）|<)'
+            ],
             "xpath": ['//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
         "tender_unit": {
@@ -1524,7 +1586,14 @@ parse_dict = {
                       '//div[contains(text(),"项目联系人")]/following-sibling::div[1]']
         },  # 招标项目负责
         "phone": {
-            "re": ['电　话：(.*?)(?=<|，)', '项目联系电话(.*?)</tr>', '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)', '负责人: (.*?) <'],
+            "re": [
+                '项目联系方式[\s\S]*?电[\s\S]话：(.+?)</p',
+                '项目联系方式[\s\S]*?电话：(.+?)</p',
+                '项目联系方式[\s\S]*?联系方式：(.+?)<input',
+                '电　话：(.*?)(?=<|，)',
+                '项目联系电话(.*?)</tr>',
+                '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
+                '负责人: (.*?) <'],
             "xpath": ['//p[contains(text(),"项目联系方式")]/following-sibling::p[contains(text(),"电　话")]',
                       'string(//div[contains(text(),"项目联系方式")]/following-sibling::div[1])',
                       '']
@@ -1547,7 +1616,10 @@ parse_dict = {
         },  # 信息来
         "content": {
             "re": [''],
-            "xpath": ['//div[@class="vF_detail_content_container"]']
+            "xpath": [
+                "//div[@class='vF_detail_content']//p",
+                "//div[@class='vF_detail_content']",
+            ]
         },  # 正
         "bid_finish_time": {
             "re": ['开标时间：(.+?)<'],
@@ -1562,7 +1634,10 @@ parse_dict = {
             "xpath": ['//p[contains(text(),"项目概况")]/following-sibling::p[1]']
         },  # 项目概
         "agency": {
-            "re": ['采购代理机构信息[\s\S]*?名.?称：(.+?)<'],
+            "re": [
+                '采购代理机构信息名称： (.+?)(?!<.*?>)地址'
+                '采购代理机构信息[\s\S]*?名.?称：(.+?)<',
+            ],
             "xpath": ['//p[contains(text(),"采购代理机构信息")]/following-sibling::p[contains(text(),"名")]']
         },  # 代理机
         "bid_evaluation_rule": {
@@ -1570,8 +1645,15 @@ parse_dict = {
             "xpath": ['']
         },  # 评标规
         "bid_winner": {
-            "re": ['第一包供应商名称：(.+?)<', '供应商名称：(.+?)(?=（|<)', '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]'],
-            "xpath": ['']
+            "re": [
+                '供应商名称：(.+?)(?!<.*?>)</p',
+                '第一包供应商名称：(.+?)<',
+                '供应商名称：(.+?)(?=<|（)',
+            ],
+            "xpath": [
+                '//table/thead/tr/th[contains(string(), "中标供应商名称")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "中标供应商名称")]/preceding-sibling::*) + 1]',
+                ''
+            ]
         },  # 中标
         "win_bid_price": {
             "re": ['中标（成交）金额：(.+?)<', '>总中标金额.*?>￥(.+?)<', '//table/thead/tr/th[contains(string(), "总价(元)")]/../following::*[1]//td[count(//table/thead/tr/th[contains(string(), "总价(元)")]/preceding-sibling::*) + 1]'],
@@ -1620,7 +1702,7 @@ parse_dict = {
             "re": [
                 '项目编号<.*?>：(.+?)</p',
                 '项目编号：(.+?)</p',
-                '项目编号：(.+?)(?=（|<)',
+                '项目编号：(.+?)(?=（|）|<)',
             ],
             "xpath": ['//strong[contains(string(),"项目编号")]/following-sibling::span', '//strong[contains(text(),"项目编号")]/../span']
         },  # 项目编
@@ -1708,6 +1790,8 @@ parse_dict = {
         },  # 项目概
         "agency": {
             "re": [
+                '采购代理机构信息名称： (.+?)(?!<.*?>)地址'
+                '采购代理机构信息[\s\S]*?名.?称：(.+?)<',
                 '采购代理机构：(.+?)</p>',
                 '采购代理机构信息[\s\S]*?名.?称：(.+?)<',
             ],
@@ -2339,10 +2423,13 @@ parse_dict = {
                 '//h1',
                 '//title',
                 "//p[@class='MsoNormal'][1]/b/span",
+                "//div[@class='WordSection1']/p[@class='MsoNormal'][1]",
+                "string(//p[@class='MsoNormal'][1])",
                       ]
         },  # 项目标题
         "project_number": {
             "re": [
+                '采购项目编号：(.+?)</p'
                 '项目基本情况[\s\S]*?项目编号：([\s\S]+?)</span></p',
                 '二、项目编号：(.+?)</b>',
                 '项目编号：(.+?)）',
@@ -2354,6 +2441,7 @@ parse_dict = {
                 '(?<=<span name="issue_tendereeName">)([\s\S]+?)(?=<\/span>)',
                 '人信息[\s\S]*?名[\s\S]*?称：(.+?)</span',
                 '采购人：(.+?)<',
+                '招标人：(.+?)<br',
             ],
             "xpath": ['//p[@id="tendereeName-p"]/span[@name="issue_tendereeName"]']
         },  # 招标单位
@@ -2361,7 +2449,7 @@ parse_dict = {
             "re": [
                 '预算金额：(.+?)</span>',
             ],
-            "xpath": ['']
+            "xpath": ["//td[contains(string(), '项目采购预算')]/../following::*[1]/td[count(//table[1]//td[contains(string(), '项目采购预算')]/preceding-sibling::td) + 1]"]
         },  # 标的金额
         "publish_time": {
             "re": [
@@ -2390,6 +2478,9 @@ parse_dict = {
         },  # 招标项目负责人
         "phone": {
             "re": [
+                '招标文件购买方式[\s\S]*?电话：(.+?)(?=传真|<br)',
+                '获取招标文件方式[\s\S]*?电话：([\s\S]+?)</p'
+                '（电话：(.+?)）',
                 '招标人联系方式[\s\S]*?电话：(.+?)(?=传真|</p)',
                 '项目联系方式[\s\S]*?电.*?话：(.+?)</span',
                 '(?<=电话:)([\s\S]+?)(?=<)', '(?<=电话：)([\s\S]+?)(?=<)', '(?<=联系方式:)([\s\S]+?)(?=<)',
@@ -2458,11 +2549,13 @@ parse_dict = {
         },  # 项目概况
         "agency": {
             "re": [
+                '招标代理机构名称：(.+?)<br',
                 '代理机构信息[\s\S]*?名[\s\S]*?称：(.+?)</span',
+                '招标代理机构：([\s\S]+?)招标人：.*?<br',
                 '(?<=招标代理机构:)([\s\S]+?)(?=<)',
                 '(?<=招标代理机构：)([\s\S]+?)(?=<)',
-                '(?<=招标代理机构联系人:)([\s\S]+?)(?=<)',
-                '(?<=招标代理机构联系人：)([\s\S]+?)(?=<)',
+                # '(?<=招标代理机构联系人:)([\s\S]+?)(?=<)',
+                # '(?<=招标代理机构联系人：)([\s\S]+?)(?=<)',
                 '采购代理机构：(.+?)<',
             ],
             "xpath": ['//div[@class="details"]//*[contains(text(),"招标代理机构：")]',
@@ -2501,7 +2594,12 @@ parse_dict = {
         },  # 所属频道#列表采集
         "attachment_url": {
             "re": [''],
-            "xpath": ['//div[@id="online_affixLink"]/a', '//div[@class="details"]//a[@href]', '//a[contains(string(), "点击下载")]/@href']
+            "xpath": [
+                '//div[@id="online_affixLink"]/a',
+                '//div[@class="details"]//a[@href]',
+                '//a[contains(string(), "点击下载")]/@href',
+                '//div[@id="online_affixLink"]/a[contains(string(), "附件点击可下载")]/@href',
+            ]
         },  # 附件链接
         "keyword": {
             "re": [''],
@@ -2531,9 +2629,14 @@ parse_dict = {
         },  # 项目标题
         "project_number": {
             "re": [
-                '项目编号：(.+?)(?=）|<)',
-                '采购编号：(.+?)(?=</span|）)',
+                '项目编号：(.+?)</p',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)项目名称',
                 '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
             ],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -2569,6 +2672,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
                 '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
                 '（签名）：(.+?)</span>',
                 '主要负责人或授权的项目负责人：(.+?)</span>',
@@ -2584,7 +2688,7 @@ parse_dict = {
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [
-                '联系方式.*?联系电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
             ],
             "xpath": ['string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
                       '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
@@ -2654,6 +2758,7 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [
+                '成交单位：(.+?)</span></p>',
                 '成交单位：(.+?)</span></span>',
                 '成交人名称：(.+?)</span>',
                 '成交单位：(.+?)</span>',
@@ -2663,6 +2768,7 @@ parse_dict = {
                 "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
                 "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
                 "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "string(//td[contains(string(), '投标人')]/../following::*/td[count(//table[1]//td[contains(string(), '投标人')]/preceding-sibling::td) + 1])",
                 ]
         },  # 中标
         "win_bid_price": {
@@ -2672,6 +2778,7 @@ parse_dict = {
             ],
             "xpath": [
                 '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
             ]
         },  # 中标金额
         "win_bid_announcement_time": {
@@ -2715,9 +2822,14 @@ parse_dict = {
         },  # 项目标题
         "project_number": {
             "re": [
-                '项目编号：(.+?)(?=）|<)',
-                '采购编号：(.+?)(?=</span|）)',
+                '项目编号：(.+?)</p',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)项目名称',
                 '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
             ],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -2753,6 +2865,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
                 '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
                 '（签名）：(.+?)</span>',
                 '主要负责人或授权的项目负责人：(.+?)</span>',
@@ -2768,7 +2881,7 @@ parse_dict = {
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [
-                '联系方式.*?联系电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
             ],
             "xpath": ['string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
                       '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
@@ -2838,6 +2951,7 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [
+                '成交单位：(.+?)</span></p>',
                 '成交单位：(.+?)</span></span>',
                 '成交人名称：(.+?)</span>',
                 '成交单位：(.+?)</span>',
@@ -2846,7 +2960,8 @@ parse_dict = {
             "xpath": [
                 "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
                 "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
-                "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "//td[string()='成交单位']/../following::*/td[count(//td[string()='成交单位']/preceding-sibling::td) + 1]",
+                "string(//td[string()='投标人']/../following::*/td[count(//table[1]//td[string()='投标人']/preceding-sibling::td) + 1])",
                 ]
         },  # 中标
         "win_bid_price": {
@@ -2856,6 +2971,7 @@ parse_dict = {
             ],
             "xpath": [
                 '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
             ]
         },  # 中标金额
         "win_bid_announcement_time": {
@@ -2899,9 +3015,14 @@ parse_dict = {
         },  # 项目标题
         "project_number": {
             "re": [
-                '项目编号：(.+?)(?=）|<)',
-                '采购编号：(.+?)(?=</span|）)',
+                '项目编号：(.+?)</p',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)项目名称',
                 '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
             ],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -2937,6 +3058,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
                 '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
                 '（签名）：(.+?)</span>',
                 '主要负责人或授权的项目负责人：(.+?)</span>',
@@ -2952,7 +3074,7 @@ parse_dict = {
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [
-                '联系方式.*?联系电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
             ],
             "xpath": ['string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
                       '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
@@ -3022,6 +3144,7 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [
+                '成交单位：(.+?)</span></p>',
                 '成交单位：(.+?)</span></span>',
                 '成交人名称：(.+?)</span>',
                 '成交单位：(.+?)</span>',
@@ -3031,6 +3154,7 @@ parse_dict = {
                 "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
                 "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
                 "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "string(//td[contains(string(), '投标人')]/../following::*/td[count(//table[1]//td[contains(string(), '投标人')]/preceding-sibling::td) + 1])",
                 ]
         },  # 中标
         "win_bid_price": {
@@ -3040,6 +3164,7 @@ parse_dict = {
             ],
             "xpath": [
                 '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
             ]
         },  # 中标金额
         "win_bid_announcement_time": {
@@ -3083,9 +3208,14 @@ parse_dict = {
         },  # 项目标题
         "project_number": {
             "re": [
-                '项目编号：(.+?)(?=）|<)',
-                '采购编号：(.+?)(?=</span|）)',
+                '项目编号：(.+?)</p',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)项目名称',
                 '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
             ],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -3121,6 +3251,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
                 '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
                 '（签名）：(.+?)</span>',
                 '主要负责人或授权的项目负责人：(.+?)</span>',
@@ -3136,7 +3267,7 @@ parse_dict = {
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [
-                '联系方式.*?联系电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
             ],
             "xpath": ['string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
                       '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
@@ -3206,6 +3337,7 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [
+                '成交单位：(.+?)</span></p>',
                 '成交单位：(.+?)</span></span>',
                 '成交人名称：(.+?)</span>',
                 '成交单位：(.+?)</span>',
@@ -3215,6 +3347,7 @@ parse_dict = {
                 "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
                 "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
                 "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "string(//td[contains(string(), '投标人')]/../following::*/td[count(//table[1]//td[contains(string(), '投标人')]/preceding-sibling::td) + 1])",
                 ]
         },  # 中标
         "win_bid_price": {
@@ -3224,6 +3357,7 @@ parse_dict = {
             ],
             "xpath": [
                 '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
             ]
         },  # 中标金额
         "win_bid_announcement_time": {
@@ -3267,9 +3401,14 @@ parse_dict = {
         },  # 项目标题
         "project_number": {
             "re": [
-                '项目编号：(.+?)(?=）|<)',
-                '采购编号：(.+?)(?=</span|）)',
+                '项目编号：(.+?)</p',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)项目名称',
                 '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
             ],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -3305,6 +3444,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
                 '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
                 '（签名）：(.+?)</span>',
                 '主要负责人或授权的项目负责人：(.+?)</span>',
@@ -3320,7 +3460,7 @@ parse_dict = {
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [
-                '联系方式.*?联系电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
             ],
             "xpath": ['string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
                       '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
@@ -3390,6 +3530,7 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [
+                '成交单位：(.+?)</span></p>',
                 '成交单位：(.+?)</span></span>',
                 '成交人名称：(.+?)</span>',
                 '成交单位：(.+?)</span>',
@@ -3399,6 +3540,7 @@ parse_dict = {
                 "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
                 "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
                 "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "string(//td[contains(string(), '投标人')]/../following::*/td[count(//table[1]//td[contains(string(), '投标人')]/preceding-sibling::td) + 1])",
                 ]
         },  # 中标
         "win_bid_price": {
@@ -3408,6 +3550,7 @@ parse_dict = {
             ],
             "xpath": [
                 '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
             ]
         },  # 中标金额
         "win_bid_announcement_time": {
@@ -3451,9 +3594,14 @@ parse_dict = {
         },  # 项目标题
         "project_number": {
             "re": [
-                '项目编号：(.+?)(?=）|<)',
-                '采购编号：(.+?)(?=</span|）)',
+                '项目编号：(.+?)</p',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)项目名称',
                 '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
             ],
             "xpath": ["//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                       "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -3489,6 +3637,7 @@ parse_dict = {
         },  # 发布时间 需正则两步以上
         "project_leader": {
             "re": [
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
                 '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
                 '（签名）：(.+?)</span>',
                 '主要负责人或授权的项目负责人：(.+?)</span>',
@@ -3504,7 +3653,7 @@ parse_dict = {
         },  # 招标项目负责人 需正则两步以上
         "phone": {
             "re": [
-                '联系方式.*?联系电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
             ],
             "xpath": ['string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
                       '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
@@ -3574,6 +3723,7 @@ parse_dict = {
         },  # 评标规
         "bid_winner": {
             "re": [
+                '成交单位：(.+?)</span></p>',
                 '成交单位：(.+?)</span></span>',
                 '成交人名称：(.+?)</span>',
                 '成交单位：(.+?)</span>',
@@ -3583,6 +3733,7 @@ parse_dict = {
                 "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
                 "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
                 "//td[contains(string(), '成交单位')]/../following::*/td[count(//td[contains(string(), '成交单位')]/preceding-sibling::td) + 1]",
+                "string(//td[contains(string(), '投标人')]/../following::*/td[count(//table[1]//td[contains(string(), '投标人')]/preceding-sibling::td) + 1])",
                 ]
         },  # 中标
         "win_bid_price": {
@@ -3592,6 +3743,7 @@ parse_dict = {
             ],
             "xpath": [
                 '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
             ]
         },  # 中标金额
         "win_bid_announcement_time": {
@@ -3636,11 +3788,15 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
                 '>\.?项目编号：(.+?)</span',
-                '项目编号：(.+?)(?=，|<|。|）|（)',
-                '招标编号：(.+?)(?=，|<|。|）|（)',
-                '采购编号：(.+?)(?=，|<|。|）|（)',
-                '编号：(.+?)(?=，|<|。|）|（)',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
                 '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": [
@@ -3650,23 +3806,34 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                '建库单位：(.+?)</p',
+                '招标人<.*?>名称：(.+?)</p',
                 '采购人<.*?>名称：(.+?)</p',
+                '采购人名称：(.+?)<br',
+                '招标人名称：(.+?)</p',
+                '单位名称：(.+?)</p',
                 '采购人名称：(.+?)</p',
                 '招标人联系方式[\s\S]*?名称：(.+?)(?=，|<|。)',
                 '采购人[：为](.+?)(?=，|<|。)',
-                '招标人[：为](.*?)(?=，|<|。)',
+                '招标人[：为](.+?)(?=，|<|。)',
+                '采购人：(.+?)</span>',
+                '招标人：(.+?)</span>',
+                '招标人[：|为](.+?)</span><span>',
                 '招标人[：|为](.+?)</span></span>',
-                '招标人：(.*?)</span>',
                 '招 标 人：(.+?)<',
                 '询比人：(.+?)<',
                 '业.*?主：(.+?)<',
                 '采购组织请选择(.+?)(?=，|<|。)',
+                '我司受(.*?)（以下简称“采购人',
+                '受(.*?)（以下简称采购人',
                 '(.*?)（以下简称“采购人',
+                '我司受(.*?)（以下简称“发包人',
                 '(.*?)（以下简称“发包人',
             ],
             "xpath": [
                 '//span[contains(string(),"采购人名称：")]/following-sibling::span[1]',
-                "//span[contains(text(),'招标人名称')]",
+                "string(//span[contains(text(),'单位名称：')])",
+                "//span[contains(text(),'招标人名称：')]",
                 "//span[contains(text(),'采购人名称：')]",
             ]
         },
@@ -3694,16 +3861,24 @@ parse_dict = {
 
         "project_leader": {
             "re": [
+                '招标单位：[\s\S]*?联系人：(.*?)联系电话',
+                '招标人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                "招标人[\s\S]*?系 人：(.+?)</p",
+                '采购人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)联系',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</br',
                 '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</p',
                 '招标人联系方式[\s\S]*?联系人：(.+?)</p',
                 '采购人名称[\s\S]*?联系人：(.+?)(?=，|<|。)',
+                '项目经办人：(.+?)</p>',
                 "系 人：(.+?)<",
                 '联<.*?>系<.*?>人：(.*?)</p>',
                 '项目联系人：(.+?)(?=<|。)',
                 '项目负责人：.*?联系人：(.+?)<',
                 '联 系 人：(.+?)</p',
                 '系.?人：(.+?)</p',
-                '招标人信息：[\s\S]*?联系人：(.*?)<',
+                '招标人信息：[\s\S]*?联系人：(.+?)<',
+                '采购人：[\s\S]*?联系人：(.+?)<',
                 '联系事项[\s\S]*?联系人：(.*?)</p',
                 '联系事项[\s\S]*?联系人：(.*?)<',
                 '联系人：(.+?)电话',
@@ -3717,18 +3892,22 @@ parse_dict = {
         "phone": {
             "re": [
                 '电<.*?>话：(.*?)招标代理机构',
-                '电　话：(.*?)(?=<|，)',
-                '项目联系电话(.*?)</tr>',
+                '项目联系电话(.+?)</tr>',
                 '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
-                '负责人: (.*?) <',
-                '招标人信息：[\s\S]*?电话：(.*?)<',
-                '采购人信息：[\s\S]*?联系方式：(.*?)<',
-                '采购人名称：[\s\S]*?联系方式：(.*?)<',
+                '项目经办人.*?联系电话(.+?)E-mail',
+                '招标人信息：[\s\S]*?电话：(.+?)<',
+                '招标人信息[\s\S]*?电话：(.+?)<',
+                '采购人信息：[\s\S]*?联系方式：(.+?)<',
+                '采购人名称：[\s\S]*?联系电话：(.+?)</p',
+                '采购人名称：[\s\S]*?联系方式：(.+?)<',
+
                 '招 标 人：[\s\S]*?电 话：(.+?)<',
-                '招标人：[\s\S]*?电<.*?>话：(.*?)<',
+                '招标人：[\s\S]*?电<.+?>话：(.+?)<',
                 '业主联系方式.*?电.*?话：(.+?)<',
                 '联系人：.*?电话：(.+?)</p>',
+                '负责人: (.*?) <',
                 '电话：(.+?)<',
+                '电　话：(.*?)(?=<|，)',
                 '联系电话:(.+?)</p',
                 '联系电话<.*?>:(.+?)</p',
             ],
@@ -3794,7 +3973,10 @@ parse_dict = {
         "agency": {
             "re": [
                 '招标代理机构[\s\S]+?名称：(.+?)(?=</span>|</p>)',
+                '采购代理机构：(.+?)<',
                 "采购代理机构名称：(.+?)<",
+                '招标代理机构：(.+?)<br',
+                '招标代理机构：(.+?)</p>',
                 '招标代理机构：(.+?)</span>(?=</span>|</p>)',
                 '代理机构：(.+?)</span>(?=</span>|</p>)',
                 '招标代理：(.+?)<',
@@ -3835,7 +4017,7 @@ parse_dict = {
 
         "attachment_url": {
             "re": ["", ""],
-            "xpath": ["//div[contains(text(),'相关附件')]/following-sibling::ul"]
+            "xpath": ["//div[@class='relevant-list']/ul/li/a/@href"]
         },
 
         "keyword": {
@@ -3871,11 +4053,15 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
                 '>\.?项目编号：(.+?)</span',
-                '项目编号：(.+?)(?=，|<|。|）|（)',
-                '招标编号：(.+?)(?=，|<|。|）|（)',
-                '采购编号：(.+?)(?=，|<|。|）|（)',
-                '编号：(.+?)(?=，|<|。|）|（)',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
                 '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": [
@@ -3885,23 +4071,34 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                '建库单位：(.+?)</p',
+                '招标人<.*?>名称：(.+?)</p',
                 '采购人<.*?>名称：(.+?)</p',
+                '采购人名称：(.+?)<br',
+                '招标人名称：(.+?)</p',
+                '单位名称：(.+?)</p',
                 '采购人名称：(.+?)</p',
                 '招标人联系方式[\s\S]*?名称：(.+?)(?=，|<|。)',
                 '采购人[：为](.+?)(?=，|<|。)',
-                '招标人[：为](.*?)(?=，|<|。)',
+                '招标人[：为](.+?)(?=，|<|。)',
+                '采购人：(.+?)</span>',
+                '招标人：(.+?)</span>',
+                '招标人[：|为](.+?)</span><span>',
                 '招标人[：|为](.+?)</span></span>',
-                '招标人：(.*?)</span>',
                 '招 标 人：(.+?)<',
                 '询比人：(.+?)<',
                 '业.*?主：(.+?)<',
                 '采购组织请选择(.+?)(?=，|<|。)',
+                '我司受(.*?)（以下简称“采购人',
+                '受(.*?)（以下简称采购人',
                 '(.*?)（以下简称“采购人',
+                '我司受(.*?)（以下简称“发包人',
                 '(.*?)（以下简称“发包人',
             ],
             "xpath": [
                 '//span[contains(string(),"采购人名称：")]/following-sibling::span[1]',
-                "//span[contains(text(),'招标人名称')]",
+                "string(//span[contains(text(),'单位名称：')])",
+                "//span[contains(text(),'招标人名称：')]",
                 "//span[contains(text(),'采购人名称：')]",
             ]
         },
@@ -3929,16 +4126,24 @@ parse_dict = {
 
         "project_leader": {
             "re": [
+                '招标单位：[\s\S]*?联系人：(.*?)联系电话',
+                '招标人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                "招标人[\s\S]*?系 人：(.+?)</p",
+                '采购人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)联系',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</br',
                 '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</p',
                 '招标人联系方式[\s\S]*?联系人：(.+?)</p',
                 '采购人名称[\s\S]*?联系人：(.+?)(?=，|<|。)',
+                '项目经办人：(.+?)</p>',
                 "系 人：(.+?)<",
                 '联<.*?>系<.*?>人：(.*?)</p>',
                 '项目联系人：(.+?)(?=<|。)',
                 '项目负责人：.*?联系人：(.+?)<',
                 '联 系 人：(.+?)</p',
                 '系.?人：(.+?)</p',
-                '招标人信息：[\s\S]*?联系人：(.*?)<',
+                '招标人信息：[\s\S]*?联系人：(.+?)<',
+                '采购人：[\s\S]*?联系人：(.+?)<',
                 '联系事项[\s\S]*?联系人：(.*?)</p',
                 '联系事项[\s\S]*?联系人：(.*?)<',
                 '联系人：(.+?)电话',
@@ -3952,18 +4157,22 @@ parse_dict = {
         "phone": {
             "re": [
                 '电<.*?>话：(.*?)招标代理机构',
-                '电　话：(.*?)(?=<|，)',
-                '项目联系电话(.*?)</tr>',
+                '项目联系电话(.+?)</tr>',
                 '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
-                '负责人: (.*?) <',
-                '招标人信息：[\s\S]*?电话：(.*?)<',
-                '采购人信息：[\s\S]*?联系方式：(.*?)<',
-                '采购人名称：[\s\S]*?联系方式：(.*?)<',
+                '项目经办人.*?联系电话(.+?)E-mail',
+                '招标人信息：[\s\S]*?电话：(.+?)<',
+                '招标人信息[\s\S]*?电话：(.+?)<',
+                '采购人信息：[\s\S]*?联系方式：(.+?)<',
+                '采购人名称：[\s\S]*?联系电话：(.+?)</p',
+                '采购人名称：[\s\S]*?联系方式：(.+?)<',
+
                 '招 标 人：[\s\S]*?电 话：(.+?)<',
-                '招标人：[\s\S]*?电<.*?>话：(.*?)<',
+                '招标人：[\s\S]*?电<.+?>话：(.+?)<',
                 '业主联系方式.*?电.*?话：(.+?)<',
                 '联系人：.*?电话：(.+?)</p>',
+                '负责人: (.*?) <',
                 '电话：(.+?)<',
+                '电　话：(.*?)(?=<|，)',
                 '联系电话:(.+?)</p',
                 '联系电话<.*?>:(.+?)</p',
             ],
@@ -4029,7 +4238,10 @@ parse_dict = {
         "agency": {
             "re": [
                 '招标代理机构[\s\S]+?名称：(.+?)(?=</span>|</p>)',
+                '采购代理机构：(.+?)<',
                 "采购代理机构名称：(.+?)<",
+                '招标代理机构：(.+?)<br',
+                '招标代理机构：(.+?)</p>',
                 '招标代理机构：(.+?)</span>(?=</span>|</p>)',
                 '代理机构：(.+?)</span>(?=</span>|</p>)',
                 '招标代理：(.+?)<',
@@ -4070,7 +4282,7 @@ parse_dict = {
 
         "attachment_url": {
             "re": ["", ""],
-            "xpath": ["//div[contains(text(),'相关附件')]/following-sibling::ul"]
+            "xpath": ["//div[@class='relevant-list']/ul/li/a/@href"]
         },
 
         "keyword": {
@@ -4106,11 +4318,15 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
                 '>\.?项目编号：(.+?)</span',
-                '项目编号：(.+?)(?=，|<|。|）|（)',
-                '招标编号：(.+?)(?=，|<|。|）|（)',
-                '采购编号：(.+?)(?=，|<|。|）|（)',
-                '编号：(.+?)(?=，|<|。|）|（)',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
                 '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": [
@@ -4120,23 +4336,34 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                '建库单位：(.+?)</p',
+                '招标人<.*?>名称：(.+?)</p',
                 '采购人<.*?>名称：(.+?)</p',
+                '采购人名称：(.+?)<br',
+                '招标人名称：(.+?)</p',
+                '单位名称：(.+?)</p',
                 '采购人名称：(.+?)</p',
                 '招标人联系方式[\s\S]*?名称：(.+?)(?=，|<|。)',
                 '采购人[：为](.+?)(?=，|<|。)',
-                '招标人[：为](.*?)(?=，|<|。)',
+                '招标人[：为](.+?)(?=，|<|。)',
+                '采购人：(.+?)</span>',
+                '招标人：(.+?)</span>',
+                '招标人[：|为](.+?)</span><span>',
                 '招标人[：|为](.+?)</span></span>',
-                '招标人：(.*?)</span>',
                 '招 标 人：(.+?)<',
                 '询比人：(.+?)<',
                 '业.*?主：(.+?)<',
                 '采购组织请选择(.+?)(?=，|<|。)',
+                '我司受(.*?)（以下简称“采购人',
+                '受(.*?)（以下简称采购人',
                 '(.*?)（以下简称“采购人',
+                '我司受(.*?)（以下简称“发包人',
                 '(.*?)（以下简称“发包人',
             ],
             "xpath": [
                 '//span[contains(string(),"采购人名称：")]/following-sibling::span[1]',
-                "//span[contains(text(),'招标人名称')]",
+                "string(//span[contains(text(),'单位名称：')])",
+                "//span[contains(text(),'招标人名称：')]",
                 "//span[contains(text(),'采购人名称：')]",
             ]
         },
@@ -4164,16 +4391,24 @@ parse_dict = {
 
         "project_leader": {
             "re": [
+                '招标单位：[\s\S]*?联系人：(.*?)联系电话',
+                '招标人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                "招标人[\s\S]*?系 人：(.+?)</p",
+                '采购人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)联系',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</br',
                 '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</p',
                 '招标人联系方式[\s\S]*?联系人：(.+?)</p',
                 '采购人名称[\s\S]*?联系人：(.+?)(?=，|<|。)',
+                '项目经办人：(.+?)</p>',
                 "系 人：(.+?)<",
                 '联<.*?>系<.*?>人：(.*?)</p>',
                 '项目联系人：(.+?)(?=<|。)',
                 '项目负责人：.*?联系人：(.+?)<',
                 '联 系 人：(.+?)</p',
                 '系.?人：(.+?)</p',
-                '招标人信息：[\s\S]*?联系人：(.*?)<',
+                '招标人信息：[\s\S]*?联系人：(.+?)<',
+                '采购人：[\s\S]*?联系人：(.+?)<',
                 '联系事项[\s\S]*?联系人：(.*?)</p',
                 '联系事项[\s\S]*?联系人：(.*?)<',
                 '联系人：(.+?)电话',
@@ -4187,18 +4422,22 @@ parse_dict = {
         "phone": {
             "re": [
                 '电<.*?>话：(.*?)招标代理机构',
-                '电　话：(.*?)(?=<|，)',
-                '项目联系电话(.*?)</tr>',
+                '项目联系电话(.+?)</tr>',
                 '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
-                '负责人: (.*?) <',
-                '招标人信息：[\s\S]*?电话：(.*?)<',
-                '采购人信息：[\s\S]*?联系方式：(.*?)<',
-                '采购人名称：[\s\S]*?联系方式：(.*?)<',
+                '项目经办人.*?联系电话(.+?)E-mail',
+                '招标人信息：[\s\S]*?电话：(.+?)<',
+                '招标人信息[\s\S]*?电话：(.+?)<',
+                '采购人信息：[\s\S]*?联系方式：(.+?)<',
+                '采购人名称：[\s\S]*?联系电话：(.+?)</p',
+                '采购人名称：[\s\S]*?联系方式：(.+?)<',
+
                 '招 标 人：[\s\S]*?电 话：(.+?)<',
-                '招标人：[\s\S]*?电<.*?>话：(.*?)<',
+                '招标人：[\s\S]*?电<.+?>话：(.+?)<',
                 '业主联系方式.*?电.*?话：(.+?)<',
                 '联系人：.*?电话：(.+?)</p>',
+                '负责人: (.*?) <',
                 '电话：(.+?)<',
+                '电　话：(.*?)(?=<|，)',
                 '联系电话:(.+?)</p',
                 '联系电话<.*?>:(.+?)</p',
             ],
@@ -4264,7 +4503,10 @@ parse_dict = {
         "agency": {
             "re": [
                 '招标代理机构[\s\S]+?名称：(.+?)(?=</span>|</p>)',
+                '采购代理机构：(.+?)<',
                 "采购代理机构名称：(.+?)<",
+                '招标代理机构：(.+?)<br',
+                '招标代理机构：(.+?)</p>',
                 '招标代理机构：(.+?)</span>(?=</span>|</p>)',
                 '代理机构：(.+?)</span>(?=</span>|</p>)',
                 '招标代理：(.+?)<',
@@ -4305,7 +4547,7 @@ parse_dict = {
 
         "attachment_url": {
             "re": ["", ""],
-            "xpath": ["//div[contains(text(),'相关附件')]/following-sibling::ul"]
+            "xpath": ["//div[@class='relevant-list']/ul/li/a/@href"]
         },
 
         "keyword": {
@@ -4341,11 +4583,15 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
                 '>\.?项目编号：(.+?)</span',
-                '项目编号：(.+?)(?=，|<|。|）|（)',
-                '招标编号：(.+?)(?=，|<|。|）|（)',
-                '采购编号：(.+?)(?=，|<|。|）|（)',
-                '编号：(.+?)(?=，|<|。|）|（)',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
                 '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": [
@@ -4355,23 +4601,34 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                '建库单位：(.+?)</p',
+                '招标人<.*?>名称：(.+?)</p',
                 '采购人<.*?>名称：(.+?)</p',
+                '采购人名称：(.+?)<br',
+                '招标人名称：(.+?)</p',
+                '单位名称：(.+?)</p',
                 '采购人名称：(.+?)</p',
                 '招标人联系方式[\s\S]*?名称：(.+?)(?=，|<|。)',
                 '采购人[：为](.+?)(?=，|<|。)',
-                '招标人[：为](.*?)(?=，|<|。)',
+                '招标人[：为](.+?)(?=，|<|。)',
+                '采购人：(.+?)</span>',
+                '招标人：(.+?)</span>',
+                '招标人[：|为](.+?)</span><span>',
                 '招标人[：|为](.+?)</span></span>',
-                '招标人：(.*?)</span>',
                 '招 标 人：(.+?)<',
                 '询比人：(.+?)<',
                 '业.*?主：(.+?)<',
                 '采购组织请选择(.+?)(?=，|<|。)',
+                '我司受(.*?)（以下简称“采购人',
+                '受(.*?)（以下简称采购人',
                 '(.*?)（以下简称“采购人',
+                '我司受(.*?)（以下简称“发包人',
                 '(.*?)（以下简称“发包人',
             ],
             "xpath": [
                 '//span[contains(string(),"采购人名称：")]/following-sibling::span[1]',
-                "//span[contains(text(),'招标人名称')]",
+                "string(//span[contains(text(),'单位名称：')])",
+                "//span[contains(text(),'招标人名称：')]",
                 "//span[contains(text(),'采购人名称：')]",
             ]
         },
@@ -4399,16 +4656,24 @@ parse_dict = {
 
         "project_leader": {
             "re": [
+                '招标单位：[\s\S]*?联系人：(.*?)联系电话',
+                '招标人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                "招标人[\s\S]*?系 人：(.+?)</p",
+                '采购人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)联系',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</br',
                 '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</p',
                 '招标人联系方式[\s\S]*?联系人：(.+?)</p',
                 '采购人名称[\s\S]*?联系人：(.+?)(?=，|<|。)',
+                '项目经办人：(.+?)</p>',
                 "系 人：(.+?)<",
                 '联<.*?>系<.*?>人：(.*?)</p>',
                 '项目联系人：(.+?)(?=<|。)',
                 '项目负责人：.*?联系人：(.+?)<',
                 '联 系 人：(.+?)</p',
                 '系.?人：(.+?)</p',
-                '招标人信息：[\s\S]*?联系人：(.*?)<',
+                '招标人信息：[\s\S]*?联系人：(.+?)<',
+                '采购人：[\s\S]*?联系人：(.+?)<',
                 '联系事项[\s\S]*?联系人：(.*?)</p',
                 '联系事项[\s\S]*?联系人：(.*?)<',
                 '联系人：(.+?)电话',
@@ -4422,18 +4687,22 @@ parse_dict = {
         "phone": {
             "re": [
                 '电<.*?>话：(.*?)招标代理机构',
-                '电　话：(.*?)(?=<|，)',
-                '项目联系电话(.*?)</tr>',
+                '项目联系电话(.+?)</tr>',
                 '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
-                '负责人: (.*?) <',
-                '招标人信息：[\s\S]*?电话：(.*?)<',
-                '采购人信息：[\s\S]*?联系方式：(.*?)<',
-                '采购人名称：[\s\S]*?联系方式：(.*?)<',
+                '项目经办人.*?联系电话(.+?)E-mail',
+                '招标人信息：[\s\S]*?电话：(.+?)<',
+                '招标人信息[\s\S]*?电话：(.+?)<',
+                '采购人信息：[\s\S]*?联系方式：(.+?)<',
+                '采购人名称：[\s\S]*?联系电话：(.+?)</p',
+                '采购人名称：[\s\S]*?联系方式：(.+?)<',
+
                 '招 标 人：[\s\S]*?电 话：(.+?)<',
-                '招标人：[\s\S]*?电<.*?>话：(.*?)<',
+                '招标人：[\s\S]*?电<.+?>话：(.+?)<',
                 '业主联系方式.*?电.*?话：(.+?)<',
                 '联系人：.*?电话：(.+?)</p>',
+                '负责人: (.*?) <',
                 '电话：(.+?)<',
+                '电　话：(.*?)(?=<|，)',
                 '联系电话:(.+?)</p',
                 '联系电话<.*?>:(.+?)</p',
             ],
@@ -4499,7 +4768,10 @@ parse_dict = {
         "agency": {
             "re": [
                 '招标代理机构[\s\S]+?名称：(.+?)(?=</span>|</p>)',
+                '采购代理机构：(.+?)<',
                 "采购代理机构名称：(.+?)<",
+                '招标代理机构：(.+?)<br',
+                '招标代理机构：(.+?)</p>',
                 '招标代理机构：(.+?)</span>(?=</span>|</p>)',
                 '代理机构：(.+?)</span>(?=</span>|</p>)',
                 '招标代理：(.+?)<',
@@ -4540,7 +4812,7 @@ parse_dict = {
 
         "attachment_url": {
             "re": ["", ""],
-            "xpath": ["//div[contains(text(),'相关附件')]/following-sibling::ul"]
+            "xpath": ["//div[@class='relevant-list']/ul/li/a/@href"]
         },
 
         "keyword": {
@@ -4576,11 +4848,15 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
                 '>\.?项目编号：(.+?)</span',
-                '项目编号：(.+?)(?=，|<|。|）|（)',
-                '招标编号：(.+?)(?=，|<|。|）|（)',
-                '采购编号：(.+?)(?=，|<|。|）|（)',
-                '编号：(.+?)(?=，|<|。|）|（)',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
                 '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": [
@@ -4590,23 +4866,34 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                '建库单位：(.+?)</p',
+                '招标人<.*?>名称：(.+?)</p',
                 '采购人<.*?>名称：(.+?)</p',
+                '采购人名称：(.+?)<br',
+                '招标人名称：(.+?)</p',
+                '单位名称：(.+?)</p',
                 '采购人名称：(.+?)</p',
                 '招标人联系方式[\s\S]*?名称：(.+?)(?=，|<|。)',
                 '采购人[：为](.+?)(?=，|<|。)',
-                '招标人[：为](.*?)(?=，|<|。)',
+                '招标人[：为](.+?)(?=，|<|。)',
+                '采购人：(.+?)</span>',
+                '招标人：(.+?)</span>',
+                '招标人[：|为](.+?)</span><span>',
                 '招标人[：|为](.+?)</span></span>',
-                '招标人：(.*?)</span>',
                 '招 标 人：(.+?)<',
                 '询比人：(.+?)<',
                 '业.*?主：(.+?)<',
                 '采购组织请选择(.+?)(?=，|<|。)',
+                '我司受(.*?)（以下简称“采购人',
+                '受(.*?)（以下简称采购人',
                 '(.*?)（以下简称“采购人',
+                '我司受(.*?)（以下简称“发包人',
                 '(.*?)（以下简称“发包人',
             ],
             "xpath": [
                 '//span[contains(string(),"采购人名称：")]/following-sibling::span[1]',
-                "//span[contains(text(),'招标人名称')]",
+                "string(//span[contains(text(),'单位名称：')])",
+                "//span[contains(text(),'招标人名称：')]",
                 "//span[contains(text(),'采购人名称：')]",
             ]
         },
@@ -4634,20 +4921,30 @@ parse_dict = {
 
         "project_leader": {
             "re": [
+                '招标单位：[\s\S]*?联系人：(.*?)联系电话',
+                '招标人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                "招标人[\s\S]*?系 人：(.+?)</p",
+                '采购人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)联系',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</br',
                 '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</p',
                 '招标人联系方式[\s\S]*?联系人：(.+?)</p',
                 '采购人名称[\s\S]*?联系人：(.+?)(?=，|<|。)',
+                '项目经办人：(.+?)</p>',
                 "系 人：(.+?)<",
                 '联<.*?>系<.*?>人：(.*?)</p>',
                 '项目联系人：(.+?)(?=<|。)',
                 '项目负责人：.*?联系人：(.+?)<',
                 '联 系 人：(.+?)</p',
                 '系.?人：(.+?)</p',
-                '招标人信息：[\s\S]*?联系人：(.*?)<',
+                '招标人信息：[\s\S]*?联系人：(.+?)<',
+                '采购人：[\s\S]*?联系人：(.+?)<',
                 '联系事项[\s\S]*?联系人：(.*?)</p',
                 '联系事项[\s\S]*?联系人：(.*?)<',
                 '联系人：(.+?)电话',
                 '联系人：(.+?)<',
+                '联系人[:|：](.+?)<',
+                '联系人</span>:(.+?)<',
                 '采购人名称：[\s\S]*?联系方式：(.*?)<',
                 '联系人:(.+?)</p',
             ],
@@ -4657,18 +4954,22 @@ parse_dict = {
         "phone": {
             "re": [
                 '电<.*?>话：(.*?)招标代理机构',
-                '电　话：(.*?)(?=<|，)',
-                '项目联系电话(.*?)</tr>',
+                '项目联系电话(.+?)</tr>',
                 '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
-                '负责人: (.*?) <',
-                '招标人信息：[\s\S]*?电话：(.*?)<',
-                '采购人信息：[\s\S]*?联系方式：(.*?)<',
-                '采购人名称：[\s\S]*?联系方式：(.*?)<',
+                '项目经办人.*?联系电话(.+?)E-mail',
+                '招标人信息：[\s\S]*?电话：(.+?)<',
+                '招标人信息[\s\S]*?电话：(.+?)<',
+                '采购人信息：[\s\S]*?联系方式：(.+?)<',
+                '采购人名称：[\s\S]*?联系电话：(.+?)</p',
+                '采购人名称：[\s\S]*?联系方式：(.+?)<',
+
                 '招 标 人：[\s\S]*?电 话：(.+?)<',
-                '招标人：[\s\S]*?电<.*?>话：(.*?)<',
+                '招标人：[\s\S]*?电<.+?>话：(.+?)<',
                 '业主联系方式.*?电.*?话：(.+?)<',
                 '联系人：.*?电话：(.+?)</p>',
+                '负责人: (.*?) <',
                 '电话：(.+?)<',
+                '电　话：(.*?)(?=<|，)',
                 '联系电话:(.+?)</p',
                 '联系电话<.*?>:(.+?)</p',
             ],
@@ -4734,7 +5035,10 @@ parse_dict = {
         "agency": {
             "re": [
                 '招标代理机构[\s\S]+?名称：(.+?)(?=</span>|</p>)',
+                '采购代理机构：(.+?)<',
                 "采购代理机构名称：(.+?)<",
+                '招标代理机构：(.+?)<br',
+                '招标代理机构：(.+?)</p>',
                 '招标代理机构：(.+?)</span>(?=</span>|</p>)',
                 '代理机构：(.+?)</span>(?=</span>|</p>)',
                 '招标代理：(.+?)<',
@@ -4775,7 +5079,7 @@ parse_dict = {
 
         "attachment_url": {
             "re": ["", ""],
-            "xpath": ["//div[contains(text(),'相关附件')]/following-sibling::ul"]
+            "xpath": ["//div[@class='relevant-list']/ul/li/a/@href"]
         },
 
         "keyword": {
@@ -4811,11 +5115,15 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
                 '>\.?项目编号：(.+?)</span',
-                '项目编号：(.+?)(?=，|<|。|）|（)',
-                '招标编号：(.+?)(?=，|<|。|）|（)',
-                '采购编号：(.+?)(?=，|<|。|）|（)',
-                '编号：(.+?)(?=，|<|。|）|（)',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
                 '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": [
@@ -4825,23 +5133,34 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                '建库单位：(.+?)</p',
+                '招标人<.*?>名称：(.+?)</p',
                 '采购人<.*?>名称：(.+?)</p',
+                '采购人名称：(.+?)<br',
+                '招标人名称：(.+?)</p',
+                '单位名称：(.+?)</p',
                 '采购人名称：(.+?)</p',
                 '招标人联系方式[\s\S]*?名称：(.+?)(?=，|<|。)',
                 '采购人[：为](.+?)(?=，|<|。)',
-                '招标人[：为](.*?)(?=，|<|。)',
+                '招标人[：为](.+?)(?=，|<|。)',
+                '采购人：(.+?)</span>',
+                '招标人：(.+?)</span>',
+                '招标人[：|为](.+?)</span><span>',
                 '招标人[：|为](.+?)</span></span>',
-                '招标人：(.*?)</span>',
                 '招 标 人：(.+?)<',
                 '询比人：(.+?)<',
                 '业.*?主：(.+?)<',
                 '采购组织请选择(.+?)(?=，|<|。)',
+                '我司受(.*?)（以下简称“采购人',
+                '受(.*?)（以下简称采购人',
                 '(.*?)（以下简称“采购人',
+                '我司受(.*?)（以下简称“发包人',
                 '(.*?)（以下简称“发包人',
             ],
             "xpath": [
                 '//span[contains(string(),"采购人名称：")]/following-sibling::span[1]',
-                "//span[contains(text(),'招标人名称')]",
+                "string(//span[contains(text(),'单位名称：')])",
+                "//span[contains(text(),'招标人名称：')]",
                 "//span[contains(text(),'采购人名称：')]",
             ]
         },
@@ -4869,16 +5188,24 @@ parse_dict = {
 
         "project_leader": {
             "re": [
+                '招标单位：[\s\S]*?联系人：(.*?)联系电话',
+                '招标人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                "招标人[\s\S]*?系 人：(.+?)</p",
+                '采购人名称[\s\S]*?联 系 人：(.+?)(?=，|<|。)',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)联系',
+                '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</br',
                 '联系方式[\s\S]*?招标人[\s\S]*?联系人：(.+?)</p',
                 '招标人联系方式[\s\S]*?联系人：(.+?)</p',
                 '采购人名称[\s\S]*?联系人：(.+?)(?=，|<|。)',
+                '项目经办人：(.+?)</p>',
                 "系 人：(.+?)<",
                 '联<.*?>系<.*?>人：(.*?)</p>',
                 '项目联系人：(.+?)(?=<|。)',
                 '项目负责人：.*?联系人：(.+?)<',
                 '联 系 人：(.+?)</p',
                 '系.?人：(.+?)</p',
-                '招标人信息：[\s\S]*?联系人：(.*?)<',
+                '招标人信息：[\s\S]*?联系人：(.+?)<',
+                '采购人：[\s\S]*?联系人：(.+?)<',
                 '联系事项[\s\S]*?联系人：(.*?)</p',
                 '联系事项[\s\S]*?联系人：(.*?)<',
                 '联系人：(.+?)电话',
@@ -4892,18 +5219,22 @@ parse_dict = {
         "phone": {
             "re": [
                 '电<.*?>话：(.*?)招标代理机构',
-                '电　话：(.*?)(?=<|，)',
-                '项目联系电话(.*?)</tr>',
+                '项目联系电话(.+?)</tr>',
                 '项目联系电话：(\d[a-zA-Z0-9\-、－—\转\(\)（）]+?)(?=<|，)',
-                '负责人: (.*?) <',
-                '招标人信息：[\s\S]*?电话：(.*?)<',
-                '采购人信息：[\s\S]*?联系方式：(.*?)<',
-                '采购人名称：[\s\S]*?联系方式：(.*?)<',
+                '项目经办人.*?联系电话(.+?)E-mail',
+                '招标人信息：[\s\S]*?电话：(.+?)<',
+                '招标人信息[\s\S]*?电话：(.+?)<',
+                '采购人信息：[\s\S]*?联系方式：(.+?)<',
+                '采购人名称：[\s\S]*?联系电话：(.+?)</p',
+                '采购人名称：[\s\S]*?联系方式：(.+?)<',
+
                 '招 标 人：[\s\S]*?电 话：(.+?)<',
-                '招标人：[\s\S]*?电<.*?>话：(.*?)<',
+                '招标人：[\s\S]*?电<.+?>话：(.+?)<',
                 '业主联系方式.*?电.*?话：(.+?)<',
                 '联系人：.*?电话：(.+?)</p>',
+                '负责人: (.*?) <',
                 '电话：(.+?)<',
+                '电　话：(.*?)(?=<|，)',
                 '联系电话:(.+?)</p',
                 '联系电话<.*?>:(.+?)</p',
             ],
@@ -4969,7 +5300,10 @@ parse_dict = {
         "agency": {
             "re": [
                 '招标代理机构[\s\S]+?名称：(.+?)(?=</span>|</p>)',
+                '采购代理机构：(.+?)<',
                 "采购代理机构名称：(.+?)<",
+                '招标代理机构：(.+?)<br',
+                '招标代理机构：(.+?)</p>',
                 '招标代理机构：(.+?)</span>(?=</span>|</p>)',
                 '代理机构：(.+?)</span>(?=</span>|</p>)',
                 '招标代理：(.+?)<',
@@ -5010,7 +5344,7 @@ parse_dict = {
 
         "attachment_url": {
             "re": ["", ""],
-            "xpath": ["//div[contains(text(),'相关附件')]/following-sibling::ul"]
+            "xpath": ["//div[@class='relevant-list']/ul/li/a/@href"]
         },
 
         "keyword": {
@@ -5041,15 +5375,24 @@ parse_dict = {
     "中国能建电子采购平台-招标公告": {
         "project_title": {
             "re": ["", ""],
-            "xpath": ["//div[@id='zwPanel']//tbody/tr[1]"]
+            "xpath": [
+                "string(//div[@id='zwPanel']/table//tr)",
+                "//div[@id='zwPanel']//tbody/tr[1]",
+            ]
         },
 
         "project_number": {
             "re": [
-                "招标项目编号：(.+?)<",
-                "采购项目编号：(.+?)<",
-                "招标采购编号：(.+?)<",
-                "编号：(.+?)<",
+                '项目编号：(.+?)</span></p',
+                '项目编号：(.+?)<br',
+                '项目编号：(.+?)）',
+                '>\.?项目编号：(.+?)</span',
+                '项目编号：(.+?)</span',
+                '项目编号：(.+?)(?=\]|，|<|。|）|（)',
+                '招标编号：(.+?)(?=\]|，|<|。|）|（)',
+                '采购编号：(.+?)(?=\]|，|<|。|）|（)',
+                '编号：(.+?)(?=\]|，|<|。|）|（)',
+                '&#32534;&#21495;&#65306;</SPAN>(.+?)</P>',
             ],
             "xpath": ["//div[@id='zwPanel']//tbody//td[contains(text(), '采购项目编号：')]"]
         },
@@ -5217,6 +5560,7 @@ parse_dict = {
 
         "project_number": {
             "re": [
+                "招标采购编号：(.+?)\)(?=,|，)",
                 "招标项目编号：(.+?)(?=<|，)",
                 "采购项目编号：(.+?)(?=<|，)",
                 "招标采购编号：(.+?)(?=<|，)",
@@ -5231,6 +5575,7 @@ parse_dict = {
                 "招标人名称：(.+?)<",
                 "采购人名称：(.+?)<",
                 "招标采购单位：(.+?)<",
+                "招标人：(.+?)<",
                 "名称：(.+?)<",
 
             ],
@@ -5339,7 +5684,11 @@ parse_dict = {
 
         "bid_winner": {
             "re": [
-                "中标人：(.+?)(?=金额|<)",
+                "中标人：(.+?公司)（",
+                "中标人：(.+?)中标价格",
+                "中标人：(.+?公司)，",
+                "中标人：(.+?)金额",
+                "中标人：(.+?)<",
                 ""
             ],
             "xpath": [""]
@@ -5348,6 +5697,7 @@ parse_dict = {
         "win_bid_price": {
             "re": [
                 "中标人：.*?金额：(.+?)<",
+                "中标价格：(.+?)<",
                 ""
             ],
             "xpath": [""]
@@ -5412,11 +5762,11 @@ parse_dict = {
 
         "tender_unit": {
             "re": [
+                "联系方式[\s\S]*?招标人：(.+?)<",
                 "招标人名称：(.+?)<",
                 "采购人名称：(.+?)<",
                 "招标采购单位：(.+?)<",
                 "名称：(.+?)<",
-
             ],
             "xpath": ["//div[@id='zwPanel']//tbody//td[contains(text(), '招标采购单位：')]"]
         },
@@ -5440,6 +5790,7 @@ parse_dict = {
         "project_leader": {
             "re": [
                 '联系事项[\s\S]*?联系人：([\s\S]+?)(?=<|电)',
+                '联系方式[\s\S]*?联系人：([\s\S]+?)技术联系人',
                 '联系方式[\s\S]*?联系人：([\s\S]+?)(?=<|电)',
                 "",
                 "",
@@ -5523,7 +5874,11 @@ parse_dict = {
 
         "bid_winner": {
             "re": [
-                "中标人：(.+?)(?=金额|<)",
+                "中标人：(.+?公司)（",
+                "中标人：(.+?)中标价格",
+                "中标人：(.+?公司)，",
+                "中标人：(.+?)金额",
+                "中标人：(.+?)<",
                 ""
             ],
             "xpath": [""]
@@ -5532,6 +5887,7 @@ parse_dict = {
         "win_bid_price": {
             "re": [
                 "中标人：.*?金额：(.+?)<",
+                "中标价格：(.+?)<",
                 ""
             ],
             "xpath": [""]
@@ -5583,7 +5939,10 @@ parse_dict = {
             "xpath": ['//div[@class="xqview"]/h2']
         },  # 项目标题
         "project_number": {
-            "re": ['<b>\[(.*?)\]</b'],
+            "re": [
+                '<b>\[(.*?)\]</b',
+                '采购项目编号：(.+?)</p'
+            ],
             "xpath": ['']
         },  # 项目编号
         "tender_unit": {
@@ -5642,7 +6001,7 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ['//div[@class="viewcon"]']
+            "xpath": ['//div[@class="text"]']
         },  # 正文
         "bid_finish_time": {
             "re": [''],
@@ -5857,12 +6216,20 @@ parse_dict = {
             "xpath": ['//div[@class="xqview"]/h2']
         },  # 项目标题
         "project_number": {
-            "re": ['<b>\[(.*?)\]</b'],
+            "re": [
+                '<b>\[(.*?)\]</b',
+                '项目编号：(.+?)</span><br',
+                '项目编号：(.+?)</p',
+            ],
             "xpath": ['//span[contains(text(),"采购项目编号")]',
                       '//span[contains(text(),"项目编号")]/../following-sibling::span[1]']
         },  # 项目编号
         "tender_unit": {
-            "re": [''],
+            "re": [
+                '采购人信息[\s\S]*?名.*?称：(.+?)<br',
+                '采购人信息[\s\S]*?名称：(.+?)</p',
+                '购人名称：(.+?)</p',
+            ],
             "xpath": ['//span[contains(text(),"采购人名称")]',
                       '//span[contains(text(),"采购人信息")]/../../following-sibling::p[1]',
                       '//th[contains(text(),"招标人")]/following-sibling::td[1]',
@@ -5871,11 +6238,13 @@ parse_dict = {
                       '//span[contains(string(), "招标人")]/following-sibling::*',
                       '//span[contains(string(), "招 标 人：")]/following-sibling::*[1]',
                       '//span[contains(string(), "招 标 人")]',
-
                       ]
         },  # 招标单位
         "tender_price": {
-            "re": [''],
+            "re": [
+                '预算金额：(.+?)</p',
+                ''
+            ],
             "xpath": ['//span[contains(text(),"项目预算金额")]']
         },  # 标的金额
         "publish_time": {
@@ -5883,7 +6252,11 @@ parse_dict = {
             "xpath": ['//p[@class="fbsj"]']
         },  # 发布时间
         "project_leader": {
-            "re": [''],
+            "re": [
+                '项目联系人：(.+?)</span></span>',
+                '项目联系人：(.+?)</span></p',
+                '项目联系人：(.+?)<br',
+            ],
             "xpath": [
                 '//span[contains(text(),"采购单位联系人")]/../following-sibling::span',
                 '//span[contains(text(),"采购人信息")]/../../following-sibling::p[3]',
@@ -5895,7 +6268,9 @@ parse_dict = {
             ]
         },  # 招标项目负责人
         "phone": {
-            "re": [''],
+            "re": [
+                '电.?话：(.+?)</p',
+            ],
             "xpath": [
                 '//span[contains(text(),"采购单位联系电话")]/../following-sibling::span',
                 '//span[contains(text(),"采购人信息")]/../../following-sibling::p[3]',
@@ -5925,7 +6300,7 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ['//div[@class="viewcon"]']
+            "xpath": ['//div[@class="text"]']
         },  # 正文
         "bid_finish_time": {
             "re": [''],
@@ -6001,12 +6376,29 @@ parse_dict = {
             "xpath": ['//div[@class="xqview"]/h2', '//span[contains(text(),"项目名称")]/../..']
         },  # 项目标题
         "project_number": {
-            "re": ['<b>\[(.*?)\]</b'],
-            "xpath": ['//span[contains(text(),"项目编号")]/../..']
+            "re": [
+                '<b>\[(.*?)\]</b',
+                '项目编号：(.+?)</span><br',
+                '项目编号：(.+?)</p',
+                '项目编号：(.+?)<br',
+
+            ],
+            "xpath": [
+                '//tr[@class="firstRow"]/td[contains(string(), "招标编号")]/following::td[1]',
+                '//span[contains(text(),"项目编号")]/../..']
         },  # 项目编号
         "tender_unit": {
-            "re": [''],
-            "xpath": ['//td[contains(text(),"采购人名称")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[1]',
+            "re": [
+                '招标人：(.+?)</span></p>',
+                '招标人：(.+?)<br',
+                '(?<=<span name="issue_tendereeName">)([\s\S]+?)(?=<\/span>)',
+                '人信息[\s\S]*?名[\s\S]*?称：(.+?)</span',
+                '人信息[\s\S]*?名[\s\S]*?称：(.+?)<br',
+                '采购人：(.+?)<',
+            ],
+            "xpath": [
+                '//td[contains(string(), "建设单位")]/following-sibling::td[1]',
+                '//td[contains(text(),"采购人名称")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[1]',
                       '//span[contains(string(),"招标人：")]/following-sibling::span',
                       '//h2[contains(string(),"采购人")]/following-sibling::*[1]//span[contains(string(),"名 称：")]/following-sibling::*',
                       '//span[contains(string(), "招标人")]/following-sibling::*',
@@ -6024,7 +6416,14 @@ parse_dict = {
             "xpath": ['//p[@class="fbsj"]']
         },  # 发布时间
         "project_leader": {
-            "re": [''],
+            "re": [
+                '采购人联系人：(.+?)<',
+                '招标人联系方式[\s\S]*?联系人：(.+?)</p',
+                '项目联系方式[\s\S]*?项目联系人：(.+?)</span',
+                '项目联系方式[\s\S]*?项目联系人：(.+?)<br',
+                '项目经理：(.+?)</span></p',
+                '项目负责人:(.+?)</span></p',
+            ],
             "xpath": ['//td[contains(text(),"采购人联系方式")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[3]',
                       '//h2[contains(string(),"项目联系方式")]/following-sibling::*[1]//span[contains(string(),"项目联系人：")]/following-sibling::*',
                       'string(//span/span[contains(string(),"联系方式：")])',
@@ -6033,7 +6432,14 @@ parse_dict = {
                       ]
         },  # 招标项目负责人
         "phone": {
-            "re": [''],
+            "re": [
+                '项目联系人：[\s\S]*?([0-9-]{5,20}).*?</p',
+                '招标文件购买方式[\s\S]*?电话：(.+?)(?=传真|<br)',
+                '获取招标文件方式[\s\S]*?电话：([\s\S]+?)</p',
+                '（电话：(.+?)）',
+                '招标人联系方式[\s\S]*?电话：(.+?)(?=传真|</p)',
+                '项目联系方式[\s\S]*?电.*?话：(.+?)</span',
+            ],
             "xpath": ['//td[contains(text(),"采购人联系方式")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[3]',
                       '//h2[contains(string(),"项目联系方式")]/following-sibling::*[2]//span[contains(string(),"电　　 话：")]/following-sibling::*',
                       'string(//p[contains(string(),"联系方式：")])',
@@ -6043,7 +6449,7 @@ parse_dict = {
         },  # 联系电话
         "project_location": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[contains(string(), "所属地区")]/following::td[1]']
         },  # 项目所在地
         "industry_type": {
             "re": [''],
@@ -6059,10 +6465,14 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ['//div[@class="viewcon"]']
+            "xpath": ['//div[@class="viewcon"]//p']
         },  # 正文
         "bid_finish_time": {
-            "re": [''],
+            "re": [
+                '(?<=开标时间:)([\s\S]+?)(?=<)',
+                '(?<=开标时间：)([\s\S]+?)(?=<)',
+                '开标时间（北京时间）：([\s\S]*?)</p',
+            ],
             "xpath": ['']
         },  # 开标时间
         "bid_end_time": {
@@ -6070,12 +6480,27 @@ parse_dict = {
             "xpath": ['']
         },  # 投标截止时间
         "project_overview": {
-            "re": [''],
+            "re": [
+                '项目概况([\s\S]+?)(?=一、|二、|三、|四、|五、)',
+
+            ],
             "xpath": ['']
         },  # 项目概况
         "agency": {
-            "re": ['招标代理：(.+?)<'],
-            "xpath": ['//td[contains(text(),"采购代理机构全称")]',
+            "re": [
+                '招标代理：(.+?)<',
+                '招标代理机构名称：(.+?)<br',
+                '代理机构信息[\s\S]*?名[\s\S]*?称：(.+?)</span',
+                '招标代理机构：([\s\S]+?)招标人：.*?<br',
+                '(?<=招标代理机构:)([\s\S]+?)(?=<)',
+                '(?<=招标代理机构：)([\s\S]+?)(?=<)',
+                '采购代理机构：(.+?)<',
+                '代理机构：(.+?)</span></p',
+
+            ],
+            "xpath": [
+                '//td[contains(string(), "代理单位")]/following-sibling::td[1]',
+                '//td[contains(text(),"采购代理机构全称")]',
                       '//span[contains(text(),"采购代理机构信息")]/../../following-sibling::p[1]',
                       '//span[contains(string(),"招标代理机构：")]/following-sibling::span',
                       '//span[contains(string(),"采购代理机构信息")]/following::*//span[contains(string(),"名 称：")]/following-sibling::*',
@@ -6085,20 +6510,48 @@ parse_dict = {
 
         },  # 代理机构
         "bid_evaluation_rule": {
-            "re": ['投标人资格要求(.+?)<strong>'],
+            "re": [
+                '投标人资格要求(.+?)<strong>',
+                '投标人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、)',
+                '申请人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、)',
+                '投标人资格要求(.+?)<strong>',
+            ],
             "xpath": ['']
         },  # 评标规则
         "bid_winner": {
-            "re": [''],
-            "xpath": ['//td[contains(text(),"成交供应商名称")]/../following-sibling::tr[1]/td[1]',
+            "re": [
+                '中标人：(.+?)<br',
+                '中标人：(.+?)</p',
+                '中标人单位名称：(.+?)</p',
+                '中标供应商名称:(.+?)</span>',
+                '中标供应商名称:(.+?)<br',
+                '中标供应商名称：(.+?)</span>',
+                '中标单位为：(.+?)</span></p',
+
+            ],
+            "xpath": [
+                '//td[contains(string(), "中标人")]/following-sibling::td[1]',
+                '//td[contains(string(), "中标单位")]/following-sibling::td[1]',
+                '//td[contains(text(),"成交供应商名称")]/../following-sibling::tr[1]/td[1]',
                       '//span[contains(text(),"供应商名称")]/../..',
-                      ]
+                "//p[string()='中标单位：']/following::p[1]",
+                "//td[contains(string(), '中标单位名称')]/../following::*[1]/td[count(//table[1]//td[contains(string(), '中标单位名称')]/preceding-sibling::td) + 1]",
+            ]
         },  # 中标人
         "win_bid_price": {
-            "re": [''],
-            "xpath": ['//td[contains(text(),"成交供应商名称")]/../following-sibling::tr[1]/td[3]',
+            "re": [
+                '中标金额：(.+?)</p',
+                '中标金额：(.+?)<br',
+                '中标单位总报价为：(.+?)</span></p',
+
+            ],
+            "xpath": [
+                "//td[contains(string(), '投标报价')]/../following::*[1]/td[count(//table[1]//td[contains(string(), '投标报价')]/preceding-sibling::td) + 1]",
+                '//td[contains(string(), "中标价")]/following-sibling::td[1]',
+                '//td[contains(text(),"成交供应商名称")]/../following-sibling::tr[1]/td[3]',
                       '//span[contains(text(),"中标（成交）金额")]/../..',
-                      ]
+
+            ]
         },  # 中标金额
         "win_bid_announcement_time": {
             "re": [''],
@@ -6139,28 +6592,42 @@ parse_dict = {
             "xpath": ['//div[@class="xqview"]/h2', '//span[contains(text(),"项目名称")]/../..']
         },  # 项目标题
         "project_number": {
-            "re": ['<b>\[(.*?)\]</b'],
+            "re": [
+                '<b>\[(.*?)\]</b',
+                '项目编号：(.+?)</span><br',
+                '项目编号：(.+?)</p',
+                '项目编号：(.+?)<br',
+
+            ],
             "xpath": [
-                '//span[contains(text(),"项目编号")]/../..',
-            ]
+                '//tr[@class="firstRow"]/td[contains(string(), "招标编号")]/following::td[1]',
+                '//span[contains(text(),"项目编号")]/../..']
         },  # 项目编号
         "tender_unit": {
-            "re": ['招标人名称：(.+?)<'],
+            "re": [
+                '招标人：(.+?)</span></p>',
+                '建设单位：(.+?)</span></p>',
+                '招标人：(.+?)<br',
+                '(?<=<span name="issue_tendereeName">)([\s\S]+?)(?=<\/span>)',
+                '人信息[\s\S]*?名[\s\S]*?称：(.+?)</span',
+                '人信息[\s\S]*?名[\s\S]*?称：(.+?)<br',
+                '采购人：(.+?)<',
+            ],
             "xpath": [
+                '//td[contains(string(), "建设单位")]/following-sibling::td[1]',
                 '//td[contains(text(),"采购人名称")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[1]',
-                '//span[contains(string(),"招标人：")]/following-sibling::span',
-                '//span[contains(string(), "业主单位名称: ")]/following-sibling::*[1]',
-                '//h2[contains(string(),"采购人")]/following-sibling::*[1]//span[contains(string(),"名 称：")]/following-sibling::*',
-                '//span[contains(string(), "招标人")]/following-sibling::*',
-                '//span[contains(string(), "招 标 人：")]/following-sibling::*[1]',
-                '//span[contains(string(), "招 标 人")]',
+                      '//span[contains(string(),"招标人：")]/following-sibling::span',
+                      '//h2[contains(string(),"采购人")]/following-sibling::*[1]//span[contains(string(),"名 称：")]/following-sibling::*',
+                      '//span[contains(string(), "招标人")]/following-sibling::*',
+                      '//span[contains(string(), "招 标 人：")]/following-sibling::*[1]',
+                      '//span[contains(string(), "招 标 人")]',
 
                       ]
         },  # 招标单位
         "tender_price": {
             "re": [
-                '最高限价：(.+?)</p>',
-                '最高限价：(.+?)<',
+                '最高限价：(.+?)</span></p>',
+                ''
             ],
             "xpath": ['']
         },  # 标的金额
@@ -6169,20 +6636,32 @@ parse_dict = {
             "xpath": ['//p[@class="fbsj"]']
         },  # 发布时间
         "project_leader": {
-            "re": [''],
+            "re": [
+                '采购人联系人：(.+?)<',
+                '招标人联系方式[\s\S]*?联系人：(.+?)</p',
+                '项目联系方式[\s\S]*?项目联系人：(.+?)</span',
+                '项目联系方式[\s\S]*?项目联系人：(.+?)<br',
+                '项目经理：(.+?)</span></p',
+                '项目负责人:(.+?)</span></p',
+            ],
             "xpath": ['//td[contains(text(),"采购人联系方式")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[3]',
                       '//h2[contains(string(),"项目联系方式")]/following-sibling::*[1]//span[contains(string(),"项目联系人：")]/following-sibling::*',
-                      '//span[contains(string(), "联 系 人：")]/following-sibling::*[1]',
                       'string(//span/span[contains(string(),"联系方式：")])',
                       'string(//span[contains(string(), "联 系 人：")])',
 
                       ]
         },  # 招标项目负责人
         "phone": {
-            "re": [''],
+            "re": [
+                '项目联系人：[\s\S]*?([0-9-]{5,20}).*?</p',
+                '招标文件购买方式[\s\S]*?电话：(.+?)(?=传真|<br)',
+                '获取招标文件方式[\s\S]*?电话：([\s\S]+?)</p',
+                '（电话：(.+?)）',
+                '招标人联系方式[\s\S]*?电话：(.+?)(?=传真|</p)',
+                '项目联系方式[\s\S]*?电.*?话：(.+?)</span',
+            ],
             "xpath": ['//td[contains(text(),"采购人联系方式")]', '//span[contains(text(),"采购人信息")]/../following-sibling::p[3]',
                       '//h2[contains(string(),"项目联系方式")]/following-sibling::*[2]//span[contains(string(),"电　　 话：")]/following-sibling::*',
-                      '//span[contains(string(), "电 话：")]/following-sibling::*[1]',
                       'string(//p[contains(string(),"联系方式：")])',
                       'string(//p[contains(string(),"联系电话：")])',
 
@@ -6190,7 +6669,7 @@ parse_dict = {
         },  # 联系电话
         "project_location": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//td[contains(string(), "所属地区")]/following::td[1]']
         },  # 项目所在地
         "industry_type": {
             "re": [''],
@@ -6206,63 +6685,99 @@ parse_dict = {
         },  # 信息来源
         "content": {
             "re": [''],
-            "xpath": ["//div[@class='xqview']"]
+            "xpath": ['//div[@class="viewcon"]//p']
         },  # 正文
         "bid_finish_time": {
-            "re": [''],
-            "xpath": [
-                '//p[contains(string(), "开标时间：")]',
-                '//td[contains(string(), "开标时间")]/following-sibling::*[1]',
-            ]
+            "re": [
+                '开标时间：(.+?)</span></p>',
+                '(?<=开标时间:)([\s\S]+?)(?=<)',
+                '(?<=开标时间：)([\s\S]+?)(?=<)',
+                '开标时间（北京时间）：([\s\S]*?)</p',
+            ],
+            "xpath": ['']
         },  # 开标时间
         "bid_end_time": {
             "re": ['投标时间[\s\S]*?结束：([\s\S]*?)<'],
             "xpath": ['']
         },  # 投标截止时间
         "project_overview": {
-            "re": [''],
+            "re": [
+                '项目概况([\s\S]+?)(?=一、|二、|三、|四、|五、)',
+
+            ],
             "xpath": ['']
         },  # 项目概况
         "agency": {
             "re": [
+                '招标代理机构名称：(.+?)<br',
+                '代理机构信息[\s\S]*?名[\s\S]*?称：(.+?)</span',
+                '招标代理机构：([\s\S]+?)招标人：.*?<br',
+                '(?<=招标代理机构:)([\s\S]+?)(?=<)',
+                '(?<=招标代理机构：)([\s\S]+?)(?=<)',
+                '采购代理机构：(.+?)<',
+                '招标代理：(.+?)</span></p>',
+                '代理机构：(.+?)</span></p',
                 '招标代理：(.+?)<',
-                '招标代理：(.+?)</p',
+
             ],
-            "xpath": ['//td[contains(text(),"采购代理机构全称")]',
+            "xpath": [
+                '//td[contains(string(), "代理单位")]/following-sibling::td[1]',
+                '//td[contains(text(),"采购代理机构全称")]',
                       '//span[contains(text(),"采购代理机构信息")]/../../following-sibling::p[1]',
                       '//span[contains(string(),"招标代理机构：")]/following-sibling::span',
-                      '//span[contains(string(),"招标代理机构：")]/following-sibling::span',
                       '//span[contains(string(),"采购代理机构信息")]/following::*//span[contains(string(),"名 称：")]/following-sibling::*',
-                      '//p[contains(string(),"招标代理机构")]',
                       '//span[contains(string(),"代理：")]/following-sibling::span[1]',
 
                       ]
 
         },  # 代理机构
         "bid_evaluation_rule": {
-            "re": ['投标人资格要求(.+?)<strong>'],
+            "re": [
+                '投标人资格要求(.+?)<strong>',
+                '投标人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、)',
+                '申请人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、)',
+                '投标人资格要求(.+?)<strong>',
+            ],
             "xpath": ['']
         },  # 评标规则
         "bid_winner": {
             "re": [
-                '第一候选人：(.+?)<',
-                '第一中标候选人：(.+?)<',
+                '中标人：(.+?)<br',
+                '中标人：(.+?)</p',
+                '中标人单位名称：(.+?)</p',
+                '中标供应商名称:(.+?)</span>',
+                '中标供应商名称:(.+?)<br',
+                '中标供应商名称：(.+?)</span>',
+                '中标单位为：(.+?)</span></p',
+                '第一候选人：(.+?)</span></p>',
+                '第一中标候选人：(.+?)<br',
+                '第一中标候选人：(.+?)</span></span></p>',
 
             ],
             "xpath": [
-                # '//span[contains(string(), "第一候选人：")]/following::*[1]/span[1]',
-                '//div[@class="viewcon"]/table//td[contains(string(), "单位名称")]/../following::*[1]//td[count(//div[@class="viewcon"]/table//td[contains(string(), "单位名称")]/preceding-sibling::*) + 1]',
-                '//span[contains(string(), "第一中标候选人：")]/following::*[1]/span[1]',
+                '//td[contains(string(), "中标人")]/following-sibling::td[1]',
+                '//td[contains(string(), "中标单位")]/following-sibling::td[1]',
                 '//td[contains(text(),"成交供应商名称")]/../following-sibling::tr[1]/td[1]',
-                '//span[contains(text(),"供应商名称")]/../..',
+                      '//span[contains(text(),"供应商名称")]/../..',
+                "//p[string()='中标单位：']/following::p[1]",
+                "//td[contains(string(), '中标单位名称')]/../following::*[1]/td[count(//table[1]//td[contains(string(), '中标单位名称')]/preceding-sibling::td) + 1]",
             ]
         },  # 中标人
         "win_bid_price": {
-            "re": [''],
+            "re": [
+                '中标金额：(.+?)</p',
+                '中标金额：(.+?)<br',
+                '中标单位总报价为：(.+?)</span></p',
+                '第一中标候选人：[\s\S]*?总报价：(.+?)<br',
+
+            ],
             "xpath": [
+                "//td[contains(string(), '投标报价')]/../following::*[1]/td[count(//table[1]//td[contains(string(), '投标报价')]/preceding-sibling::td) + 1]",
+                '//td[contains(string(), "中标价")]/following-sibling::td[1]',
                 '//td[contains(text(),"成交供应商名称")]/../following-sibling::tr[1]/td[3]',
-                '//span[contains(text(),"中标（成交）金额")]/../..',
-                      ]
+                      '//span[contains(text(),"中标（成交）金额")]/../..',
+
+            ]
         },  # 中标金额
         "win_bid_announcement_time": {
             "re": [''],
@@ -6278,7 +6793,7 @@ parse_dict = {
         },  # 附件链接
         "keyword": {
             "re": [''],
-            "xpath": ['']
+            "xpath": ['//div[@class="viewcon"]']
         },  # 关键词
         "harvested_time": {
             "re": [''],

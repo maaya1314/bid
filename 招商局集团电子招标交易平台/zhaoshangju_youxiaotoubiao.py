@@ -98,7 +98,7 @@ class BidZS(Bid):
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
             }
             try:
-                detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
+                detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False, timeout=10)
             except Exception as e:
                 self.log.exception(e)
                 continue
@@ -106,7 +106,7 @@ class BidZS(Bid):
             iframe_url = html.xpath("string(//iframe[@scrolling='auto']/@src)")
             if iframe_url:
                 try:
-                    detail_content = self.req(url=iframe_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
+                    detail_content = self.req(url=iframe_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False, timeout=10)
                 except Exception as e:
                     self.log.exception(e)
                     continue
@@ -114,13 +114,21 @@ class BidZS(Bid):
                 self.log.error("{} no detail_content".format(detail_url))
                 continue
             data = {}
+            data['project_title'] = item.xpath("string(./span[@class='list-content-between']/span[@class='list-content-start']/a/@title)")
+            data['project_number'] = item.xpath("string(./div[@class='list-content-between'][2]/span[@class='list-content-start']/span[@class='list-content-start'])")
             data['tender_unit'] = item.xpath("string(./div[@class='list-content-between'][2]/span[@class='list-content-start']/span[@class='list-content-end'])")
             data['publish_time'] = item.xpath("string(./div[@class='list-content-between'][1]/span[@class='list-content-end'])")
             # data['industry_type'] =
             self.detail_parse(detail_content, detail_url, data)
 
     def fix_data(self, data, detail_content):
-        pass
+        attachment_url = data.get("attachment_url")
+        article_url = data.get("article_url")
+        if attachment_url and article_url:
+            if attachment_url.startswith("/file"):
+                attachment_url = "https://dzzb.ciesco.com.cn{}".format(attachment_url)
+                data['attachment_url'] = attachment_url
+
 
 if __name__ == '__main__':
     params = {

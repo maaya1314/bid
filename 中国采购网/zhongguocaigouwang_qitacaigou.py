@@ -25,8 +25,8 @@ urllib3.disable_warnings()
 
 class BidZGCGW(Bid):
 
-    def __init__(self):
-        Bid.__init__(self)
+    def __init__(self, debug=True):
+        Bid.__init__(self, debug)
         self.log = getLogger(self.__class__.__name__, console_out=True, level="debug")
         self.user_agent_list = ["Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1", "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"]
         self.headers = {}
@@ -35,23 +35,6 @@ class BidZGCGW(Bid):
         self.exit_counts = 0
         self.file_name = '中国采购网-其他采购信息'
         self.parse_dict = parse_dict.get(self.file_name)
-
-    def process_item(self, params):
-        if not self.parse_dict:
-            self.log.error("error conf site name {}".format(self.file_name))
-            return
-        try:
-            query_time = int(params.get("query_time"))
-        except:
-            self.log.error(f"error query_time value: {params.get('query_time')}")
-            query_time = 2
-        cur_time = datetime.datetime.now()
-        self.query_time = str((cur_time + datetime.timedelta(days=-query_time)).strftime('%Y-%m-%d'))
-        self.proxy_flag = params.get("proxy_flag")
-        self.time_sleep = params.get('time_sleep')
-        keyword_list = params.get("MainKeys")
-        for keyword in keyword_list:
-            self.run(keyword)
 
     def run(self, keyword):
         TIMEOUT = 60
@@ -96,12 +79,13 @@ class BidZGCGW(Bid):
 
     def list_parse(self, content, url):
         html = etree.HTML(content)
-        url_list = html.xpath("//ul[@class='c_list_bid']/li/a/@href")
+        items = html.xpath("//ul[@class='c_list_bid']/li")
         # url_list = re.findall('guid=(.*?)(?=&|$)', content)
-        for item in url_list:
+        for item in items:
             if self.exit_flag:
                 return
-            detail_url = urljoin(url, item)
+            href = item.xpath("string(./a/@href)")
+            detail_url = urljoin(url, href)
             # detail_url = item
             # detail_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(item)
             list_headers = {
@@ -120,7 +104,15 @@ class BidZGCGW(Bid):
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
                 continue
-            self.detail_parse(detail_content, detail_url)
+            data = {}
+            # spare_1 = item.xpath("string(./em[1])")
+            project_location = item.xpath("string(./em[2])")
+            tender_unit = item.xpath("string(./em[3])")
+            data['publish_time'] = item.xpath("string(./em[1])")
+            # data['spare_1'] = spare_1.replace("\n", "")
+            data['project_location'] = project_location
+            data['tender_unit'] = tender_unit
+            self.detail_parse(detail_content, detail_url, data)
 
     def fix_data(self, data, detail_content):
         attachment_url = data.get("attachment_url", "")

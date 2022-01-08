@@ -12,6 +12,8 @@ import sys
 import os
 import datetime
 import time
+from urllib.parse import urljoin
+
 from pymongo import UpdateOne, InsertOne
 import requests
 from lxml import etree
@@ -156,6 +158,11 @@ class Bid(object):
                     re_value = re.findall(r, detail_content)
                     for v in re_value:
                         v = re.sub("<[\s\S]*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
+                        # 补丁
+                        if key == "project_number" and v and len(v) > 25 and 'ec.ceec.net.cn' not in detail_url:
+                            v = ""
+                        elif key == "phone" and v and (len(v) > 30 or len(v) < 6):
+                            v = ""
                         data[key] = v
                         break
                 except:
@@ -177,7 +184,10 @@ class Bid(object):
                                 if not data.get(key):
                                     data[key] += temp_result.replace("\r", "").replace("\n", "").strip()
                                 else:
-                                    data[key] += "," + temp_result.replace("\r", "").replace("\n", "").strip()
+                                    if key == "content":
+                                        data[key] += temp_result.replace("\r", "").replace("\n", "").strip()
+                                    else:
+                                        data[key] += "," + temp_result.replace("\r", "").replace("\n", "").strip()
                     elif isinstance(x_xpath_value, str):
                         temp_result = x_xpath_value
                         if temp_result:
@@ -202,10 +212,18 @@ class Bid(object):
             bid_end_time = self.format_time(bid_end_time)
             data['bid_end_time'] = bid_end_time
 
+        win_bid_announcement_time = data.get("win_bid_announcement_time")
+        if win_bid_announcement_time:
+            win_bid_announcement_time = self.format_time(win_bid_announcement_time)
+            data['win_bid_announcement_time'] = win_bid_announcement_time
+
         attachment_url = data.get("attachment_url")
-        if attachment_url:
-            attachment_url = attachment_url if attachment_url.startswith('http') else 'http:' + attachment_url
-            data['attachment_url'] = attachment_url
+        article_url = data.get("article_url")
+        if attachment_url and article_url:
+            if not attachment_url.startswith("http"):
+                attachment_url = urljoin(article_url, attachment_url)
+            # attachment_url = attachment_url if attachment_url.startswith('http') else 'http:' + attachment_url
+                data['attachment_url'] = attachment_url
 
         phone = data.get("phone")
         if phone:
@@ -213,6 +231,11 @@ class Bid(object):
             phone = phone if not phone_list else phone_list[0]
             phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "")\
                 .replace("项目负责", "").replace("人", "").strip()
+            if phone.endswith("（"):
+                try:
+                    phone = re.findall('[0-9-]{1,}', phone)[0]
+                except:
+                    phone = ""
             data["phone"] = phone
 
         tender_price = data.get("tender_price")
@@ -255,13 +278,13 @@ class Bid(object):
         if project_leader:
             project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "")\
                 .replace("联系", "").replace("方式", "").replace("电话", "").replace("招标", "").replace("中标", "").strip()
-            project_leader = re.sub("[0-9-，（）]", "", project_leader)
+            project_leader = re.sub("[0-9-，（）。]", "", project_leader)
             data['project_leader'] = project_leader
 
         tender_unit = data.get("tender_unit")
         if tender_unit:
-            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace(" ", "").replace("采购人", "")\
-                .replace("：", "").replace("名称", "").replace("招标人", "").strip()
+            tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace(" ", "").replace("项目类别：施工", "")\
+                .replace("采购人", "").replace("：", "").replace("单位名称", "").replace("名称", "").replace("招标人", "").strip()
             data['tender_unit'] = tender_unit
 
         agency = data.get("agency")
@@ -283,11 +306,23 @@ class Bid(object):
         project_number = data.get("project_number")
         if project_number:
             project_number = project_number.replace("：", "").replace("\r", "").replace("\n", "").replace("项目", "")\
-                .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "").strip()
+                .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "").replace("已开标", "").strip()
             if project_number.endswith("）"):
                 project_number = project_number.replace("）", "")
             if project_number.endswith(")"):
                 project_number = project_number.replace(")", "")
+            if project_number.endswith(")"):
+                project_number = project_number.replace(")", "")
+            if project_number.endswith("-"):
+                project_number = project_number.replace("-", "")
+            if project_number.endswith("）"):
+                project_number = project_number.replace("）", "")
+            try:
+                pn = re.findall('[a-zA-Z0-9-]{1,}', project_number)[0]
+                if len(pn) < 7:
+                    project_number = ""
+            except:
+                project_number = ""
             data['project_number'] = project_number
 
         tender_unit = data.get("tender_unit")
