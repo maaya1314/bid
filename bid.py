@@ -331,6 +331,7 @@ class Bid(object):
                 .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "")\
                 .replace("；", "").replace("已开标", "").strip()
             project_number = project_number.split("成交")[0]
+            project_number = project_number.split("作")[0]
             if project_number.endswith("）"):
                 project_number = project_number[:-1]
             if project_number.endswith("（"):
