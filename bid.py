@@ -239,15 +239,17 @@ class Bid(object):
             data["phone"] = phone
 
         tender_price = data.get("tender_price")
+        ddcontent = etree.tostring(html, encoding='unicode')
         if tender_price:
             tender_price = tender_price.replace(",", "")
             price_list = re.findall("([0-9\.]{1,})", tender_price)
             if price_list:
                 new_tender_price = price_list[0]
                 try:
-                    if '万' in tender_price or '万元' in detail_content:
+                    if '万' in tender_price or '万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent:
                         new_tender_price = "{}元".format(int(float(new_tender_price) * 10000))
                     else:
+
                         new_tender_price = "{}元".format(int(float(new_tender_price)))
                 except Exception as e:
                     self.log.error("error new_tender_price:{}".format(new_tender_price))
@@ -263,7 +265,7 @@ class Bid(object):
             if price_list:
                 new_win_bid_price = price_list[0]
                 try:
-                    if '万' in win_bid_price:
+                    if '万' in win_bid_price or '万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent:
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price) * 10000))
                     else:
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price)))
@@ -277,20 +279,34 @@ class Bid(object):
         project_leader = data.get("project_leader")
         if project_leader:
             project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "")\
-                .replace("联系", "").replace("方式", "").replace("电话", "").replace("招标", "").replace("中标", "").strip()
+                .replace("联系", "").replace("采购人", "").replace("方式", "").replace("电话", "").replace("招标", "")\
+                .replace("证书编号", "").replace("、", "").replace("中标", "").strip()
             project_leader = re.sub("[0-9-，（）。]", "", project_leader)
+            project_leader = project_leader.split("电　话")[0]
             data['project_leader'] = project_leader
 
         tender_unit = data.get("tender_unit")
         if tender_unit:
             tender_unit = tender_unit.replace("\t", "").replace(" ", "").replace(" ", "").replace("项目类别：施工", "")\
                 .replace("采购人", "").replace("：", "").replace("单位名称", "").replace("名称", "").replace("招标人", "").strip()
+            if len(tender_unit) > 25:
+                tender_unit = tender_unit.split("联系")[0].split("地址")[0].split("项目")[0]
+            if len(tender_unit) > 25:
+                try:
+                    tender_unit = re.findall(".*?公司", tender_unit)[0]
+                except:
+                    tender_unit = ""
             data['tender_unit'] = tender_unit
 
         agency = data.get("agency")
         if agency:
             agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("招标代理机构", "")\
                 .replace("代理机构", "").replace("：", "").replace("名称", "").strip()
+            if len(agency) > 25:
+                try:
+                    agency = re.findall(".*?公司", agency)[0]
+                except:
+                    agency = ""
             data['agency'] = agency
 
         industry_type = data.get("industry_type")
@@ -300,28 +316,41 @@ class Bid(object):
 
         bid_winner = data.get("bid_winner")
         if bid_winner:
-            bid_winner = bid_winner.replace("：", "").replace("\r", "").replace("\n", "").replace("【", "").replace("】", "").strip()
+            bid_winner = bid_winner.replace("：", "").replace("\r", "").replace("\n", "").replace("【", "").replace("】", "")\
+                .replace("；", "").replace("，", "").replace("。", "").replace("1、", "").replace('（小微型企业）', '').strip()
+            if len(bid_winner) > 25:
+                try:
+                    bid_winner = re.findall(".*?公司", bid_winner)[0]
+                except:
+                    bid_winner = ""
             data['bid_winner'] = bid_winner
 
         project_number = data.get("project_number")
         if project_number:
             project_number = project_number.replace("：", "").replace("\r", "").replace("\n", "").replace("项目", "")\
-                .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "").replace("已开标", "").strip()
+                .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "")\
+                .replace("；", "").replace("已开标", "").strip()
+            project_number = project_number.split("成交")[0]
             if project_number.endswith("）"):
-                project_number = project_number.replace("）", "")
+                project_number = project_number[:-1]
+            if project_number.endswith("（"):
+                project_number = project_number[:-1]
             if project_number.endswith(")"):
-                project_number = project_number.replace(")", "")
-            if project_number.endswith(")"):
-                project_number = project_number.replace(")", "")
+                project_number = project_number[:-1]
             if project_number.endswith("-"):
-                project_number = project_number.replace("-", "")
-            if project_number.endswith("）"):
-                project_number = project_number.replace("）", "")
+                project_number = project_number[:-1]
+            if project_number.endswith("("):
+                project_number = project_number[:-1]
             try:
-                pn = re.findall('[a-zA-Z0-9-]{1,}', project_number)[0]
-                if len(pn) < 7:
+                pn_list = re.findall('[a-zA-Z0-9-]{1,}', project_number)
+                pn = "".join(pn_list)
+                if len(pn) < 7 or len(pn_list) > 3:
                     project_number = ""
+                # if 7 < len(pn_list[0]) < 25:
+                #     project_number = pn_list[0]
             except:
+                project_number = ""
+            if len(project_number) > 30:
                 project_number = ""
             data['project_number'] = project_number
 

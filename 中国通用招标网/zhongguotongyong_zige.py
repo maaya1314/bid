@@ -22,21 +22,21 @@ urllib3.disable_warnings()
 
 class BidCY(Bid):
 
-    def __init__(self):
-        Bid.__init__(self)
+    def __init__(self, debug=True):
+        Bid.__init__(self, debug)
         self.log = getLogger(self.__class__.__name__, console_out=True, level="debug")
         self.user_agent_list = ["Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1", "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"]
         self.headers = {}
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '中国通用招标网-变更公告'
+        self.file_name = '中国通用招标网-资格预审'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
         TIMEOUT = 60
         self.keyword = keyword
-        url = 'https://www.china-tender.com.cn/bggg/index{}.jhtml'
+        url = 'https://www.china-tender.com.cn/zgys/index{}.jhtml'
         self.host = urlparse(url).netloc
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -92,10 +92,10 @@ class BidCY(Bid):
                 self.log.error("{} no detail_content".format(detail_url))
                 continue
             data = {}
-            project_location = item.xpath("string(./p/span[1]/span/a)")
-            industry_type = item.xpath("string(./p/span[2]/span/a)")
-            data['project_location'] = project_location
-            data['industry_type'] = industry_type
+            # project_location = item.xpath("string(./p/span[1]/span/a)")
+            # industry_type = item.xpath("string(./p/span[2]/span/a)")
+            # data['project_location'] = project_location
+            # data['industry_type'] = industry_type
             # publish_time = detail_content.get("publishTime")
             # data['publish_time'] = time.strftime("%Y-%m-%d", time.localtime(publish_time/1000))
             self.detail_parse(detail_content, detail_url, data)
@@ -114,5 +114,5 @@ if __name__ == '__main__':
         ],
         # "time_sleep": (2, 5)
     }
-    bid = BidCY()
+    bid = BidCY(debug=False)
     bid.process_item(params)

@@ -126,7 +126,7 @@ class BidZGCGW(Bid):
             # guid = re.findall('guid=(.*?)(?=&|$)', detail_url)[0]
             # actual_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
             # detail_url = 'http://www.ccgp.gov.cn/cggg/zygg/cjgg/202112/t20211219_17410596.htm'
-            detail_url = 'http://www.ccgp.gov.cn/cggg/zygg/zbgg/202009/t20200914_15065041.htm'
+            # detail_url = 'http://www.ccgp.gov.cn/cggg/zygg/zbgg/201806/t20180629_10188121.htm'
             detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
@@ -144,9 +144,9 @@ class BidZGCGW(Bid):
             for aid in attachment_url_id:
                 attachment_url += "http://download.ccgp.gov.cn/oss/download?uuid={};".format(aid)
             if not attachment_url:
-                href = re.findall('href="(.*?\.rar)"', detail_content)
+                href = re.findall('href="/UploadFiles(.*?)"', detail_content)
                 for h in href:
-                    attachment_url += "http://zzcg.ccgp.gov.cn{}".format(h)
+                    attachment_url += "," + "http://zzcg.ccgp.gov.cn{}".format(h)
         data['attachment_url'] = attachment_url
 
         tender_price = data.get("tender_price")
@@ -156,6 +156,7 @@ class BidZGCGW(Bid):
         data['spare_2'] = self.spare_2
         content = data.get('content')
         content = re.sub("!－－.*namespace>,?", "", content)
+        content = content.replace("?xml:namespace>", "")
         data['content'] = content
 
 
@@ -163,6 +164,7 @@ if __name__ == '__main__':
     
     params = {
         "proxy_flag": False,
+
         "query_time": "",
         "MainKeys": [
             ""

@@ -110,5 +110,5 @@ if __name__ == '__main__':
         ],
         # "time_sleep": (2, 5)
     }
-    bid = BidCY()
+    bid = BidCY(debug=False)
     bid.process_item(params)

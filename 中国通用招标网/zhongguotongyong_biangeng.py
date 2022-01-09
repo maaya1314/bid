@@ -30,41 +30,32 @@ class BidCY(Bid):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '招采云电子招投标交易平台-招标公告'
+        self.file_name = '中国通用招标网-变更公告'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
         TIMEOUT = 60
         self.keyword = keyword
-        url = 'http://www.zcbidding.com/web/Dealxx/jxmessage'
+        url = 'https://www.china-tender.com.cn/bggg/index{}.jhtml'
         self.host = urlparse(url).netloc
         self.headers = {
-            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Cache-Control': 'no-cache',
-            'Content-Length': '61',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Host': 'www.zcbidding.com',
-            'Origin': 'http://www.zcbidding.com',
             'Pragma': 'no-cache',
             'Proxy-Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
-            'X-Requested-With': 'XMLHttpRequest',
         }
-        page = 1
-        payload = {
-            'type': 'zbgg',
-            'startTime': '',
-            'endTime': '',
-            'title': keyword,
-            'page': page,
-        }
-        content = self.req(url, req_type="post", rsp_type="json", data=payload, headers=self.headers, timeout=TIMEOUT)
+        page = ""
+        homepage_url = url.format(page)
+        content = self.req(homepage_url, req_type="get", headers=self.headers, timeout=TIMEOUT)
         if not content:
             self.log.error(f"{page} no content")
             return
-        pages = content.get("pages")
+        html = etree.HTML(content)
+        pages = html.xpath("string(//option[last()])")
         self.log.info("all pages :{}, {}".format(pages, keyword))
         self.list_parse(content, url)
         pages = int(pages)
@@ -73,50 +64,42 @@ class BidCY(Bid):
         for page in range(2, pages + 1):
             if self.exit_flag:
                 return
+            next_url = url.format("_{}".format(page))
             self.log.info("now start page :{}, {}".format(page, keyword))
-            payload = {
-                'type': 'zbgg',
-                'startTime': '',
-                'endTime': '',
-                'title': keyword,
-                'page': page,
-            }
-            content = self.req(url, req_type="post", rsp_type="json", data=payload, headers=self.headers, timeout=TIMEOUT)
+            content = self.req(next_url, headers=self.headers, timeout=TIMEOUT)
             if not content:
                 self.log.error("{} no content".format(page))
                 continue
-            self.list_parse(content, url)
+            self.list_parse(content, next_url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, content, url):
-        url_list = content.get("data")
+        # url_list = content.get("list")
         # url_list = re.findall('guid=(.*?)(?=&|$)', content)
+        html = etree.HTML(content)
+        url_list = html.xpath("//div[@class='List2 Top5']/ul/li")
         for item in url_list:
             if self.exit_flag:
                 return
-            object_id = item.get("id")
-            # detail_url = urljoin(url, item)
-            detail_url = 'http://www.zcbidding.com/portal/ggXq?id={}'.format(object_id)
-            headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                'Accept-Encoding': 'gzip, deflate',
-                'Accept-Language': 'zh-CN,zh;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Host': 'www.zcbidding.com',
-                'Pragma': 'no-cache',
-                'Proxy-Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
-            }
+            href = item.xpath("string(./a/@href)")
+            detail_url = urljoin(url, href)
+            # detail_url = 'https://www.china-tender.com.cn/jghw/21538.jhtml'
             try:
-                detail_content = self.req(url=detail_url, headers=headers, verify=False)
+                detail_content = self.req(url=detail_url, headers=self.headers, verify=False)
             except Exception as e:
                 self.log.exception(e)
                 continue
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
                 continue
-            self.detail_parse(detail_content, detail_url)
+            data = {}
+            # project_location = item.xpath("string(./p/span[1]/span/a)")
+            # industry_type = item.xpath("string(./p/span[2]/span/a)")
+            # data['project_location'] = project_location
+            # data['industry_type'] = industry_type
+            # publish_time = detail_content.get("publishTime")
+            # data['publish_time'] = time.strftime("%Y-%m-%d", time.localtime(publish_time/1000))
+            self.detail_parse(detail_content, detail_url, data)
 
     def fix_data(self, data, detail_content):
         pass
@@ -127,7 +110,8 @@ if __name__ == '__main__':
         "proxy_flag": False,
         "query_time": "",
         "MainKeys": [
-            "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
+            ""
+            # "计量", "校准", "检定", "标物", "标准物质", "设备维保", "搬迁", "放射", "医疗", "实验室", "检测", "标定", "检验"
         ],
         # "time_sleep": (2, 5)
     }
