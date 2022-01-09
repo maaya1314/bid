@@ -118,7 +118,7 @@ class BidCG(Bid):
             }
             # guid = re.findall('guid=(.*?)(?=&|$)', detail_url)[0]
             # actual_url = 'https://common.dzzb.ciesco.com.cn/xunjia-zb/gonggaoxinxi/gongGao_view.html?guid={}&callBackUrl=https://dzzb.ciesco.com.cn/html/crossDomainForFeiZhaoBiao.html'.format(guid)
-            # detail_url = 'https://www.mtrmart.com/Bids/BidsNotice/NewDetail?Id=e2246c78-d707-4a9c-af10-1a3fbfd115cb'
+            # detail_url = 'https://www.mtrmart.com/SingleSourceNotice/Notice/NewDetail?Id=78cbce89-f45b-45ba-8c52-adbc81a2e2d8'
             detail_content = self.req(url=detail_url, req_type="get", anti_word="你访问的页面找不回来了", headers=list_headers, verify=False)
             if not detail_content:
                 self.log.error("{} no detail_content".format(detail_url))
@@ -131,16 +131,16 @@ class BidCG(Bid):
         project_leader = data.get("project_leader")
         if project_leader:
             try:
-                new_pl = re.findall("联系人：([\s\S]*?)联系电话", project_leader)[0].replace("\r", "").replace("\n", "").strip()
+                new_pl = re.findall("联系人[:|：]([\s\S]*?)联系电话", project_leader)[0].replace("\r", "").replace("\n", "").strip()
             except:
-                new_pl = ""
+                new_pl = project_leader
             data["project_leader"] = new_pl
         phone = data.get("phone")
         if phone:
             try:
-                new_phone = re.findall("联系电话：([\s\S]*?)$", phone)[0].replace("\r", "").replace("\n", "").strip()
+                new_phone = re.findall("联系电话[:|：]([\s\S]*?)$", phone)[0].replace("\r", "").replace("\n", "").strip()
             except:
-                new_phone = ""
+                new_phone = phone
             data['phone'] = new_phone
         attachment_url = data.get("attachment_url")
         if attachment_url and not attachment_url.startswith("'http'"):
