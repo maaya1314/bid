@@ -13,7 +13,8 @@ import os
 import datetime
 import time
 from urllib.parse import urljoin
-
+from redis import StrictRedis
+from elasticsearch import Elasticsearch, helpers
 from pymongo import UpdateOne, InsertOne
 import requests
 from lxml import etree
@@ -22,8 +23,35 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from bid_tools.loghandler import getLogger
 import pandas as pd
 from openpyxl import load_workbook
-from bid_tools.connectdb import MongoDB, TestDB
-import atexit
+
+
+class RedisConf(object):
+    host = "125.88.221.92"
+    port = 6379
+    db = 1
+    password = "yongli@123"
+    name = "yny_proxies_list"
+
+
+class Proxies(object):
+    def __init__(self):  #
+        self.redis_conn = StrictRedis(host=RedisConf.host, port=RedisConf.port, db=RedisConf.db, password=RedisConf.password)
+        # self.redis_pool = ConnectionPool(host=RedisConf.host, port=RedisConf.port, password=RedisConf.password, db=RedisConf.db)
+        # self.redis_conn = Redis(connection_pool=self.redis_pool)
+        self.redis_name = RedisConf.name
+
+    def get_proxy(self):
+        while 1:
+            proxy_lens = self.redis_conn.llen(self.redis_name)
+            proxy_index = random.choice(range(proxy_lens))
+            proxy = self.redis_conn.lindex(self.redis_name, proxy_index)
+            proxy = json.loads(proxy)
+            if not proxy:
+                time.sleep(0.01)
+                continue
+            break
+        # log.info(f">>> 线程获取： {getcurrentname()} : {proxy}")
+        return proxy
 
 
 class Bid(object):
@@ -41,17 +69,14 @@ class Bid(object):
         self.key_field = "article_url"
         self.key_field_2 = "keyword"
         self.debug = debug
+        self.es_index = 'mongo_to_es'
         self._in_work()
 
     def _in_work(self):
-        self.db = MongoDB(TestDB)
-        if not self.debug:
-            self.collection_name = self.true_collection_name
-        else:
-            indexs = self.db.db[self.collection_name].index_information()
-            index_name = "{}_-1_{}-1".format(self.key_field, self.key_field_2)
-            if index_name not in indexs:
-                self.db.db[self.collection_name].create_index([(self.key_field, -1), (self.key_field_2, -1)], unique=True)
+        host = '120.196.62.61'
+        port = '9200'
+        es_header = [{'host': host, 'port': port, 'verify_certs': False}]
+        self.es = Elasticsearch(es_header)
 
     def process_item(self, params):
         if not self.parse_dict:
@@ -69,7 +94,7 @@ class Bid(object):
         keyword_list = params.get("MainKeys")
         for keyword in keyword_list:
             self.run(keyword)
-        self.check_upload_db()
+        self.check_upload_es()
 
     def run(self, keyword):
         self.keyword = keyword
@@ -85,7 +110,7 @@ class Bid(object):
             findall = re.findall("[0-9-: /年月日时分秒\.]+", time_str)
             extract_time = findall[0].strip()
         except:
-            return ""
+            return None
         try:
             format_time = datetime.datetime.strptime(extract_time, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
             return format_time
@@ -136,7 +161,7 @@ class Bid(object):
             return format_time
         except:
             pass
-        return ""
+        return None
 
     def detail_parse(self, detail_content, detail_url, data=None):
         if not data:
@@ -159,7 +184,8 @@ class Bid(object):
                     for v in re_value:
                         v = re.sub("<[\s\S]*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
                         # 补丁
-                        if key == "project_number" and v and len(v) > 25 and 'ec.ceec.net.cn' not in detail_url:
+                        if key == "project_number" and v and len(v) > 40 and 'ec.ceec.net.cn' not in detail_url and \
+                                'www.e-bidding.org' not in detail_url:
                             v = ""
                         elif key == "phone" and v and (len(v) > 30 or len(v) < 6):
                             v = ""
@@ -181,6 +207,8 @@ class Bid(object):
                         for v in x_xpath_value:
                             temp_result = v if isinstance(v, str) else v.xpath("string(.)")
                             if temp_result:
+                                if key == 'attachment_url':
+                                    temp_result = urljoin(detail_url, temp_result)
                                 if not data.get(key):
                                     data[key] += temp_result.replace("\r", "").replace("\n", "").strip()
                                 else:
@@ -196,34 +224,6 @@ class Bid(object):
 
                 except:
                     data[key] = ""
-
-        publish_time = data.get("publish_time")
-        if publish_time:
-            publish_time = self.format_time(publish_time)
-            data['publish_time'] = publish_time
-
-        bid_finish_time = data.get("bid_finish_time")
-        if bid_finish_time:
-            bid_finish_time = self.format_time(bid_finish_time)
-            data['bid_finish_time'] = bid_finish_time
-
-        bid_end_time = data.get("bid_end_time")
-        if bid_end_time:
-            bid_end_time = self.format_time(bid_end_time)
-            data['bid_end_time'] = bid_end_time
-
-        win_bid_announcement_time = data.get("win_bid_announcement_time")
-        if win_bid_announcement_time:
-            win_bid_announcement_time = self.format_time(win_bid_announcement_time)
-            data['win_bid_announcement_time'] = win_bid_announcement_time
-
-        attachment_url = data.get("attachment_url")
-        article_url = data.get("article_url")
-        if attachment_url and article_url:
-            if not attachment_url.startswith("http"):
-                attachment_url = urljoin(article_url, attachment_url)
-            # attachment_url = attachment_url if attachment_url.startswith('http') else 'http:' + attachment_url
-                data['attachment_url'] = attachment_url
 
         phone = data.get("phone")
         if phone:
@@ -278,11 +278,12 @@ class Bid(object):
 
         project_leader = data.get("project_leader")
         if project_leader:
-            project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "")\
-                .replace("联系", "").replace("采购人", "").replace("方式", "").replace("电话", "").replace("招标", "")\
+            project_leader = project_leader.replace("\t", "").replace(" ", "").replace("联系人", "").replace("：", "").replace(":", "")\
+                .replace("联系", "").replace("采购人", "").replace("方式", "").replace("电话", "").replace("招标", "").replace("项目", "")\
                 .replace("证书编号", "").replace("、", "").replace("中标", "").strip()
             project_leader = re.sub("[0-9-，（）。]", "", project_leader)
             project_leader = project_leader.split("电　话")[0]
+            project_leader = project_leader.split("受理时间")[0]
             data['project_leader'] = project_leader
 
         tender_unit = data.get("tender_unit")
@@ -291,7 +292,7 @@ class Bid(object):
                 .replace("采购人", "").replace("：", "").replace("单位名称", "").replace("名称", "").replace("招标人", "").strip()
             if len(tender_unit) > 25:
                 tender_unit = tender_unit.split("联系")[0].split("地址")[0].split("项目")[0]
-            if len(tender_unit) > 25:
+            if len(tender_unit) > 35:
                 try:
                     tender_unit = re.findall(".*?公司", tender_unit)[0]
                 except:
@@ -301,7 +302,7 @@ class Bid(object):
         agency = data.get("agency")
         if agency:
             agency = agency.replace("\t", "").replace(" ", "").replace("采购", "").replace("招标代理机构", "")\
-                .replace("代理机构", "").replace("：", "").replace("名称", "").strip()
+                .replace("代理机构", "").replace("：", "").replace("名称", "").replace('（盖章）', "").strip()
             if len(agency) > 25:
                 try:
                     agency = re.findall(".*?公司", agency)[0]
@@ -329,7 +330,7 @@ class Bid(object):
         if project_number:
             project_number = project_number.replace("：", "").replace("\r", "").replace("\n", "").replace("项目", "")\
                 .replace("编号", "").replace("招标", "").replace("。", "").replace("【", "").replace("】", "")\
-                .replace("；", "").replace("已开标", "").strip()
+                .replace("[", "").replace("]", "").replace("；", "").replace("已开标", "").replace('第二次', '').strip()
             project_number = project_number.split("成交")[0]
             project_number = project_number.split("作")[0]
             if project_number.endswith("）"):
@@ -343,15 +344,15 @@ class Bid(object):
             if project_number.endswith("("):
                 project_number = project_number[:-1]
             try:
-                pn_list = re.findall('[a-zA-Z0-9-]{1,}', project_number)
+                pn_list = re.findall('[a-zA-Z0-9-//（）]{1,}', project_number)
                 pn = "".join(pn_list)
-                if len(pn) < 7 or len(pn_list) > 3:
+                if len(pn) < 4 or len(pn_list) > 3:
                     project_number = ""
                 # if 7 < len(pn_list[0]) < 25:
                 #     project_number = pn_list[0]
             except:
                 project_number = ""
-            if len(project_number) > 30:
+            if len(project_number) > 30 and 'ec.ceec.net.cn' not in detail_url and 'www.e-bidding.org' not in detail_url:
                 project_number = ""
             data['project_number'] = project_number
 
@@ -383,9 +384,66 @@ class Bid(object):
     def fix_data(self, data, detail_content):
         pass
 
-    def upload(self, data, output_type="db"):
+    def format_data(self, data):
+        detail_url = data.get('article_url')
+        content = data.get("content")
+        publish_time = data.get("publish_time")
+        if publish_time:
+            publish_time = self.format_time(publish_time)
+            data['publish_time'] = publish_time
+        else:
+            data['publish_time'] = None
+
+        bid_finish_time = data.get("bid_finish_time")
+        if bid_finish_time:
+            bid_finish_time = self.format_time(bid_finish_time)
+            data['bid_finish_time'] = bid_finish_time
+        else:
+            data['bid_finish_time'] = None
+
+        bid_end_time = data.get("bid_end_time")
+        if bid_end_time:
+            bid_end_time = self.format_time(bid_end_time)
+            data['bid_end_time'] = bid_end_time
+        else:
+            data['bid_end_time'] = None
+
+
+        win_bid_announcement_time = data.get("win_bid_announcement_time")
+
+        if not win_bid_announcement_time:
+            final_content = content[-30:]
+            win_bid_announcement_time = "" if not re.findall("\d{4}.*?日", final_content) else \
+            re.findall("\d{4}.*?日", final_content)[0]
+        if win_bid_announcement_time:
+            win_bid_announcement_time = self.format_time(win_bid_announcement_time)
+            data['win_bid_announcement_time'] = win_bid_announcement_time
+        else:
+            data['win_bid_announcement_time'] = None
+
+        attachment_url = data.get("attachment_url")
+
+        if attachment_url:
+            if not attachment_url.startswith("http"):
+                attachment_url = urljoin(detail_url, attachment_url)
+                # attachment_url = attachment_url if attachment_url.startswith('http') else 'http:' + attachment_url
+                data['attachment_url'] = attachment_url
+
+        attachment_url = data.get("attachment_url")
+
+        if attachment_url:
+            if not attachment_url.startswith("http"):
+                attachment_url = urljoin(detail_url, attachment_url)
+                # attachment_url = attachment_url if attachment_url.startswith('http') else 'http:' + attachment_url
+                data['attachment_url'] = attachment_url
+
+    def upload(self, data, output_type="es"):
+        self.format_data(data)
         if output_type == 'db':
             self.upload_db(data)
+            return
+        elif output_type == 'es':
+            self.upload_es(data)
             return
         for k, v in data.items():
             self.log.debug("{}: {}".format(k, v))
@@ -426,11 +484,16 @@ class Bid(object):
         # self.db[self.collection].update_one({'url': url}, {'$set': temp_dict}, upsert=True)
         for k, v in data.items():
             self.log.debug("{}: {}".format(k, v))
+        if not data.get('project_title'):
+            self.log.debug('null {}'.format(data.get('article_url')))
+        if not data.get('content'):
+            self.log.debug('null {}'.format(data.get('article_url')))
         self.items_list.append(data)
         if self.counts % 10 == 0:
             self.log.info("have stored items count:{}".format(self.counts))
         if len(self.items_list) % 10 == 0:
             if not self.debug:
+                self.log.info("col name: {}".format(self.collection_name))
                 insert_operations = []
                 for item in self.items_list:
                     op = InsertOne(item)
@@ -461,16 +524,26 @@ class Bid(object):
                 self.log.info("write db counts: {} done".format(self.counts))
                 self.items_list = []
 
-    def check_upload_db(self):
-        if self.items_list:
+    def upload_es(self, data):
+        self.counts += 1
+        for k, v in data.items():
+            self.log.debug("{}: {}".format(k, v))
+        if not data.get('project_title'):
+            self.log.debug('null {}'.format(data.get('article_url')))
+        if not data.get('content'):
+            self.log.debug('null {}'.format(data.get('article_url')))
+        self.items_list.append(data)
+        if self.counts % 10 == 0:
+            self.log.info("sending counts:{} ...".format(self.counts))
+        if len(self.items_list) % 10 == 0:
             if not self.debug:
+                self.log.info("col name: {}".format(self.collection_name))
                 insert_operations = []
                 for item in self.items_list:
-                    op = InsertOne(item)
-                    insert_operations.append(op)
+                    insert_operations.append(item)
                 while True:
                     try:
-                        self.db.db[self.collection_name].bulk_write(insert_operations, ordered=False)
+                        helpers.bulk(self.es, insert_operations, index=self.es_index, raise_on_error=True)
                         break
                     except Exception as e:
                         self.log.exception(e)
@@ -480,13 +553,39 @@ class Bid(object):
             else:
                 update_operations = []
                 for item in self.items_list:
-                    key_field = item.get(self.key_field)
-                    key_field_2 = item.get(self.key_field_2)
-                    op = UpdateOne({self.key_field: key_field, self.key_field_2: key_field_2}, {'$set': item}, upsert=True)
-                    update_operations.append(op)
+                    update_operations.append(item)
                 while True:
                     try:
-                        self.db.db[self.collection_name].bulk_write(update_operations, ordered=False)
+                        helpers.bulk(self.es, update_operations, index=self.es_index, raise_on_error=True)
+                        break
+                    except Exception as e:
+                        self.log.exception(e)
+                        time.sleep(10)
+                self.log.info("write db counts: {} done".format(self.counts))
+                self.items_list = []
+
+    def check_upload_es(self):
+        if self.items_list:
+            if not self.debug:
+                insert_operations = []
+                for item in self.items_list:
+                    insert_operations.append(item)
+                while True:
+                    try:
+                        helpers.bulk(self.es, insert_operations, index=self.es_index, raise_on_error=True)
+                        break
+                    except Exception as e:
+                        self.log.exception(e)
+                        time.sleep(10)
+                self.log.info("write db counts: {} done".format(self.counts))
+                self.items_list = []
+            else:
+                update_operations = []
+                for item in self.items_list:
+                    update_operations.append(item)
+                while True:
+                    try:
+                        helpers.bulk(self.es, update_operations, index=self.es_index, raise_on_error=True)
                         break
                     except Exception as e:
                         self.log.exception(e)
@@ -494,26 +593,28 @@ class Bid(object):
                 self.log.info("update db counts: {} done".format(self.counts))
                 self.items_list = []
 
-    def get_proxy(self):
-        params = {
-            'taskId': 'out_team',
-            'supplierCode': 'uuhttp',
-            'token': '81bd5a5b-3aca-40ac-a085-9d659d40309b'  # 更改token参数。
-        }
-        res = requests.get('http://rs.ip.skieer.com/api/v1/proxy/get', params=params, timeout=20)
-        if res.status_code != 200:
-            raise Exception('获取代理失败')
-        content = json.loads(res.content)
-        data = content['data'][0] if len(content['data']) > 0 else {}
-        if not data:
-            raise Exception('获取代理失败')
-        host = data['host']
-        port = data['port']
-        proxies = {"http": "http://{}:{}".format(host, port), "https": f"http://{host}:{port}"}
-        return proxies
+    def get_proxy(self, proxy_type="base"):
+        if proxy_type == "base":
+            return self.get_xxdl()
+        return self.get_xxdl()
+
+    def get_xxdl(self):
+        max_retry = 5
+        retry_counts = 0
+        proxy_dict = {}
+        while retry_counts < max_retry:
+            retry_counts += 1
+            time.sleep(0.01)
+            try:
+                p = Proxies()
+                proxy_dict = p.get_proxy()
+            except Exception as e:
+                self.log.error("get proxies failed {}".format(e))
+
+            return proxy_dict
 
     @retry(reraise=True, stop=stop_after_attempt(10), wait=wait_fixed(2))
-    def req(self, url, req_type="get", rsp_type="content", anti_word="", encoding=True, **kwargs):
+    def req(self, url, req_type="get", rsp_type="content", anti_word="", encoding=True, req_again=False, **kwargs):
         if not kwargs.get("timeout"):
             kwargs["timeout"] = 60
         if 'https' in url and not kwargs.get("verify"):
@@ -539,6 +640,17 @@ class Bid(object):
                 self.log.error(f"error req_type: {req_type}")
                 self.log.error(url)
                 raise Exception
+            if req_again:
+                cookies = response.cookies
+                self.cookies = ''
+                for k, v in cookies.items():
+                    self.cookies += "{}={};".format(k, v)
+                kwargs['headers']['cookie'] = self.cookies
+                if req_type == "get":
+                    response = session.get(url, **kwargs)
+                elif req_type == "post":
+                    response = session.post(url, **kwargs)
+                kwargs['headers'].pop('cookie')
         except Exception as e:
             self.log.error(url)
             self.log.exception(e)

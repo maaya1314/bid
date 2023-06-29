@@ -20,9 +20,27 @@ class TestDB(object):
     MONGO_PSW = "d&1wsxec1*"
 
 
+class BidAppDB(object):
+    MONGODB_SERVER = "125.88.221.92"
+    MONGODB_PORT = 6601
+    MONGODB_DB = "bid"
+    authSource = True
+    MONGO_USER = "work"
+    MONGO_PSW = "Gg82RG6k5D"
+
+
+
 class MongoDB(object):
     def __init__(self, mongodb):
-        mongo_url = 'mongodb://{0}:{1}@{2}:{3}/?authSource={4}&authMechanism=SCRAM-SHA-1'.format(mongodb.MONGO_USER, mongodb.MONGO_PSW, mongodb.MONGODB_SERVER, mongodb.MONGODB_PORT, mongodb.MONGODB_DB)
+        if hasattr(mongodb, 'authSource'):
+            authSource = 'admin'
+        else:
+            authSource = mongodb.MONGODB_DB
+        mongo_url = 'mongodb://{0}:{1}@{2}:{3}/?authSource={4}&authMechanism=SCRAM-SHA-1'.format(mongodb.MONGO_USER,
+                                                                                                 mongodb.MONGO_PSW,
+                                                                                                 mongodb.MONGODB_SERVER,
+                                                                                                 mongodb.MONGODB_PORT,
+                                                                                                 authSource)
         self.client = pymongo.MongoClient(mongo_url)
         # self.client = pymongo.MongoClient(mongodb.MONGODB_SERVER, mongodb.MONGODB_PORT)
         self.db = self.client[mongodb.MONGODB_DB]
