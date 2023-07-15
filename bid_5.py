@@ -453,23 +453,23 @@ class Bid5(Bid):
                 self.log.info("update db counts: {} done".format(self.counts))
                 self.items_list = []
 
-    def get_proxy(self):
-        params = {
-            'taskId': 'out_team',
-            'supplierCode': 'uuhttp',
-            'token': '81bd5a5b-3aca-40ac-a085-9d659d40309b'  # 更改token参数。
-        }
-        res = requests.get('http://rs.ip.skieer.com/api/v1/proxy/get', params=params, timeout=20)
-        if res.status_code != 200:
-            raise Exception('获取代理失败')
-        content = json.loads(res.content)
-        data = content['data'][0] if len(content['data']) > 0 else {}
-        if not data:
-            raise Exception('获取代理失败')
-        host = data['host']
-        port = data['port']
-        proxies = {"http": "http://{}:{}".format(host, port), "https": f"http://{host}:{port}"}
-        return proxies
+    # def get_proxy(self):
+    #     params = {
+    #         'taskId': 'out_team',
+    #         'supplierCode': 'uuhttp',
+    #         'token': '81bd5a5b-3aca-40ac-a085-9d659d40309b'  # 更改token参数。
+    #     }
+    #     res = requests.get('http://rs.ip.skieer.com/api/v1/proxy/get', params=params, timeout=20)
+    #     if res.status_code != 200:
+    #         raise Exception('获取代理失败')
+    #     content = json.loads(res.content)
+    #     data = content['data'][0] if len(content['data']) > 0 else {}
+    #     if not data:
+    #         raise Exception('获取代理失败')
+    #     host = data['host']
+    #     port = data['port']
+    #     proxies = {"http": "http://{}:{}".format(host, port), "https": f"http://{host}:{port}"}
+    #     return proxies
 
     def req(self, url, req_type="get", rsp_type="content", anti_word="", encoding=True, req_again=False, **kwargs):
         retry_counts = 0

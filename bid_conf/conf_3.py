@@ -1706,6 +1706,10 @@ phone_keyword_list = [
     '联系人',
 ]
 
+company_ban_list = [
+    '详见公示内容'
+]
+
 phone_ban_list = [
     '代理机构联系电话',
     '投诉电话',
@@ -1783,4 +1787,13 @@ win_bid_announcement_time_keyword_list = [
     '公示开始日期',
     '公示时间'
     # '公示结束时间'
+]
+
+project_name_keyword_list = [
+    '项目名称',
+    '标段（包）'
+]
+
+duration_keyword_list = [
+    '工期',
 ]

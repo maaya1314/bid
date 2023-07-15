@@ -32,6 +32,7 @@ base_dict = {
 
             ],
             "xpath": [
+                "//h5/@title",
                 "//*[string()='采购项目编码']/following-sibling::*[1]",
                 "//span[contains(text(),'项目编号')]/following-sibling::span[1]",
                 "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
@@ -144,6 +145,7 @@ base_dict = {
         "content": {
             "re": [''],
             "xpath": [
+                "//div[@id='printHtml']",  # 元博网
                 "//section[@id='divContent']",  # 孚日
                 "//textarea",  # 海尔
                 "//div[@class='detail_box qst_box']",  # 中国华能
@@ -324,13 +326,13 @@ base_dict = {
                 'var pdf ="(.*?)"',
             ],
             "xpath": [
-                '//span[text()="附件下载："]/following-sibling::*//a/@href',
-                "//a[text()='下载']/@href",
-                "//a[text()='-点此下载-']/@href",
-                "//*[text()='下载']/parent::*/@href",
-                "//div[contains(text(), '附件') and contains(string(), 'docx')]//a/@href",
-                "//a[contains(text(), '附件') and (contains(text(), 'doc') or contains(text(), 'xls') or contains(text(), 'zip'))]/@href",
-                '//span[text()="附件1："]/following-sibling::*//@href',
+                # '//span[text()="附件下载："]/following-sibling::*//a/@href',
+                # "//a[text()='下载']/@href",
+                # "//a[text()='-点此下载-']/@href",
+                # "//*[text()='下载']/parent::*/@href",
+                # "//div[contains(text(), '附件') and contains(string(), 'docx')]//a/@href",
+                # "//a[contains(text(), '附件') and (contains(text(), 'doc') or contains(text(), 'xls') or contains(text(), 'zip'))]/@href",
+                # '//span[text()="附件1："]/following-sibling::*//@href',
 
                 # "//a[contains(string(),'下载')]/@href",
                 # "//iframe[@id='pdfContainer']/@src",  # 光大

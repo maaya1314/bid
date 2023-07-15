@@ -35,8 +35,10 @@ class Bid_company_parser(object):
         self.end_time_offset = 22
         self.finish_time_offset = 22
         self.win_bid_announcement_time_offset = 22
+        self.project_name_offset = 50
+        self.duration_offset = 10
         # self.end_list = ['，', '。', '；', ';', ' ', '；', '\t', '\r\n']
-        self.end_list = [',', '，', '。', '；', ';', ' ', '；', '\s', "$"]
+        self.common_end_list = [',', '/', '\d', '，', '。', '；', ';', ' ', '；', '\s', "$"]
         self.phone_end_list = ["”", ',', '，', '。', '；', ';', ' ', '；', '（', '\s', "$"]
         self.project_leader_end_list = [',', '/', '\d', '，', '。', '；', ';', ' ', '；', '\s', "$"]
         self.project_number_end_list = ["”", "）", '、', ',', '，', '。', '；', ';', ' ', '；', '\s', "$", "[\u4e00-\u9fa5]"]
@@ -132,7 +134,7 @@ class Bid_company_parser(object):
         result_data['project_leader'] = project_leader
         phone = self.get_phone_result(content, conf_3.phone_keyword_list, self.phone_offset, self.phone_end_list)
         result_data['phone'] = phone
-        project_number = self.get_common_result(content, conf_3.project_number_keyword_list, self.project_number_offset, self.project_number_end_list)
+        project_number = self.get_project_number_result(content, conf_3.project_number_keyword_list, self.project_number_offset, self.project_number_end_list)
         result_data['project_number'] = project_number
         bid_finish_time = self.get_time_result(content, conf_3.bid_finish_time_keyword_list, self.finish_time_offset, self.time_end_list)
         result_data['bid_finish_time'] = bid_finish_time
@@ -140,7 +142,10 @@ class Bid_company_parser(object):
         result_data['bid_end_time'] = bid_end_time
         win_bid_announcement_time = self.get_time_result(content, conf_3.win_bid_announcement_time_keyword_list, self.win_bid_announcement_time_offset, self.time_end_list)
         result_data['win_bid_announcement_time'] = win_bid_announcement_time
-
+        project_name = self.get_common_result(content, conf_3.project_name_keyword_list, self.project_name_offset, self.common_end_list)
+        result_data['project_name'] = project_name
+        duration = self.get_common_result(content, conf_3.duration_keyword_list, self.duration_offset, self.common_end_list)
+        result_data['duration'] = duration
         return result_data
 
     def get_company_list(self, content, esm_index, end_list, offset):
@@ -199,6 +204,8 @@ class Bid_company_parser(object):
                 pattern = pattern
             rets = re.findall(pattern, content)
             for ret in rets:
+                if ret in conf_3.company_ban_list:
+                    continue
                 if ret and self.min_offset <= len(ret) < self.company_length_limit:
                     company_list.append(ret)
 
@@ -259,7 +266,7 @@ class Bid_company_parser(object):
             new_company_list.append(company)
         return new_company_list
 
-    def get_common_result(self, content, keyword_list, offset, end_list, pre_regular=None):
+    def get_project_number_result(self, content, keyword_list, offset, end_list, pre_regular=None):
         result_list = []
         result = ''
         # content = content.replace(":", "")
@@ -379,6 +386,38 @@ class Bid_company_parser(object):
                         result_list.append(result)
                     else:
                         result = ''
+        result_list = list(set(result_list))
+        if result_list:
+            result_lens = [len(i) for i in result_list]
+            min_len = min(result_lens)
+            result = result_list[result_lens.index(min_len)]
+        return result
+
+    def get_common_result(self, content, keyword_list, offset, end_list):
+        result_list = []
+        result = ""
+        # content = content.replace(":", "")
+        # content = content.replace("：", "")
+        content = re.sub(" {4,}", "\n", content)
+        content = content.replace(" ", "")
+        content = content.replace("　", "")
+        content = content.replace("\t", "")
+        for ban in conf_3.project_leader_ban_list:
+            content = content.replace(ban, "")
+        # content = re.sub('(?=\S) (?=\S)', "", content)
+        stop_flag = False
+        for key in keyword_list:
+            for end in end_list:
+                if not stop_flag:
+                    re_state = '{}[\s:：]{{0,2}}(.+?){}'.format(key, end)
+                    results = re.findall(re_state, content)
+                    for result in results:
+                        result = result.replace("\r", "").replace("\n", "").strip()
+                        if result and self.min_offset <= len(result) < offset:
+                            result_list.append(result)
+                            stop_flag = True
+                        else:
+                            result = ''
         result_list = list(set(result_list))
         if result_list:
             result_lens = [len(i) for i in result_list]
