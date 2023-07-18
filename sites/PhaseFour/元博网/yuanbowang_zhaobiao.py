@@ -57,7 +57,7 @@ class BidZGDZ(Bid5):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '元博网-最新中标'
+        self.file_name = '元博网-最新招标'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
@@ -69,7 +69,7 @@ class BidZGDZ(Bid5):
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
             'Connection': 'keep-alive',
-            'Cookie': '53gid2=12259327787007; 53uvid=1; onliner_zdfq72221204=0; visitor_type=old; 53gid0=12259327787007; 53gid1=12259327787007; gr_user_id=4ad3d1fb-d1d3-47b3-a672-78aa3cf1e9d7; browser_id=-1621326260; 53revisit=1686832249935; 53kf_72221204_from_host=www.chinabidding.cn; 53kf_72221204_keyword=https%3A%2F%2Fwww.chinabidding.cn%2F%3Futm_term%3D%25E5%2585%2583%25E5%258D%259A%25E7%25BD%2591%26utm_source%3Dso.pc%26utm_campaign%3D42704430%26utm_content%3D707217345%26utm_keyid%3D54505029031%26ggw_id%3D2102; uuid_53kf_72221204=2f8e4583dcba70ba31f2fbab1b64b724; 53kf_72221204_land_page=https%253A%252F%252Fwww.chinabidding.cn%252Fsk%252Fhuodian%252F; kf_72221204_land_page_ok=1; my_acc_reauto_time=1686832333939; invite_53kf_totalnum_7=9; pop_status=1; b5897e326c6777f3_gr_last_sent_cs1=569519; banOrder=0; b5897e326c6777f3_gr_session_id=d142ee24-d7d1-4617-b763-1dbf2935dd94; b5897e326c6777f3_gr_last_sent_sid_with_cs1=d142ee24-d7d1-4617-b763-1dbf2935dd94; b5897e326c6777f3_gr_session_id_sent_vst=d142ee24-d7d1-4617-b763-1dbf2935dd94; loginFLag=0; Hm_lvt_ebcee0764883fb81bcdd54df18970c94=1689477678; acw_tc=7b39758716896720595593346e637276ea15202018682426164c06850be014; b5897e326c6777f3_gr_cs1=569519; Hm_lpvt_ebcee0764883fb81bcdd54df18970c94=1689672061; CBL_SESSION=c771411125492396faba8eed6ff58e7d044ae17d-___TS=1725672103580&___ID=74040369-d6fd-46c6-9d5a-7e6d3d9c6ea9',
+            'Cookie': 'gr_user_id=4ad3d1fb-d1d3-47b3-a672-78aa3cf1e9d7; browser_id=-1621326260; 53revisit=1686832249935; 53kf_72221204_from_host=www.chinabidding.cn; 53kf_72221204_keyword=https%3A%2F%2Fwww.chinabidding.cn%2F%3Futm_term%3D%25E5%2585%2583%25E5%258D%259A%25E7%25BD%2591%26utm_source%3Dso.pc%26utm_campaign%3D42704430%26utm_content%3D707217345%26utm_keyid%3D54505029031%26ggw_id%3D2102; uuid_53kf_72221204=2f8e4583dcba70ba31f2fbab1b64b724; 53kf_72221204_land_page=https%253A%252F%252Fwww.chinabidding.cn%252Fsk%252Fhuodian%252F; kf_72221204_land_page_ok=1; my_acc_reauto_time=1686832333939; invite_53kf_totalnum_7=9; pop_status=1; b5897e326c6777f3_gr_last_sent_cs1=569519; banOrder=0; b5897e326c6777f3_gr_session_id=d142ee24-d7d1-4617-b763-1dbf2935dd94; b5897e326c6777f3_gr_last_sent_sid_with_cs1=d142ee24-d7d1-4617-b763-1dbf2935dd94; b5897e326c6777f3_gr_session_id_sent_vst=d142ee24-d7d1-4617-b763-1dbf2935dd94; loginFLag=0; Hm_lvt_ebcee0764883fb81bcdd54df18970c94=1689477678; acw_tc=7b39758716895652829413489e637c4c14e44c551c13af506e2afda366fd31; b5897e326c6777f3_gr_cs1=569519; Hm_lpvt_ebcee0764883fb81bcdd54df18970c94=1689566604; CBL_SESSION=443d395c76c06ade5a8bf07085dbb0a0103a8f1a-___TS=1725566604491&___ID=74040369-d6fd-46c6-9d5a-7e6d3d9c6ea9',
             'Host': 'www.chinabidding.cn',
             'Referer': 'https://www.chinabidding.cn/sk/gaosugonglu/1.html',
             'Sec-Ch-Ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Microsoft Edge";v="114"',
@@ -83,7 +83,7 @@ class BidZGDZ(Bid5):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58'
         }
         page = 1
-        url_base = 'https://www.chinabidding.cn/yuan/zbcg/ZbcgChannel/getDataList?key=%E5%BB%BA%E7%AD%91%E5%B7%A5%E7%A8%8B&search_key=4000005&table_type=1&page={}'
+        url_base = 'https://www.chinabidding.cn/yuan/zbcg/ZbcgChannel/getDataList?key=%E5%BB%BA%E7%AD%91%E5%B7%A5%E7%A8%8B&search_key=4000005&table_type=4&page={}'
         url = url_base.format(page)
         content = self.req(url, req_type="get", headers=self.headers, timeout=TIMEOUT)
         if not content:
@@ -130,7 +130,6 @@ class BidZGDZ(Bid5):
             bid_agency_tel = ''
             agency = ''
             bid_status = ''
-            detail_url = 'https://www.chinabidding.cn/zbgs/nJj6yi.html'
             if 'fid' not in detail_url:
                 detail_content = self.req(url=detail_url, headers=self.headers)
                 if not detail_content or detail_content == 404 or detail_content == 400:

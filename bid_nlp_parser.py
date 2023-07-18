@@ -37,6 +37,10 @@ class Bid_company_parser(object):
         self.win_bid_announcement_time_offset = 22
         self.project_name_offset = 50
         self.duration_offset = 10
+        self.bid_scope_offset = 100
+        self.receive_offset = 100
+        self.submit_offset = 100
+        self.medium_offset = 100
         # self.end_list = ['，', '。', '；', ';', ' ', '；', '\t', '\r\n']
         self.common_end_list = [',', '/', '\d', '，', '。', '；', ';', ' ', '；', '\s', "$"]
         self.phone_end_list = ["”", ',', '，', '。', '；', ';', ' ', '；', '（', '\s', "$"]
@@ -146,6 +150,20 @@ class Bid_company_parser(object):
         result_data['project_name'] = project_name
         duration = self.get_common_result(content, conf_3.duration_keyword_list, self.duration_offset, self.common_end_list)
         result_data['duration'] = duration
+        bid_scope = self.get_common_result(content, conf_3.bid_scope_keyword_list, self.bid_scope_offset, self.common_end_list)
+        result_data['bid_scope'] = bid_scope
+        receive = self.get_common_result(content, conf_3.receive_keyword_list, self.receive_offset,
+                                           self.common_end_list)
+        result_data['receive'] = receive
+        submit = self.get_common_result(content, conf_3.submit_keyword_list, self.submit_offset,
+                                           self.common_end_list)
+        result_data['submit'] = submit
+        medium = self.get_common_result(content, conf_3.medium_keyword_list, self.medium_offset,
+                                           self.common_end_list)
+        result_data['medium'] = medium
+        bid_agency_tel = self.get_phone_result(content, conf_3.bid_agency_tel_keyword_list, self.phone_offset, self.phone_end_list)
+        result_data['bid_agency_tel'] = bid_agency_tel
+
         return result_data
 
     def get_company_list(self, content, esm_index, end_list, offset):

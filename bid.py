@@ -265,7 +265,7 @@ class Bid(object):
             if price_list:
                 new_win_bid_price = price_list[0]
                 try:
-                    if '万' in win_bid_price or '万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent:
+                    if '万' in win_bid_price or (100 < int(new_win_bid_price) < 10000 and ('万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent)):
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price) * 10000))
                     else:
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price)))
@@ -554,13 +554,13 @@ class Bid(object):
                 update_operations = []
                 for item in self.items_list:
                     update_operations.append(item)
-                while True:
-                    try:
-                        helpers.bulk(self.es, update_operations, index=self.es_index, raise_on_error=True)
-                        break
-                    except Exception as e:
-                        self.log.exception(e)
-                        time.sleep(10)
+                # while True:
+                #     try:
+                #         helpers.bulk(self.es, update_operations, index=self.es_index, raise_on_error=True)
+                #         break
+                #     except Exception as e:
+                #         self.log.exception(e)
+                #         time.sleep(10)
                 self.log.info("write db counts: {} done".format(self.counts))
                 self.items_list = []
 

@@ -20,6 +20,15 @@ class TestDB(object):
     MONGO_PSW = "d&1wsxec1*"
 
 
+class AppDB(object):
+    MONGODB_SERVER = "101.91.148.86"
+    MONGODB_PORT = 6601
+    authSource = True
+    MONGODB_DB = "data_center"
+    MONGO_USER = "work"
+    MONGO_PSW = "work"
+
+
 class BidAppDB(object):
     MONGODB_SERVER = "125.88.221.92"
     MONGODB_PORT = 6601

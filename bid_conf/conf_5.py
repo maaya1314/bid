@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 base_dict = {
+        "duration": {
+            "re": [''],
+            "xpath": [
+                '//th[contains(string(), "工期")]/../following::*[1]//td[count(//th[contains(string(), "工期")]/preceding-sibling::*)]',
+
+            ],
+        },
+        "scale": {
+            "re": [''],
+            "xpath": [
+                "//*[string()='结构类型及规模']/following-sibling::*[1]",
+                "//*[string()='项目规模']/following-sibling::*[1]",
+
+            ],
+        },
         "project_title": {
             "re": [''],
             "xpath": [
@@ -346,18 +361,18 @@ base_dict = {
             "re": [''],
             "xpath": ['']
         },  # 采集时间
-        "spare_1": {
-            "re": [''],
-            "xpath": ['']
-        },  # 跟进记
-        "spare_2": {
-            "re": [''],
-            "xpath": ['']
-        },  # 跟进
-        "spare_3": {
-            "re": [''],
-            "xpath": ['']
-        },  # 预留字段3
+        # "spare_1": {
+        #     "re": [''],
+        #     "xpath": ['']
+        # },  # 跟进记
+        # "spare_2": {
+        #     "re": [''],
+        #     "xpath": ['']
+        # },  # 跟进
+        # "spare_3": {
+        #     "re": [''],
+        #     "xpath": ['']
+        # },  # 预留字段3
 
     }
 """
@@ -368,6 +383,8 @@ base_dict = {
 """
 parse_dict = {
     "元博网-最新中标": base_dict,
+    "元博网-最新招标": base_dict,
+
 }
 
 bid_budget_keyword_list = [

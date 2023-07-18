@@ -24,10 +24,12 @@ from bid import Bid
 from bid_tools.loghandler import getLogger
 import pandas as pd
 from openpyxl import load_workbook
-from bid_tools.connectdb import MongoDB, TestDB
+from bid_tools.connectdb import MongoDB, TestDB, AppDB
 from bid_nlp_parser import Bid_company_parser
 from bid_money_parser import Bid_money_parser
 from bid_conf.conf_4 import phone_ban_list
+from bid_conf.field_conf import FieldConf
+from bid_tools import utils
 import atexit
 MAX_RETRY = 10
 TIMEOUT = 60
@@ -47,10 +49,11 @@ class Bid5(Bid):
         self.max_pages = 1
         self.collection_name = 'dianjian_test'
         self.true_collection_name = 'dianjian'
-        self.key_field = "url"
+        self.key_field = "article_url"
         self.debug = debug
         self.bid_company_parser = Bid_company_parser()
         self.bid_money_parser = Bid_money_parser()
+        self.db = MongoDB(AppDB)
         # self._in_work()
 
     def run(self, keyword):
@@ -221,7 +224,7 @@ class Bid5(Bid):
             if price_list:
                 new_tender_price = price_list[0]
                 try:
-                    if '万' in tender_price or '万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent:
+                    if '万' in new_tender_price or (100 < int(float(new_tender_price)) < 10000 and ('万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent)):
                         new_tender_price = "{}元".format(int(float(new_tender_price) * 10000))
                     else:
 
@@ -246,7 +249,7 @@ class Bid5(Bid):
                 if len(new_win_bid_price) < 5:
                     new_win_bid_price = ""
                 try:
-                    if '万' in win_bid_price or '万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent:
+                    if '万' in win_bid_price or (100 < int(float(new_win_bid_price)) < 10000 and ('万元' in detail_content or '万元' in ddcontent or '万</span>元' in detail_content or '万</span>元' in ddcontent)):
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price) * 10000))
                     else:
                         new_win_bid_price = "{}元".format(int(float(new_win_bid_price)))
@@ -375,17 +378,27 @@ class Bid5(Bid):
         #     return
         self.exit_counts = 0
         self.fix_data(data, detail_content)
-        self.upload(data)
+        self.upload(data, output_type='db')
 
     def upload_db(self, data):
         self.counts += 1
         # self.db[self.collection].update_one({'url': url}, {'$set': temp_dict}, upsert=True)
         for k, v in data.items():
+            if k in ("content", "source_code"):
+                continue
             self.log.debug("{}: {}".format(k, v))
         if not data.get('project_title'):
             self.log.debug('null title {}'.format(data.get('article_url')))
         if not data.get('content'):
             self.log.debug('null content {}'.format(data.get('article_url')))
+        url = data.get("article_url")
+        uuid = utils.get_md5(url)
+        data['uuid'] = uuid
+        new_data = {}
+        for k, v in FieldConf.field_dict.items():
+            new_data[v] = data.get(k) if data.get(k) else ""
+        data.clear()
+        data.update(new_data)
         self.items_list.append(data)
         if self.counts % 10 == 0:
             self.log.info("have stored items count:{}".format(self.counts))

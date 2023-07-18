@@ -5,6 +5,7 @@
 @Author: CZC
 @File: utils.py
 """
+import hashlib
 import re
 
 
@@ -14,3 +15,9 @@ def re_find_one(pattern, string):
         return datas[0]
     except:
         return ""
+
+
+def get_md5(string):
+    m2 = hashlib.md5()
+    m2.update(string.encode())
+    return m2.hexdigest()

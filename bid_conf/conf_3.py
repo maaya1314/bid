@@ -1491,6 +1491,7 @@ bid_budget_keyword_list = [
     '标底价',
     '总投资合计',
     '财政支付上限',
+    '计划投资',
 
 ]
 
@@ -1795,5 +1796,31 @@ project_name_keyword_list = [
 ]
 
 duration_keyword_list = [
+    "工期要求",
     '工期',
+]
+
+bid_scope_keyword_list = [
+    "招标范围"
+]
+
+receive_keyword_list = [
+    "招标文件的领取"
+]
+
+submit_keyword_list = [
+    "投标文件的递交"
+]
+
+medium_keyword_list = [
+    "发布公告的媒介"
+]
+
+bid_agency_tel_keyword_list = [
+    '代理电话',
+    '代理手机号码',
+    '代理联系方式',
+    # '电 话',
+    '代理联系电话',
+    '代理联系人',
 ]
