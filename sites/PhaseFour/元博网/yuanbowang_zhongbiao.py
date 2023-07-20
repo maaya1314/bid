@@ -21,6 +21,7 @@ from bid_tools.loghandler import getLogger
 # from bid_2 import Bid
 from bid_5 import Bid5
 from bid_conf.conf_5 import parse_dict
+from bid_conf.field_conf import FieldConf
 urllib3.disable_warnings()
 from playwright.sync_api import sync_playwright
 from bid_tools import utils
@@ -82,35 +83,50 @@ class BidZGDZ(Bid5):
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58'
         }
-        page = 1
-        url_base = 'https://www.chinabidding.cn/yuan/zbcg/ZbcgChannel/getDataList?key=%E5%BB%BA%E7%AD%91%E5%B7%A5%E7%A8%8B&search_key=4000005&table_type=1&page={}'
-        url = url_base.format(page)
-        content = self.req(url, req_type="get", headers=self.headers, timeout=TIMEOUT)
-        if not content:
-            self.log.error(f"{page} no content")
-            return
-        content = encrypt_js(content)
-        # pages = content.get("result", {}).get("totalPages")
-        # note 手动限定最大页数
-        pages = 20
-        if not pages:
-            return
-        self.log.info("all pages :{}, {}".format(pages, keyword))
-        self.list_parse(content, url)
-        if pages < 2:
-            return
-        for page in range(2, pages + 1):
-            if self.exit_flag:
-                return
-            self.log.info("now start page :{}, {}".format(page, keyword))
-            next_url = url_base.format(page)
-            content = self.req(next_url, headers=self.headers, timeout=TIMEOUT)
-            if not content:
-                self.log.error("{} no content".format(page))
+        for field_dict in FieldConf.key_list:
+            if not field_dict['is_show']:
                 continue
-            content = encrypt_js(content)
-            self.list_parse(content, url)
-        self.log.info("{} 数据采集完毕！".format(self.file_name))
+            self.t1_name = field_dict['name']
+            t2_list = field_dict['list']
+            for t2_dict in t2_list:
+                if not t2_dict['is_show']:
+                    continue
+                self.t2_name = t2_dict['name']
+                t3_list = t2_dict['list']
+                for t3_dict in t3_list:
+                    if not t3_dict['is_show']:
+                        continue
+                    self.t3_name = t3_dict['name']
+                    t3_id = t3_dict['sid']
+                    page = 1
+                    url_base = 'https://www.chinabidding.cn/yuan/zbcg/ZbcgChannel/getDataList?key={}B&search_key={}&table_type=1&page={}'
+                    url = url_base.format(self.t3_name, t3_id, page)
+                    content = self.req(url, req_type="get", headers=self.headers, timeout=TIMEOUT)
+                    if not content:
+                        self.log.error(f"{page} no content")
+                        return
+                    content = encrypt_js(content)
+                    # pages = content.get("result", {}).get("totalPages")
+                    # note 手动限定最大页数
+                    pages = 9
+                    if not pages:
+                        return
+                    self.log.info("all pages :{}, {}".format(pages, keyword))
+                    self.list_parse(content, url)
+                    if pages < 2:
+                        return
+                    for page in range(2, pages + 1):
+                        if self.exit_flag:
+                            return
+                        self.log.info("now start page :{}, {}".format(page, keyword))
+                        next_url = url_base.format(self.t3_name, t3_id, page)
+                        content = self.req(next_url, headers=self.headers, timeout=TIMEOUT)
+                        if not content:
+                            self.log.error("{} no content".format(page))
+                            continue
+                        content = encrypt_js(content)
+                        self.list_parse(content, url)
+                    self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, json_content, url):
         items = json_content.get("list")
@@ -130,7 +146,7 @@ class BidZGDZ(Bid5):
             bid_agency_tel = ''
             agency = ''
             bid_status = ''
-            detail_url = 'https://www.chinabidding.cn/zbgs/nJj6yi.html'
+            # detail_url = 'https://www.chinabidding.cn/zbgs/nJGOdt.html'
             if 'fid' not in detail_url:
                 detail_content = self.req(url=detail_url, headers=self.headers)
                 if not detail_content or detail_content == 404 or detail_content == 400:
@@ -182,12 +198,19 @@ class BidZGDZ(Bid5):
             data['content'] = content_text1.strip()
             data['area'] = area
             data['source_code'] = str(source_code).strip()
+            data['t1_name'] = self.t1_name
+            data['t2_name'] = self.t2_name
+            data['t3_name'] = self.t3_name
             # 一级指标
-            primary_indicators = html1.xpath("string(//span[@class='industry'])")
+            primary_indicators = ''
+            primary_indicators_list = html1.xpath("string(//div[@class='fl xiab_1'])").split(" ")
+            if len(primary_indicators_list) > 2:
+                primary_indicators = primary_indicators_list[1: 2][0].strip()
+
             # 二级指标
-            secondary_indicators = html1.xpath("string(//span[@class='area'])")
-            data['primary_indicators'] = primary_indicators
-            data['secondary_indicators'] = secondary_indicators
+            # secondary_indicators = html1.xpath("string(//span[@class='area'])")
+            data['industry'] = primary_indicators
+            # data['secondary_indicators'] = secondary_indicators
             done_fields = []
             if tender_unit:
                 data['tender_unit'] = str(tender_unit).strip()

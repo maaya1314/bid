@@ -1467,6 +1467,7 @@ parse_dict = {
 }
 
 bid_budget_keyword_list = [
+    '投标最高限价',
     '采购预算',
     '项目金额',
     '预算资金',
@@ -1476,7 +1477,6 @@ bid_budget_keyword_list = [
     '承包',
     '项目估算',
     '招标金额',
-    '投标最高限价',
     '最高限价',
     '招标总投资',
     '评标价',
@@ -1492,10 +1492,12 @@ bid_budget_keyword_list = [
     '总投资合计',
     '财政支付上限',
     '计划投资',
+    '预计投资',
 
 ]
 
 bid_money_keyword_list = [
+    '第一中标',
     '中标金额',
     '中标价格',
     '中选价格',
@@ -1791,8 +1793,11 @@ win_bid_announcement_time_keyword_list = [
 ]
 
 project_name_keyword_list = [
+    '项目及标段名称',
+    '标段名称',
     '项目名称',
-    '标段（包）'
+    '工程名称',
+    '标段（包）',
 ]
 
 duration_keyword_list = [

@@ -237,7 +237,7 @@ class Bid5(Bid):
             else:
                 new_tender_price = ""
             data['tender_price'] = new_tender_price
-        if tender_price in (0, "0") or "中标" in self.file_name:
+        if tender_price in (0, "0"):
             data['tender_price'] = ""
 
         win_bid_price = data.get("win_bid_price")
@@ -369,7 +369,10 @@ class Bid5(Bid):
         # data['harvested_time'] = '2022-07-09'  # 爬取时间
         data['channel'] = self.file_name.split('-')[-1]
         data['source'] = self.file_name.replace(data.get("channel"), "")[0:-1]
-
+        duration = data.get("duration")
+        if duration:
+            if not re.match("\d+", duration):
+                data['duration'] = ""
         # if publish_time < self.query_time:
         #     self.log.info(f"文章发文时间 {publish_time} 早于查询时间 {self.query_time} ，跳过")
         #     self.exit_counts += 1
@@ -485,6 +488,7 @@ class Bid5(Bid):
     #     return proxies
 
     def req(self, url, req_type="get", rsp_type="content", anti_word="", encoding=True, req_again=False, **kwargs):
+        # time.sleep(random.randint(3, 5))
         retry_counts = 0
         while retry_counts < MAX_RETRY:
             # if retry_counts:

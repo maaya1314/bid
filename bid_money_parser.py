@@ -20,8 +20,8 @@ class Bid_money_parser(object):
     def __init__(self):
         self.min_money = 100  # 可以屏蔽一些未过滤掉的数量信息
         self.max_money = 10000000000
-        self.content_length = 65
-        self.deal_num = 10
+        self.content_length = 30
+        self.deal_num = 2
         self.money_regex = re.compile('\d+.\d+')
         self.money_wan_regex = re.compile('\d+.\d+万')
         self.table_money_regex = re.compile(r'^[1234567890,\.万元]+$')
@@ -104,10 +104,14 @@ class Bid_money_parser(object):
                 relate_content = result_content.decode("utf-8", 'ignore')
                 money = utils.re_find_one('\d+(?:\\.\d+)?万', relate_content)
                 if money:
+                    if money == "365":
+                        continue
                     money, unit = self.transfer_money(money)
                     money = money
                     money_list.append((money, unit))
                     find_flag = True
+                    # todo 暂时只取一个就跳出
+                    break
             if not find_flag:
                 for keyword in conf_keyword_list:
                     find_flag2 = False
@@ -124,7 +128,9 @@ class Bid_money_parser(object):
                             find_flag2 = True
                         money_yuan_list = re.findall('(\d+(?:\\.\d+)?)', relate_content)
                         for money_yuan in money_yuan_list:
-                            if len(money_yuan) < 5 and not find_flag2:
+                            if money_yuan == '365':
+                                continue
+                            if len(str(int(float(money_yuan)))) < 5 and not find_flag2:
                                 money_yuan = ''
                             if money_yuan:
                                 yuan_split = relate_content.split(money_yuan)[0]
@@ -137,6 +143,8 @@ class Bid_money_parser(object):
                                 money_yuan, unit = self.transfer_money(money_yuan)
                                 money_yuan = money_yuan
                                 money_list.append((money_yuan, unit))
+                                # todo 暂时只取一个就跳出
+                                break
         return money_list
 
     def get_table_sum_money(self, content):

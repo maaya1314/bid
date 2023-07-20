@@ -36,7 +36,7 @@ class Bid_company_parser(object):
         self.finish_time_offset = 22
         self.win_bid_announcement_time_offset = 22
         self.project_name_offset = 50
-        self.duration_offset = 10
+        self.duration_offset = 4
         self.bid_scope_offset = 100
         self.receive_offset = 100
         self.submit_offset = 100
@@ -47,6 +47,8 @@ class Bid_company_parser(object):
         self.project_leader_end_list = [',', '/', '\d', '，', '。', '；', ';', ' ', '；', '\s', "$"]
         self.project_number_end_list = ["”", "）", '、', ',', '，', '。', '；', ';', ' ', '；', '\s', "$", "[\u4e00-\u9fa5]"]
         self.time_end_list = ['、', ',', '，', '。', '；', ';', ' ', '；', '\s', "$", "（", "\(", "至"]
+        self.duration_end_list = [',', '/', '，', '。', '；', ';', ' ', '；', '\s', '天', "$"]
+
 
         self.zhaobiao_company_index = esm.Index()
         self.agent_company_index = esm.Index()
@@ -148,7 +150,7 @@ class Bid_company_parser(object):
         result_data['win_bid_announcement_time'] = win_bid_announcement_time
         project_name = self.get_common_result(content, conf_3.project_name_keyword_list, self.project_name_offset, self.common_end_list)
         result_data['project_name'] = project_name
-        duration = self.get_common_result(content, conf_3.duration_keyword_list, self.duration_offset, self.common_end_list)
+        duration = self.get_duration_result(content, conf_3.duration_keyword_list, self.duration_offset, self.duration_end_list)
         result_data['duration'] = duration
         bid_scope = self.get_common_result(content, conf_3.bid_scope_keyword_list, self.bid_scope_offset, self.common_end_list)
         result_data['bid_scope'] = bid_scope
@@ -188,7 +190,7 @@ class Bid_company_parser(object):
                     # l2 = len(r2)
                     # result_content = content[pos:pos + offset]
                     pos = ret[0][0]
-                    result_content = content.encode('utf-8')[pos:pos + offset]
+                    result_content = content.encode('utf-8')[pos - offset//2:pos + offset]
                     result_content = result_content.decode("utf-8", 'ignore')
                     company = self.get_one_company(result_content, end_list)
                     if company:
@@ -404,6 +406,38 @@ class Bid_company_parser(object):
                         result_list.append(result)
                     else:
                         result = ''
+        result_list = list(set(result_list))
+        if result_list:
+            result_lens = [len(i) for i in result_list]
+            min_len = min(result_lens)
+            result = result_list[result_lens.index(min_len)]
+        return result
+
+    def get_duration_result(self, content, keyword_list, offset, end_list):
+        result_list = []
+        result = ""
+        # content = content.replace(":", "")
+        # content = content.replace("：", "")
+        content = re.sub(" {4,}", "\n", content)
+        content = content.replace(" ", "")
+        content = content.replace("　", "")
+        content = content.replace("\t", "")
+        for ban in conf_3.project_leader_ban_list:
+            content = content.replace(ban, "")
+        # content = re.sub('(?=\S) (?=\S)', "", content)
+        stop_flag = False
+        for key in keyword_list:
+            for end in end_list:
+                if not stop_flag:
+                    re_state = '{}[\s:：]{{0,2}}(\d+)[\s\S]*?{}'.format(key, end)
+                    results = re.findall(re_state, content)
+                    for result in results:
+                        result = result.replace("\r", "").replace("\n", "").strip()
+                        if result and 2 <= len(result) < offset:
+                            result_list.append(result)
+                            stop_flag = True
+                        else:
+                            result = ''
         result_list = list(set(result_list))
         if result_list:
             result_lens = [len(i) for i in result_list]
