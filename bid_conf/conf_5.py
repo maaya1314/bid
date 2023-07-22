@@ -384,6 +384,8 @@ base_dict = {
 parse_dict = {
     "元博网-最新中标": base_dict,
     "元博网-最新招标": base_dict,
+    "华能采购-招标公告": base_dict,
+    "华能采购-中标结果公告": base_dict,
 
 }
 

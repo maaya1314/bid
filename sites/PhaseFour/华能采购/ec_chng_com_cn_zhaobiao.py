@@ -36,7 +36,7 @@ class BidZGDZ(Bid5):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '华能采购-最新中标'
+        self.file_name = '华能采购-招标公告'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
@@ -125,6 +125,7 @@ class BidZGDZ(Bid5):
             data['content'] = content_text1.strip()
             data['source_code'] = str(source_code).strip()
             # data[TABField.announcement] = item.xpath("string(./@title)")
+            done_fields = []
             self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
 
 

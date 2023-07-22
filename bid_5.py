@@ -357,12 +357,11 @@ class Bid5(Bid):
             except Exception as e:
                 # self.log.error(e)
                 tender_unit = ""
-            data['tender_unit'] = tender_unit
+            data['tender_unit'] = tender_unit.replace("[", "").replace("]", "").replace("【", "").replace("】", "")
         project_overview = data.get("project_overview")
         if project_overview and len(project_overview) < 10:
             project_overview = ""
         data['project_overview'] = project_overview
-
         data['keyword'] = self.keyword
         data['article_url'] = detail_url
         data['harvested_time'] = datetime.datetime.now().strftime("%Y-%m-%d")  # 爬取时间

@@ -212,7 +212,8 @@ class Bid_company_parser(object):
         pattern_list = []
         for ret in company_pre_ret:
             for end in company_end_list:
-                pattern = '(' + ret[1] + '\S*?' + end + ')'
+                # pattern = '(' + ret[1] + '\S*?' + end + ')'
+                pattern = ret[1] + '\S*?' + end
                 pattern_list.append(pattern)
 
         pattern_list = list(set(pattern_list))
@@ -226,6 +227,7 @@ class Bid_company_parser(object):
             for ret in rets:
                 if ret in conf_3.company_ban_list:
                     continue
+                ret_lens = len(ret)
                 if ret and self.min_offset <= len(ret) < self.company_length_limit:
                     company_list.append(ret)
 
