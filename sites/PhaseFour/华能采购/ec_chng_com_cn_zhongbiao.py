@@ -131,7 +131,7 @@ class BidZGDZ(Bid5):
 
 if __name__ == '__main__':
     params = {
-        "proxy_flag": False,
+        "proxy_flag": True,
         "query_time": "",
         "MainKeys": [
             ""

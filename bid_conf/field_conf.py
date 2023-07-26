@@ -2,7 +2,7 @@ class FieldConf(object):
     # 字段
     uuid = 'uuid'  # 唯一业务id，对url做md5取值
     article_url = 'article_url'  # 链接
-    title = '标题'  # 标题
+    project_title = '标题'  # 标题
     publish_time = '时间'  # 发布时间
     area = '地区'  # 地区
     content = '正文'  # 正文
