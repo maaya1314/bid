@@ -19,15 +19,15 @@ sys.path.append('../../../..')
 from bid_tools.loghandler import getLogger
 # from bid_conf.conf_2 import parse_dict
 # from bid_2 import Bid
-from bid_6 import Bid6
-from bid_conf.conf_6 import parse_dict
+from bid_7 import Bid7
+from bid_conf.conf_7 import parse_dict
 urllib3.disable_warnings()
 from playwright.sync_api import sync_playwright
 from bid_tools import utils
 import jsonpath
 import math
 
-class BidZGDZ(Bid6):
+class BidZGDZ(Bid7):
     def __init__(self, debug=True):
         Bid6.__init__(self, debug)
         self.log = getLogger(self.__class__.__name__, console_out=True, level="debug")
@@ -36,7 +36,7 @@ class BidZGDZ(Bid6):
         self.keyword = ""
         self.exit_flag = False
         self.exit_counts = 0
-        self.file_name = '华电采购平台-招标公告'
+        self.file_name = '华电采购平台-中标候选人公示'
         self.parse_dict = parse_dict.get(self.file_name)
 
     def run(self, keyword):
