@@ -91,8 +91,11 @@ class BidZGDZ(Bid6):
         content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
         html = etree.HTML(content)
         all_re_page = html.xpath('string(//span[@class="page"])')
+        total = html.xpath('string(//span[@class="page"])')
         all_re_page = utils.re_find_one('(?<=第).*?(?=页，)', all_re_page)
         all_re_page = utils.re_find_one('[^/]+(?!.*/)', all_re_page)
+        total = utils.re_find_one('(?<=共).*?(?=条记录)', total)
+        total = int(total)
         if all_re_page:
             all_re_page = int(all_re_page)
         else:
@@ -101,9 +104,9 @@ class BidZGDZ(Bid6):
         self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
         self.list_parse(content, url)
         for num in range(2, pages + 1):
-            data_base = 'zbggType=1&jump=1&page.pageSize=20&page.currentpage={}&page.totalCount=25873'
+            data_base = 'zbggType=1&jump=1&page.pageSize=20&page.currentpage={}&page.totalCount={}'
             url = 'https://www.chdtp.com/webs/queryWebZbgg.action'
-            data = data_base.format(num)
+            data = data_base.format(num, total)
             self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
             content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
             self.list_parse(content, url)

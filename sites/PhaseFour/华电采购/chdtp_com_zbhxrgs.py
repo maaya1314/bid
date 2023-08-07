@@ -41,7 +41,7 @@ class BidZGDZ(Bid7):
 
     def run(self, keyword):
         TIMEOUT = 60
-        url = "https://www.chdtp.com/pages/wzglS/cgxx/caigou.jsp"
+        url = "https://www.chdtp.com/webs/displayNewZbhxrgsZxzxAction.action?zbtype=2"
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -84,7 +84,7 @@ class BidZGDZ(Bid7):
         #     'limit': 50
         # }
         url_base = 'https://www.chdtp.com/webs/queryWebZbgg.action?zbggType={}'
-        url = url_base.format(1)
+        url = url_base.format(2)
         self.log.info("开始采集第1页：{}".format(url))
         # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
         #                    verify=False)
@@ -101,8 +101,8 @@ class BidZGDZ(Bid7):
         self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
         self.list_parse(content, url)
         for num in range(2, pages + 1):
-            data_base = 'zbggType=1&jump=1&page.pageSize=20&page.currentpage={}&page.totalCount=25873'
-            url = 'https://www.chdtp.com/webs/queryWebZbgg.action'
+            data_base = 'jump=1&page.pageSize=20&page.currentpage={}&page.totalCount=13094'
+            url = 'https://www.chdtp.com/webs/displayNewZbhxrgsZxzxAction.action'
             data = data_base.format(num)
             self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
             content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
