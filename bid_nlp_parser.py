@@ -59,9 +59,11 @@ class Bid_company_parser(object):
         self.init_index(self.agent_company_index, conf_3.agent_keyword_list)
         self.init_index(self.zhongbiao_company_index, conf_3.zhongbiao_company_keyword_list)
 
+        # self.person_pre_list = open('{}/Bid/bid_conf/person_pre.conf'.format(PROJECTDIR), encoding='utf-8').read().split('\n')[:-1]
         self.person_pre_list = open('{}/Bid/bid_conf/person_pre.conf'.format(PROJECTDIR)).read().split('\n')[:-1]
         # 建立多模匹配自动机
         self.company_pre_index = esm.Index()
+        # pre_list = open('{}/Bid/bid_conf/company_pre.txt'.format(PROJECTDIR), encoding='utf-8').read().split('\n')[:-1]
         pre_list = open('{}/Bid/bid_conf/company_pre.txt'.format(PROJECTDIR)).read().split('\n')[:-1]
         for company_pattern in pre_list:
             if company_pattern != '':
