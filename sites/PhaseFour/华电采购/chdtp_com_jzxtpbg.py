@@ -139,7 +139,7 @@ class BidZGDZ(TaskBase):
                     content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT,
                                        verify=False)
                 else:
-                    self.log.info("未找到：", url)
+                    self.log.info("未找到：" + url)
                     continue
             self.list_parse(content, url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
@@ -161,7 +161,7 @@ class BidZGDZ(TaskBase):
                     self.get_cookies(detail_content, url)
                     detail_content = self.req(url=detail_url, headers=self.headers)
                 else:
-                    self.log.info("未找到：", url)
+                    self.log.info("未找到：" + url)
                     continue
             if not detail_content or isinstance(detail_content, tuple):
                 self.log.error("{} no detail_content".format(detail_url))
