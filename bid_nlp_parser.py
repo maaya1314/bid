@@ -126,7 +126,10 @@ class Bid_company_parser(object):
         # 3 若招标公司还未找到，则从标题中寻找
         if not zhaobiao_company:
             zhaobiao_company = self.get_one_company(title, conf_3.zhaobiao_company_end_list)
-
+        # todo note 临时补丁，中标只选一家
+        if zhongbiao_company_list:
+            zhongbiao_company_list = sorted(zhongbiao_company_list, key=cmp_to_key(self.len_compare))
+            zhongbiao_company_list = [zhongbiao_company_list[-1]]
         result_data = self.filter_company_list(zhaobiao_company, zhongbiao_company_list, agent)
 
         # result_data["tender_unit"] = result_data["zhaobiao"]
@@ -159,6 +162,7 @@ class Bid_company_parser(object):
         result_data['receive'] = receive
         submit = self.get_common_result(content, conf_3.submit_keyword_list, self.submit_offset,
                                            self.common_end_list)
+        submit = submit.split("截止时间：")[-1]
         result_data['submit'] = submit
         medium = self.get_common_result(content, conf_3.medium_keyword_list, self.medium_offset,
                                            self.common_end_list)
@@ -212,8 +216,8 @@ class Bid_company_parser(object):
         pattern_list = []
         for ret in company_pre_ret:
             for end in company_end_list:
-                # pattern = '(' + ret[1] + '\S*?' + end + ')'
-                pattern = ret[1] + '\S*?' + end
+                pattern = '(' + ret[1] + '\S*' + end + ')'
+                # pattern = ret[1] + '.*?' + end
                 pattern_list.append(pattern)
 
         pattern_list = list(set(pattern_list))

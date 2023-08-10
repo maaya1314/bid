@@ -99,34 +99,37 @@ class BidZGDZ(Bid5):
                     self.t3_name = t3_dict['name']
                     t3_id = t3_dict['sid']
                     page = 1
-                    url_base = 'https://www.chinabidding.cn/yuan/zbcg/ZbcgChannel/getDataList?key={}B&search_key={}&table_type=1&page={}'
-                    url = url_base.format(self.t3_name, t3_id, page)
-                    content = self.req(url, req_type="get", headers=self.headers, timeout=TIMEOUT)
-                    if not content:
-                        self.log.error(f"{page} no content")
-                        return
-                    content = encrypt_js(content)
-                    # pages = content.get("result", {}).get("totalPages")
-                    # note 手动限定最大页数
-                    pages = 9
-                    if not pages:
-                        return
-                    self.log.info("all pages :{}, {}".format(pages, keyword))
-                    self.list_parse(content, url)
-                    if pages < 2:
-                        return
-                    for page in range(2, pages + 1):
-                        if self.exit_flag:
-                            return
-                        self.log.info("now start page :{}, {}".format(page, keyword))
-                        next_url = url_base.format(self.t3_name, t3_id, page)
-                        content = self.req(next_url, headers=self.headers, timeout=TIMEOUT)
+                    try:
+                        url_base = 'https://www.chinabidding.cn/yuan/zbcg/ZbcgChannel/getDataList?key={}B&search_key={}&table_type=1&page={}'
+                        url = url_base.format(self.t3_name, t3_id, page)
+                        content = self.req(url, req_type="get", headers=self.headers, timeout=TIMEOUT)
                         if not content:
-                            self.log.error("{} no content".format(page))
-                            continue
+                            self.log.error(f"{page} no content")
+                            return
                         content = encrypt_js(content)
+                        # pages = content.get("result", {}).get("totalPages")
+                        # note 手动限定最大页数
+                        pages = 9
+                        if not pages:
+                            return
+                        self.log.info("all pages :{}, {}".format(pages, keyword))
                         self.list_parse(content, url)
-                    self.log.info("{} 数据采集完毕！".format(self.file_name))
+                        if pages < 2:
+                            return
+                        for page in range(2, pages + 1):
+                            if self.exit_flag:
+                                return
+                            self.log.info("now start page :{}, {}".format(page, keyword))
+                            next_url = url_base.format(self.t3_name, t3_id, page)
+                            content = self.req(next_url, headers=self.headers, timeout=TIMEOUT)
+                            if not content:
+                                self.log.error("{} no content".format(page))
+                                continue
+                            content = encrypt_js(content)
+                            self.list_parse(content, url)
+                    except Exception as e:
+                        self.log.exception(e)
+                self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, json_content, url):
         items = json_content.get("list")
@@ -138,6 +141,8 @@ class BidZGDZ(Bid5):
                 continue
             detail_url = urljoin(url, href)
             title = item.get("title")
+            if '预中标' in title:
+                continue
             publish_time = item.get("date")
             area = item.get("area")
             tender_unit = ''
@@ -233,7 +238,7 @@ class BidZGDZ(Bid5):
 
 if __name__ == '__main__':
     params = {
-        "proxy_flag": False,
+        "proxy_flag": True,
         "query_time": "",
         "MainKeys": [
             ""

@@ -38,10 +38,6 @@ class BidZGDZ(Bid5):
         self.exit_counts = 0
         self.file_name = '华能采购-招标公告'
         self.parse_dict = parse_dict.get(self.file_name)
-
-    def run(self, keyword):
-        TIMEOUT = 60
-        url = "http://ec.chng.com.cn/ecmall/more.do"
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -53,6 +49,8 @@ class BidZGDZ(Bid5):
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
         }
+
+    def get_cookie(self, url):
         with sync_playwright() as playwright:
             browser = playwright.firefox.launch(headless=False)
             context = browser.new_context()
@@ -67,6 +65,11 @@ class BidZGDZ(Bid5):
             self.headers['Cookie'] = cookie.rstrip(';')
             context.close()
             browser.close()
+
+    def run(self, keyword):
+        TIMEOUT = 60
+        url = "http://ec.chng.com.cn/ecmall/more.do"
+        self.get_cookie(url)
         form_data = {
             'type': '103',
             'searchWay': 'onTitle',
@@ -90,9 +93,12 @@ class BidZGDZ(Bid5):
         for num in range(2, pages + 1):
             form_data['start'] = (num - 1) * 50
             self.log.info("总页数：{},开始采集第{}个链接".format(all_re_page, num))
-            content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
-                               verify=False)
-            self.list_parse(content, url)
+            try:
+                content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT, verify=False)
+                self.list_parse(content, url)
+            except Exception as e:
+                self.log.exception(e)
+                self.get_cookie(url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, maincontent, url):
@@ -102,6 +108,8 @@ class BidZGDZ(Bid5):
             if self.exit_flag:
                 return
             title = item.xpath("string(./@title)")
+            if '预中标' in title:
+                continue
             href_text = item.xpath("string(./@href)")
             href = utils.re_find_one("Click\('(.*?)'", href_text)
             detail_url = 'http://ec.chng.com.cn/ecmall/announcement/announcementDetail.do?announcementId=' + str(
@@ -125,7 +133,7 @@ class BidZGDZ(Bid5):
             data['content'] = content_text1.strip()
             data['source_code'] = str(source_code).strip()
             # data[TABField.announcement] = item.xpath("string(./@title)")
-            done_fields = []
+            done_fields = ["bid_winner", "win_bid_price"]
             self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
 
 
