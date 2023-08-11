@@ -108,6 +108,16 @@ class BidZGDZ(TaskBase):
         # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
         #                    verify=False)
         content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
+        while True:
+            if isinstance(content, tuple):
+                if content[0] == 412:
+                    self.get_cookies(content, url)
+                    content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
+                else:
+                    self.log.info("未找到：" + url)
+                    return
+            else:
+                break
         html = etree.HTML(content)
         all_re_page = html.xpath('string(//span[@class="page"])')
         total = html.xpath('string(//span[@class="page"])')
@@ -134,7 +144,7 @@ class BidZGDZ(TaskBase):
             self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
             content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
             if isinstance(content, tuple):
-                if content[0] == "412":
+                if content[0] == 412:
                     self.get_cookies(content, url)
                     content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT,
                                        verify=False)
@@ -157,7 +167,7 @@ class BidZGDZ(TaskBase):
             detail_url = urljoin(urlbase, href)
             detail_content = self.req(url=detail_url, headers=self.headers)
             if isinstance(detail_content, tuple):
-                if detail_content[0] == "412":
+                if detail_content[0] == 412:
                     self.get_cookies(detail_content, url)
                     detail_content = self.req(url=detail_url, headers=self.headers)
                 else:
