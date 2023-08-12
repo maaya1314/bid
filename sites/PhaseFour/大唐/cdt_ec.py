@@ -48,22 +48,22 @@ class BidZGDZ(TaskBase):
         self.collection_name = 'chdtp_com_jzxtpbg'
         self.key_field = 'article_url'
 
-    # def get_cookies(self, content, url):
-    #     self.log.error("error response, {}, url:{}".format(content[0], url))
-    #     with sync_playwright() as playwright:
-    #         browser = playwright.firefox.launch(headless=False)
-    #         context = browser.new_context()
-    #         page = context.new_page()
-    #         page.goto(url)
-    #         page.wait_for_load_state("networkidle")
-    #         storage_state = context.storage_state()
-    #         cookie = ''
-    #         for cookie_info in storage_state['cookies']:
-    #             cookie_text = cookie_info['name'] + '=' + cookie_info['value']
-    #             cookie += cookie_text + ';'
-    #         self.headers['Cookie'] = cookie.rstrip(';')
-    #         context.close()
-    #         browser.close()
+    def get_cookies(self, url):
+        self.log.error("error response, url:{}".format(url))
+        with sync_playwright() as playwright:
+            browser = playwright.firefox.launch(headless=False)
+            context = browser.new_context()
+            page = context.new_page()
+            page.goto(url)
+            page.wait_for_load_state("networkidle")
+            storage_state = context.storage_state()
+            cookie = ''
+            for cookie_info in storage_state['cookies']:
+                cookie_text = cookie_info['name'] + '=' + cookie_info['value']
+                cookie += cookie_text + ';'
+            self.headers['Cookie'] = cookie.rstrip(';')
+            context.close()
+            browser.close()
 
     @staticmethod
     def parsePDF(filePath):
@@ -75,7 +75,7 @@ class BidZGDZ(TaskBase):
 
     def run(self):
         TIMEOUT = 60
-        url = "https://www.chdtp.com/pages/wzglS/cgxx/caigou.jsp"
+        url = "https://www.cdt-ec.com/notice/moreController/toMore?globleType=0&u_atoken=bd98cf7d-3271-4d10-bcd1-53985611740d&u_asession=01BuiPL1QWNmkRSCU_7-9jSqP7gZDlqZZTyXQW6Oymwkvr8f6KthKvfem1Pje0EaySX0KNBwm7Lovlpxjd_P_q4JsKWYrT3W_NKPr8w6oU7K_k8_f1sFSkMCz8-3xLuHXW2l7GVvsUm1O1dQ3kAgydYmBkFo3NEHBv0PZUm6pbxQU&u_asig=05TLfL3h27z5sjRpO60Xhk4NU5x1hxO5pXcnkMYI-iwfnqqZasNftsuao-LeBRXrDAsgDAkPR7w6_tBqvulSN4MStFNgpPTFNmvzItC1YhFzvoBJug2FrzMO9kw20NPq916nATnqDTA9rbUZra1k9Iprzf2M1vHluuylPfr6S5_BP9JS7q8ZD7Xtz2Ly-b0kmuyAKRFSVJkkdwVUnyHAIJzcwzUxtlGDS7V6wN5_VesTeekrb8TAhSyrzElM7NYJIGaSuCIIsUrXvoQJBX3FajR-3h9VXwMyh6PgyDIVSG1W-sw6WMUGO1N3pj-xJWUPZCt2lto9GC4itIM2Ocb80SNOTnPjAx-GeZ09rrLQNMFmHVgXVlJdrPsvJ382Qlq5NomWspDxyAEEo4kbsryBKb9Q&u_aref=jHPCJD1H%2F51p%2F8%2Bj2zOlm%2FckGhw%3D"
         self.headers = {
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -97,6 +97,28 @@ class BidZGDZ(TaskBase):
             'X-Requested-With': 'XMLHttpRequest'
         }
 
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=False)
+            context = browser.new_context()
+            page = context.new_page()
+            js = """
+                Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
+            """
+            page.add_init_script(js)  # 执行规避webdriver检测
+            for i in range(3):
+                page.goto(url)
+                page.wait_for_load_state("networkidle")
+                page.reload()
+                time.sleep(3)
+            storage_state = context.storage_state()
+            cookie = ''
+            for cookie_info in storage_state['cookies']:
+                cookie_text = cookie_info['name'] + '=' + cookie_info['value']
+                cookie += cookie_text + ';'
+            self.headers['Cookie'] = cookie.rstrip(';')
+            context.close()
+            browser.close()
+
         url_base = 'https://www.cdt-ec.com/notice/moreController/getList'
         form_data = {
             'page': 1,
@@ -108,61 +130,57 @@ class BidZGDZ(TaskBase):
 
         url = url_base.format(1)
         self.log.info("开始采集第1页：{}".format(url))
-        content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
-                           verify=False)
+        content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
+                           timeout=TIMEOUT, verify=False)
         print(content)
-        # content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
-        # html = etree.HTML(content)
-        # all_re_page = html.xpath('string(//span[@class="page"])')
-        # total = html.xpath('string(//span[@class="page"])')
-        # all_re_page = util.re_find_one('(?<=第).*?(?=页，)', all_re_page)
-        # all_re_page = util.re_find_one('[^/]+(?!.*/)', all_re_page)
-        # total = util.re_find_one('(?<=共).*?(?=条记录)', total)
-        # total = int(total)
-        # if all_re_page:
-        #     all_re_page = int(all_re_page)
-        # else:
-        #     all_re_page = 1
-        # pages = all_re_page
-        # self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
-        # self.list_parse(content, url)
-        # for num in range(2, pages + 1):
-        #     data = {
-        #         'cgggtype': 0,
-        #         'jump': 1,
-        #         'page.pageSize': 20,
-        #         'page.currentpage': num,
-        #         'page.totalCount': total
-        #     }
-        #     url = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action'
-        #     self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
-        #     content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
-        #     if isinstance(content, tuple):
-        #         if content[0] == "412":
-        #             self.get_cookies(content, url)
-        #             content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT,
-        #                                verify=False)
-        #         else:
-        #             self.log.info("未找到：" + url)
-        #             continue
-        #     self.list_parse(content, url)
-        # self.log.info("{} 数据采集完毕！".format(self.file_name))
+        total = int(content['count'])
+        all_re_page = total // 10 + 1
+        if all_re_page:
+            all_re_page = int(all_re_page)
+        else:
+            all_re_page = 1
+        pages = all_re_page
+        self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
+        self.list_parse(content, url)
+        for num in range(2, pages + 1):
+            form_data = {
+                'page': num,
+                'limit': 10,
+                'messagetype': 0,
+                'startDate': '',
+                'endDate': ''
+            }
+            self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
+            content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
+                               timeout=TIMEOUT, verify=False)
+            if isinstance(content, tuple):
+                if content[0] == "412":
+                    self.get_cookies(url)
+                    content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
+                                       timeout=TIMEOUT, verify=False)
+                else:
+                    self.log.info("未找到：" + url)
+                    continue
+            self.list_parse(content, url)
+        self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, maincontent, url):
-        urlbase = 'https://www.chdtp.com/staticPage/'
-        list_html = etree.HTML(maincontent)
-        items = list_html.xpath('//form[@name="resultForm"]//table//tr')
+        items = maincontent['data']
+
         for item in items:
             if self.exit_flag:
                 return
-            title = item.xpath("string(./td[2]/a[1]/@title)")
-            href_text = item.xpath("string(./td[2]/a[1]/@href)")
-            href = util.re_find_one("'(.*?)'", href_text)
-            detail_url = urljoin(urlbase, href)
+            # title = item.xpath("string(./td[2]/a[1]/@title)")
+            # href_text = item.xpath("string(./td[2]/a[1]/@href)")
+            # href = util.re_find_one("'(.*?)'", href_text)
+            # detail_url = urljoin(urlbase, href)
+            title = item['message_title']
+            href = item['id']
+            detail_url = "https://www.cdt-ec.com/notice/moreController/moreall?id=" + href
             detail_content = self.req(url=detail_url, headers=self.headers)
             if isinstance(detail_content, tuple):
                 if detail_content[0] == "412":
-                    self.get_cookies(detail_content, url)
+                    self.get_cookies(detail_url)
                     detail_content = self.req(url=detail_url, headers=self.headers)
                 else:
                     self.log.info("未找到：" + url)
@@ -246,7 +264,7 @@ class BidZGDZ(TaskBase):
 
 if __name__ == '__main__':
     params = {
-        "proxy_flag": True,
+        "proxy_flag": False,
         "query_time": "",
         "MainKeys": [
             ""
