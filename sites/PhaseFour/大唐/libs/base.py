@@ -395,9 +395,13 @@ class TaskBase(object):
     def req_playwright(self, url):
         with sync_playwright() as p:
             # 驱动浏览器，并开启无头模式
-            browser = p.chromium.launch(headless=True)
+            browser = p.chromium.launch(headless=False)
             # 打开窗口
             page = browser.new_page()
+            js = """
+                Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
+            """
+            page.add_init_script(js)  # 执行规避webdriver检测
             # 触发 事件
             # page.on('response', on_response)
             # 访问URL

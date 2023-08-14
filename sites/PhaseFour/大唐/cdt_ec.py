@@ -17,6 +17,7 @@ from lxml.html import etree
 
 from libs.base import TaskBase
 from sites.PhaseFour.大唐.libs import util
+from sites.PhaseFour.大唐.libs.util import re_find_one
 
 sys.path.append('../../PhaseTwo')
 sys.path.append('../../..')
@@ -48,22 +49,38 @@ class BidZGDZ(TaskBase):
         self.collection_name = 'chdtp_com_jzxtpbg'
         self.key_field = 'article_url'
 
-    def get_cookies(self, url):
-        self.log.error("error response, url:{}".format(url))
+    def get_cookies_and_content(self, url):
+        # self.log.error("error response, url:{}".format(url))
         with sync_playwright() as playwright:
-            browser = playwright.firefox.launch(headless=False)
+            browser = playwright.chromium.launch(headless=False)
             context = browser.new_context()
             page = context.new_page()
+            js = """
+                Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
+            """
+            page.add_init_script(js)  # 执行规避webdriver检测
             page.goto(url)
             page.wait_for_load_state("networkidle")
+            # 检测滑块，滑动滑块
+            slider = page.locator('xpath=//span[@id="nc_1_n1z"]').bounding_box()
+            page.mouse.move(x=slider['x'], y=slider['y'] + slider['height'] / 2)
+            page.mouse.down()
+            time.sleep(random.randint(3, 5))
+            page.mouse.move(x=slider['x'] + random.randint(380, 420), y=slider['y'] + slider['height'] / 2)
+            page.mouse.up()
+            # page.reload()
+            time.sleep(random.randint(3, 5))
             storage_state = context.storage_state()
             cookie = ''
             for cookie_info in storage_state['cookies']:
                 cookie_text = cookie_info['name'] + '=' + cookie_info['value']
                 cookie += cookie_text + ';'
             self.headers['Cookie'] = cookie.rstrip(';')
+            # Get_the_data(page.content())
+            content = page.content()
             context.close()
             browser.close()
+            return content
 
     @staticmethod
     def parsePDF(filePath):
@@ -97,27 +114,8 @@ class BidZGDZ(TaskBase):
             'X-Requested-With': 'XMLHttpRequest'
         }
 
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=False)
-            context = browser.new_context()
-            page = context.new_page()
-            js = """
-                Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
-            """
-            page.add_init_script(js)  # 执行规避webdriver检测
-            for i in range(3):
-                page.goto(url)
-                page.wait_for_load_state("networkidle")
-                page.reload()
-                time.sleep(3)
-            storage_state = context.storage_state()
-            cookie = ''
-            for cookie_info in storage_state['cookies']:
-                cookie_text = cookie_info['name'] + '=' + cookie_info['value']
-                cookie += cookie_text + ';'
-            self.headers['Cookie'] = cookie.rstrip(';')
-            context.close()
-            browser.close()
+        self.get_cookies_and_content(url)
+        time.sleep(5)
 
         url_base = 'https://www.cdt-ec.com/notice/moreController/getList'
         form_data = {
@@ -132,7 +130,7 @@ class BidZGDZ(TaskBase):
         self.log.info("开始采集第1页：{}".format(url))
         content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
                            timeout=TIMEOUT, verify=False)
-        print(content)
+        # print(content)
         total = int(content['count'])
         all_re_page = total // 10 + 1
         if all_re_page:
@@ -155,7 +153,7 @@ class BidZGDZ(TaskBase):
                                timeout=TIMEOUT, verify=False)
             if isinstance(content, tuple):
                 if content[0] == "412":
-                    self.get_cookies(url)
+                    self.get_cookies_and_content(url)
                     content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
                                        timeout=TIMEOUT, verify=False)
                 else:
@@ -177,88 +175,137 @@ class BidZGDZ(TaskBase):
             title = item['message_title']
             href = item['id']
             detail_url = "https://www.cdt-ec.com/notice/moreController/moreall?id=" + href
-            detail_content = self.req(url=detail_url, headers=self.headers)
-            if isinstance(detail_content, tuple):
-                if detail_content[0] == "412":
-                    self.get_cookies(detail_url)
-                    detail_content = self.req(url=detail_url, headers=self.headers)
-                else:
-                    self.log.info("未找到：" + url)
-                    continue
-            if not detail_content or isinstance(detail_content, tuple):
-                self.log.error("{} no detail_content".format(detail_url))
-                continue
-            source_code = detail_content
+            # detail_content = self.req(url=detail_url, headers=self.headers)
+            # if isinstance(detail_content, tuple):
+            #     if detail_content[0] == "412":
+            #         self.get_cookies_and_content(detail_url)
+            #         detail_content = self.req(url=detail_url, headers=self.headers)
+            #     else:
+            #         self.log.info("未找到：" + url)
+            #         continue
+            # if not detail_content or isinstance(detail_content, tuple):
+            #     self.log.error("{} no detail_content".format(detail_url))
+            #     continue
+            # detail_content = self.req_simulation(detail_url)
+            detail_content = self.get_cookies_and_content(detail_url)
+
             detail_content = re.sub("<script[\s\S]*?/script>", "", detail_content, flags=re.I)
             detail_content = re.sub("<style[\s\S]*?/style>", "", detail_content, flags=re.I)
-            html = etree.HTML(detail_content)
-            html1 = etree.HTML(re.sub('</p>', '</p>\n', detail_content))
             # content_text = html.xpath('string(//div[@class="detail_box qst_box"])')
-            content_text1 = html1.xpath('string(//div[@class="box"]/div/table)')
+            # content_text1 = html.xpath('string(//div[@class="box"]/div/table)')
             data = {}
-            publish_time = item.xpath('string(./td[4])').replace('[', '').replace(']', '')
+            publish_time = item['publish_time']
             data['article_url'] = detail_url
             data['标题'] = title
             data['时间'] = publish_time
-            data['正文'] = content_text1.strip()
-            data['源码'] = str(source_code).strip()
             data['所属频道'] = self.file_name
             # data[TABField.announcement] = item.xpath("string(./@title)")
             done_fields = []
             self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
 
     def detail_parse(self, detail_content, detail_url, data=None, done_fields=None):
-        # print(data)
         if not data:
             data = {}
-        detail_content = detail_content.replace(" ", " ").replace("&nbsp;", " ")
-        html = etree.HTML(detail_content)
         url = data.get("article_url")
         uuid = util.get_md5(url)
         data['uuid'] = uuid
-        main_list = html.xpath('//div[@class="box"]/div[2]/table/tr')
-        # print("table_list:", len(main_list))
 
-        # data['项目名称'] = data['标题']
-        purchase_name = util.re_find_one("采购组织机构：<a[\s\S]*?>([\s\S]*?)</a>", detail_content)
-        data['招标人'] = purchase_name.strip()
+        html = etree.HTML(detail_content)
+        pdf_url = html.xpath('string(//embed[@id="embedid"]/@src)')
+        pdf_url = pdf_url.split('file=')[-1].replace('%26', '&').replace('%3D', '=')
+        if not pdf_url:
+            print('no pdf_url!')
+            return
+        pdf_content = self.req(url=pdf_url, rsp_type="content")
+        time.sleep(random.randint(10, 15))
+        if isinstance(pdf_content, tuple):
+            if pdf_content[0] == "412":
+                self.get_cookies_and_content(detail_url)
+                pdf_content = self.req(url=pdf_url, rsp_type="content")
+            else:
+                self.log.info("未找到：" + pdf_url)
+                return
+        if not pdf_content or isinstance(pdf_content, tuple):
+            self.log.error("{} no detail_content".format(detail_url))
+            return
 
-        for i in main_list:
-            temp = i.xpath('string(.//div[@class="tabmenu"])')
-            if '基本信息' in temp:
-                temp_list = i.xpath('.//div[@class="tabmenu"]/following-sibling::div//tr')
-                for j in temp_list:
-                    if "采购单号" in j.xpath('string(./td[@class="td_1"])'):
-                        data['项目编号'] = j.xpath('string(./td[@class="td_2"])').strip()
-                    elif "备注" in j.xpath('string(./td[@class="td_1"])'):
-                        data['其他要求或说明'] = j.xpath('string(./td[@class="td_2"])').strip()
-            elif '资格条件' in temp:
-                data['招标条件'] = i.xpath('string(.//div[@class="tabmenu"]/following-sibling::div)').strip()
-            elif '采购清单' in temp:
-                temp_list = i.xpath('.//div[@class="tabmenu"]/following-sibling::div//tr[1]/td')
-                col = len(temp_list)
-                temp = 0
-                cg1, cg2 = -1, -1
-                for j in temp_list:
-                    if '采购范围' in j.xpath('string(.)').strip():
-                        cg1 = temp
-                    elif '计划名称' in j.xpath('string(.)').strip():
-                        cg2 = temp
-                    temp += 1
-                temp_list = i.xpath('.//div[@class="tabmenu"]/following-sibling::div//tr/td')
-                temp = 0
-                cg1_list, cg2_list = [], []
-                for j in temp_list:
-                    if 0 <= cg1 == temp % col:
-                        if j.xpath('string(./@title)'):
-                            cg1_list.append(j.xpath('string(./@title)').replace('\r', '').replace('\n', ' ').strip())
-                    elif 0 <= cg2 == temp % col:
-                        if j.xpath('string(./@title)'):
-                            cg2_list.append(j.xpath('string(./@title)').replace('\r', '').replace('\n', ' ').strip())
-                    temp += 1
-                data['招标范围'] = '|'.join(cg1_list)
-                data['项目名称'] = '|'.join(cg2_list)
-        # print(data)
+        source_code = pdf_content
+        data['源码'] = str(source_code).strip()
+        with open("a.pdf", mode="wb") as f:
+            f.write(pdf_content)  # 内容写入文件
+        article = self.parsePDF("a.pdf")
+        data['正文'] = article
+        # article = article.replace('1. ', '|s|1. ').replace('2. ', '|s|2. ').replace('3. ', '|s|3. ').\
+        #     replace('4. ', '|s|4. ').replace('5. ', '|s|5. ').replace('6. ', '|s|6. ').replace('7. ', '|s|7. ').\
+        #     replace('8. ', '|s|8. ').replace('9. ', '|s|9. ').replace('10. ', '|s|10. ')
+        at_list = article.split('\n')
+        for at in range(len(at_list)):
+            if re.match('\d{1}\.', at_list[at]):
+                if not re.match('\d{1}\.\d{1}', at_list[at]):
+                    at_list[at] = '|s|' + at_list[at]
+        article = '\n'.join(at_list)
+        paragraph_list = article.split('|s|')
+
+        data['标题'] = paragraph_list[0].replace('\n', '')
+        data['项目名称'] = data['标题']
+        for i in range(len(paragraph_list)):
+            col_list = paragraph_list[i].split('\n')
+            if '招标条件' in col_list[0]:
+                data['招标条件'] = ''
+                for j in col_list[1:]:
+                    data['招标条件'] += j
+            elif '项目概况与招标范围' in col_list[0]:
+                at_list = paragraph_list[i].split('\n')
+                for at in range(len(at_list)):
+                    if re.match('\d{1}\.\d{1}', at_list[at].strip()):
+                        at_list[at] = '|s|' + at_list[at]
+                paragraph_list[i] = '\n'.join(at_list)
+                son_list = paragraph_list[i].split('|s|')
+                for j in son_list[1:]:  # 去掉标题行
+                    if '招标编号' in j:
+                        data['项目编号'] = j.split('招标编号：')[-1]
+                    elif '计划工期' in j:
+                        data['计划工期'] = j.split('计划工期：')[-1]
+                    elif '招标范围' in j:
+                        data['招标范围'] = j.split('招标范围：')[-1]
+            elif '投标人资格要求' in col_list[0]:
+                data['投标人资格要求'] = ''
+                for j in col_list[1:]:
+                    data['投标人资格要求'] += j
+            elif '招标文件的获取' in col_list[0]:
+                data['招标文件的获取'] = ''
+                for j in col_list[1:]:
+                    data['招标文件的获取'] += j
+            elif '投标文件的递交' in col_list[0]:
+                data['投标文件的递交'] = ''
+                for j in col_list[1:]:
+                    data['投标文件的递交'] += j
+            elif '联系方式' in col_list[0]:
+                flag = '招标'
+                for j in col_list[1:]:
+                    if '招标人' in j:
+                        flag = '招标'
+                        data['招标人'] = j.replace('招标人：', '')
+                    elif '招标代理' in j:
+                        flag = '招标代理'
+                        data['招标代理'] = j.replace('招标代理机构：', '')
+                    elif '电话' in j:
+                        if flag == '招标':
+                            data['招标人联系方式'] = j.replace('电话：', '')
+                        else:
+                            data['招标代理联系方式'] = j.replace('电话：', '')
+            elif '提出异议、投诉的渠道和方式' in col_list[0]:
+                # for j in col_list[1:]:
+                #     pass
+                pass
+            elif '监督部门' in col_list[0]:
+                # for j in col_list[1:]:
+                #     pass
+                pass
+            else:
+                pass
+
+        print(data)
         self.upload(data)
 
 
