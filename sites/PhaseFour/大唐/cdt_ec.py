@@ -46,7 +46,7 @@ class BidZGDZ(TaskBase):
         self.exit_counts = 0
         self.file_name = '大唐招标-招标公告'
         # self.parse_dict = parse_dict.get(self.file_name)
-        self.collection_name = 'chdtp_com_jzxtpbg'
+        self.collection_name = 'cdt_ec'
         self.key_field = 'article_url'
 
     def get_cookies_and_content(self, url):
@@ -69,6 +69,7 @@ class BidZGDZ(TaskBase):
             page.mouse.move(x=slider['x'] + random.randint(380, 420), y=slider['y'] + slider['height'] / 2)
             page.mouse.up()
             # page.reload()
+            page.wait_for_load_state("networkidle")
             time.sleep(random.randint(3, 5))
             storage_state = context.storage_state()
             cookie = ''
@@ -159,6 +160,9 @@ class BidZGDZ(TaskBase):
                 else:
                     self.log.info("未找到：" + url)
                     continue
+            if not content:
+                self.log.info(f"page {num} 无返回数据：" + url)
+                break
             self.list_parse(content, url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
 
@@ -234,19 +238,44 @@ class BidZGDZ(TaskBase):
         with open("a.pdf", mode="wb") as f:
             f.write(pdf_content)  # 内容写入文件
         article = self.parsePDF("a.pdf")
+        article = article.replace(' ', '')
         data['正文'] = article
         # article = article.replace('1. ', '|s|1. ').replace('2. ', '|s|2. ').replace('3. ', '|s|3. ').\
         #     replace('4. ', '|s|4. ').replace('5. ', '|s|5. ').replace('6. ', '|s|6. ').replace('7. ', '|s|7. ').\
         #     replace('8. ', '|s|8. ').replace('9. ', '|s|9. ').replace('10. ', '|s|10. ')
+
+        # 分割段落
         at_list = article.split('\n')
         for at in range(len(at_list)):
             if re.match('\d{1}\.', at_list[at]):
                 if not re.match('\d{1}\.\d{1}', at_list[at]):
                     at_list[at] = '|s|' + at_list[at]
+            elif re.match('\d{1}', at_list[at]):
+                # 不允许开头为2个数字,只能1个数字
+                if not re.match('\d{2}', at_list[at]) and not re.match('\d{1}\.\d{1}', at_list[at]):
+                    at_list[at] = '|s|' + at_list[at]
         article = '\n'.join(at_list)
         paragraph_list = article.split('|s|')
 
-        data['标题'] = paragraph_list[0].replace('\n', '')
+        temp_list = paragraph_list[0].split('\n')
+        data['标题'] = ''
+        title_flag = True
+        for i in temp_list:
+            if title_flag:
+                data['标题'] += i.strip()
+                if data['标题'].endswith('招标公告') or data['标题'].endswith('公告'):
+                    title_flag = False
+                continue
+            # 处理标题行出现招标相关信息
+            if i.startswith('招标人'):
+                data['招标人'] = i
+            elif i.startswith('招标代理机构'):
+                data['招标代理'] = i
+            elif i.startswith('招标编号'):
+                data['项目编号'] = i
+
+        # paragraph_list[0].replace('\n', '')
+
         data['项目名称'] = data['标题']
         for i in range(len(paragraph_list)):
             col_list = paragraph_list[i].split('\n')
@@ -262,13 +291,14 @@ class BidZGDZ(TaskBase):
                 paragraph_list[i] = '\n'.join(at_list)
                 son_list = paragraph_list[i].split('|s|')
                 for j in son_list[1:]:  # 去掉标题行
-                    if '招标编号' in j:
+                    if '招标编号：' in j:
+                        # if not data.get('项目编号', ''):
                         data['项目编号'] = j.split('招标编号：')[-1]
-                    elif '计划工期' in j:
+                    elif '计划工期：' in j:
                         data['计划工期'] = j.split('计划工期：')[-1]
-                    elif '招标范围' in j:
+                    elif '招标范围：' in j:
                         data['招标范围'] = j.split('招标范围：')[-1]
-            elif '投标人资格要求' in col_list[0]:
+            elif '投标人资格要求' in col_list[0] or '投标人的资格要求' in col_list[0]:
                 data['投标人资格要求'] = ''
                 for j in col_list[1:]:
                     data['投标人资格要求'] += j
@@ -283,17 +313,21 @@ class BidZGDZ(TaskBase):
             elif '联系方式' in col_list[0]:
                 flag = '招标'
                 for j in col_list[1:]:
-                    if '招标人' in j:
+                    if '招标人：' in j:
                         flag = '招标'
-                        data['招标人'] = j.replace('招标人：', '')
-                    elif '招标代理' in j:
+                        if not data.get('招标人', ''):
+                            data['招标人'] = j.replace('招标人：', '')
+                    elif '招标代理：' in j or '招标代理机构：' in j:
                         flag = '招标代理'
-                        data['招标代理'] = j.replace('招标代理机构：', '')
-                    elif '电话' in j:
+                        if not data.get('招标代理', ''):
+                            data['招标代理'] = j.replace('招标代理机构：', '').replace('招标代理：', '')
+                    elif '电话：' in j:
                         if flag == '招标':
-                            data['招标人联系方式'] = j.replace('电话：', '')
+                            if not data.get('招标人联系方式', ''):
+                                data['招标人联系方式'] = j.replace('电话：', '')
                         else:
-                            data['招标代理联系方式'] = j.replace('电话：', '')
+                            if not data.get('招标代理联系方式', ''):
+                                data['招标代理联系方式'] = j.replace('电话：', '')
             elif '提出异议、投诉的渠道和方式' in col_list[0]:
                 # for j in col_list[1:]:
                 #     pass
