@@ -121,10 +121,11 @@ class BidZGDZ(Bid5):
             source_code = detail_content
             detail_content = re.sub("<script[\s\S]*?/script>", "", detail_content, flags=re.I)
             detail_content = re.sub("<style[\s\S]*?/style>", "", detail_content, flags=re.I)
-            html = etree.HTML(detail_content)
             html1 = etree.HTML(re.sub('</p>', '</p>\n', detail_content))
-            content_text = html.xpath('string(//div[@class="detail_box qst_box"])')
-            content_text1 = html1.xpath('string(//div[@class="detail_box qst_box"])')
+            content_items = html1.xpath('//div[@class="detail_box qst_box"]/div/*')
+            content_text1 = ''
+            for content_item in content_items:
+                content_text1 += content_item.xpath('string(.)').strip() + '\n'
             data = {}
             publish_time = item.xpath('string(./following-sibling::p[@class="f_r"])')
             data['article_url'] = detail_url

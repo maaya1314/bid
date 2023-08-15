@@ -49,7 +49,7 @@ class BidZGDZ(TaskBase):
     def get_cookies(self, content, url):
         self.log.error("error response, {}, url:{}".format(content[0], url))
         with sync_playwright() as playwright:
-            browser = playwright.firefox.launch(headless=False)
+            browser = playwright.chromium.launch(headless=False)
             context = browser.new_context()
             page = context.new_page()
             page.goto(url)
@@ -87,11 +87,18 @@ class BidZGDZ(TaskBase):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3'
         }
         with sync_playwright() as playwright:
-            browser = playwright.firefox.launch(headless=False)
+            browser = playwright.chromium.launch(headless=False)
             context = browser.new_context()
             page = context.new_page()
-            page.goto(url)
-            page.wait_for_load_state("networkidle")
+            js = """
+                Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
+            """
+            page.add_init_script(js)  # 执行规避webdriver检测
+            for i in range(3):
+                page.goto(url)
+                page.wait_for_load_state("networkidle")
+                page.reload()
+                time.sleep(3)
             storage_state = context.storage_state()
             cookie = ''
             for cookie_info in storage_state['cookies']:
@@ -101,13 +108,33 @@ class BidZGDZ(TaskBase):
             context.close()
             browser.close()
 
-        url_base = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action?cgggtype=0'
-
-        url = url_base.format(1)
-        self.log.info("开始采集第1页：{}".format(url))
-        # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
-        #                    verify=False)
-        content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
+        # url_base = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action?cgggtype=0'
+        #
+        # url = url_base.format(1)
+        # self.log.info("开始采集第1页：{}".format(url))
+        # # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
+        # #                    verify=False)
+        # content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
+        data = {
+            'cgggtype': "0",
+            'jump': "2",
+            'page.pageSize': "20",
+            'page.currentpage': "1",
+            'page.totalCount': "37787"
+        }
+        url = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action'
+        data = json.dumps(data)
+        content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
+        while True:
+            if isinstance(content, tuple):
+                if content[0] == 412 or content[0] == 400:
+                    self.get_cookies(content, url)
+                    content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
+                else:
+                    self.log.info("未找到：" + url)
+                    return
+            else:
+                break
         html = etree.HTML(content)
         all_re_page = html.xpath('string(//span[@class="page"])')
         total = html.xpath('string(//span[@class="page"])')
@@ -124,22 +151,23 @@ class BidZGDZ(TaskBase):
         self.list_parse(content, url)
         for num in range(2, pages + 1):
             data = {
-                'cgggtype': 0,
-                'jump': 1,
-                'page.pageSize': 20,
-                'page.currentpage': num,
-                'page.totalCount': total
+                'cgggtype': "0",
+                'jump': str(num-1) if num-1 > 0 else "1",
+                'page.pageSize': "20",
+                'page.currentpage': str(num),
+                'page.totalCount': str(total)
             }
             url = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action'
+            data = json.dumps(data)
             self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
             content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
             if isinstance(content, tuple):
-                if content[0] == "412":
+                if content[0] == 412:
                     self.get_cookies(content, url)
                     content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT,
                                        verify=False)
                 else:
-                    self.log.info("未找到：", url)
+                    self.log.info("未找到：" + url)
                     continue
             self.list_parse(content, url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
@@ -157,11 +185,11 @@ class BidZGDZ(TaskBase):
             detail_url = urljoin(urlbase, href)
             detail_content = self.req(url=detail_url, headers=self.headers)
             if isinstance(detail_content, tuple):
-                if detail_content[0] == "412":
+                if detail_content[0] == 412:
                     self.get_cookies(detail_content, url)
                     detail_content = self.req(url=detail_url, headers=self.headers)
                 else:
-                    self.log.info("未找到：", url)
+                    self.log.info("未找到：" + url)
                     continue
             if not detail_content or isinstance(detail_content, tuple):
                 self.log.error("{} no detail_content".format(detail_url))
