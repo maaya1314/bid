@@ -162,12 +162,10 @@ class Bid_company_parser(object):
         receive = self.get_common_result(content, conf_3.receive_keyword_list, self.receive_offset,
                                            self.common_end_list)
         result_data['receive'] = receive
-        submit = self.get_common_result(content, conf_3.submit_keyword_list, self.submit_offset,
-                                           self.common_end_list)
+        submit = self.get_common_result(content, conf_3.submit_keyword_list, self.submit_offset, self.common_end_list)
         submit = submit.split("截止时间：")[-1]
         result_data['submit'] = submit
-        medium = self.get_common_result(content, conf_3.medium_keyword_list, self.medium_offset,
-                                           self.common_end_list)
+        medium = self.get_common_result(content, conf_3.medium_keyword_list, self.medium_offset, self.common_end_list)
         result_data['medium'] = medium
         bid_agency_tel = self.get_phone_result(content, conf_3.bid_agency_tel_keyword_list, self.phone_offset, self.phone_end_list)
         result_data['bid_agency_tel'] = bid_agency_tel

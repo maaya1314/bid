@@ -204,6 +204,9 @@ class BidZGDZ(Bid5):
             data['content'] = content_text1.strip()
             data['area'] = area
             data['source_code'] = str(source_code).strip()
+            data['t1_name'] = self.t1_name
+            data['t2_name'] = self.t2_name
+            data['t3_name'] = self.t3_name
             # 一级指标
             primary_indicators = ''
             primary_indicators_list = html1.xpath("string(//div[@class='fl xiab_1'])").split(" ")
