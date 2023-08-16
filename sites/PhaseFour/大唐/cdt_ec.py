@@ -256,88 +256,129 @@ class BidZGDZ(TaskBase):
                     at_list[at] = '|s|' + at_list[at]
         article = '\n'.join(at_list)
         paragraph_list = article.split('|s|')
+        if len(paragraph_list) > 1:
+            temp_list = paragraph_list[0].split('\n')
+            data['标题'] = ''
+            title_flag = True
+            for i in temp_list:
+                if title_flag:
+                    data['标题'] += i.strip()
+                    if data['标题'].endswith('招标公告') or data['标题'].endswith('公告') or data['标题'].endswith('公示') \
+                            or data['标题'].endswith('通知'):
+                        title_flag = False
+                    continue
+                # 处理标题行出现招标相关信息
+                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
+                    data['招标人'] = i
+                elif i.startswith('招标代理机构'):
+                    data['招标代理'] = i
+                elif i.startswith('招标编号'):
+                    data['项目编号'] = i
 
-        temp_list = paragraph_list[0].split('\n')
-        data['标题'] = ''
-        title_flag = True
-        for i in temp_list:
-            if title_flag:
-                data['标题'] += i.strip()
-                if data['标题'].endswith('招标公告') or data['标题'].endswith('公告'):
-                    title_flag = False
-                continue
-            # 处理标题行出现招标相关信息
-            if i.startswith('招标人'):
-                data['招标人'] = i
-            elif i.startswith('招标代理机构'):
-                data['招标代理'] = i
-            elif i.startswith('招标编号'):
-                data['项目编号'] = i
+            # paragraph_list[0].replace('\n', '')
 
-        # paragraph_list[0].replace('\n', '')
-
-        data['项目名称'] = data['标题']
-        for i in range(len(paragraph_list)):
-            col_list = paragraph_list[i].split('\n')
-            if '招标条件' in col_list[0]:
-                data['招标条件'] = ''
-                for j in col_list[1:]:
-                    data['招标条件'] += j
-            elif '项目概况与招标范围' in col_list[0]:
-                at_list = paragraph_list[i].split('\n')
-                for at in range(len(at_list)):
-                    if re.match('\d{1}\.\d{1}', at_list[at].strip()):
-                        at_list[at] = '|s|' + at_list[at]
-                paragraph_list[i] = '\n'.join(at_list)
-                son_list = paragraph_list[i].split('|s|')
-                for j in son_list[1:]:  # 去掉标题行
-                    if '招标编号：' in j:
-                        # if not data.get('项目编号', ''):
-                        data['项目编号'] = j.split('招标编号：')[-1]
-                    elif '计划工期：' in j:
-                        data['计划工期'] = j.split('计划工期：')[-1]
-                    elif '招标范围：' in j:
-                        data['招标范围'] = j.split('招标范围：')[-1]
-            elif '投标人资格要求' in col_list[0] or '投标人的资格要求' in col_list[0]:
-                data['投标人资格要求'] = ''
-                for j in col_list[1:]:
-                    data['投标人资格要求'] += j
-            elif '招标文件的获取' in col_list[0]:
-                data['招标文件的获取'] = ''
-                for j in col_list[1:]:
-                    data['招标文件的获取'] += j
-            elif '投标文件的递交' in col_list[0]:
-                data['投标文件的递交'] = ''
-                for j in col_list[1:]:
-                    data['投标文件的递交'] += j
-            elif '联系方式' in col_list[0]:
-                flag = '招标'
-                for j in col_list[1:]:
-                    if '招标人：' in j:
-                        flag = '招标'
-                        if not data.get('招标人', ''):
-                            data['招标人'] = j.replace('招标人：', '')
-                    elif '招标代理：' in j or '招标代理机构：' in j:
-                        flag = '招标代理'
-                        if not data.get('招标代理', ''):
-                            data['招标代理'] = j.replace('招标代理机构：', '').replace('招标代理：', '')
-                    elif '电话：' in j:
-                        if flag == '招标':
-                            if not data.get('招标人联系方式', ''):
-                                data['招标人联系方式'] = j.replace('电话：', '')
-                        else:
-                            if not data.get('招标代理联系方式', ''):
-                                data['招标代理联系方式'] = j.replace('电话：', '')
-            elif '提出异议、投诉的渠道和方式' in col_list[0]:
-                # for j in col_list[1:]:
-                #     pass
-                pass
-            elif '监督部门' in col_list[0]:
-                # for j in col_list[1:]:
-                #     pass
-                pass
-            else:
-                pass
+            data['项目名称'] = data['标题']
+            for i in range(len(paragraph_list)):
+                col_list = paragraph_list[i].split('\n')
+                if '招标条件' in col_list[0]:
+                    data['招标条件'] = ''
+                    for j in col_list[1:]:
+                        data['招标条件'] += j
+                elif '项目概况与招标范围' in col_list[0] or '项目概况与采购范围' in col_list[0]:
+                    at_list = paragraph_list[i].split('\n')
+                    for j in at_list:
+                        if '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j:
+                            data['计划工期'] = j.split('计划工期：')[-1]
+                    for at in range(len(at_list)):
+                        if re.match('\d{1}\.\d{1}', at_list[at].strip()):
+                            at_list[at] = '|s|' + at_list[at]
+                    paragraph_list[i] = '\n'.join(at_list)
+                    son_list = paragraph_list[i].split('|s|')
+                    if len(son_list) > 1:
+                        for j in son_list[1:]:  # 去掉标题行
+                            if '招标编号：' in j:
+                                # if not data.get('项目编号', ''):
+                                data['项目编号'] = j.split('招标编号：')[-1]
+                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j:
+                                data['计划工期'] = j.split('计划工期：')[-1]
+                            elif '招标范围：' in j:
+                                data['招标范围'] = j.split('招标范围：')[-1]
+                    else:
+                        for j in at_list:
+                            if '招标编号：' in j:
+                                # if not data.get('项目编号', ''):
+                                data['项目编号'] = j.split('招标编号：')[-1]
+                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j:
+                                data['计划工期'] = j.split('计划工期：')[-1]
+                            elif '招标范围：' in j:
+                                data['招标范围'] = j.split('招标范围：')[-1]
+                elif '投标人资格要求' in col_list[0] or '投标人的资格要求' in col_list[0]:
+                    data['投标人资格要求'] = ''
+                    for j in col_list[1:]:
+                        data['投标人资格要求'] += j
+                elif '招标文件的获取' in col_list[0]:
+                    data['招标文件的获取'] = ''
+                    for j in col_list[1:]:
+                        data['招标文件的获取'] += j
+                elif '投标文件的递交' in col_list[0]:
+                    data['投标文件的递交'] = ''
+                    for j in col_list[1:]:
+                        data['投标文件的递交'] += j
+                elif '联系方式' in col_list[0]:
+                    flag = '招标'
+                    for j in col_list[1:]:
+                        if '招标人：' in j or '采购单位' in j or '采购人' in j:
+                            flag = '招标'
+                            if not data.get('招标人', ''):
+                                data['招标人'] = j.replace('招标人：', '')
+                        elif '招标代理：' in j or '招标代理机构：' in j:
+                            flag = '招标代理'
+                            if not data.get('招标代理', ''):
+                                data['招标代理'] = j.replace('招标代理机构：', '').replace('招标代理：', '')
+                        elif '电话：' in j:
+                            if flag == '招标':
+                                if not data.get('招标人联系方式', ''):
+                                    data['招标人联系方式'] = j.replace('电话：', '')
+                            else:
+                                if not data.get('招标代理联系方式', ''):
+                                    data['招标代理联系方式'] = j.replace('电话：', '')
+                elif '提出异议、投诉的渠道和方式' in col_list[0]:
+                    # for j in col_list[1:]:
+                    #     pass
+                    pass
+                elif '监督部门' in col_list[0]:
+                    # for j in col_list[1:]:
+                    #     pass
+                    pass
+                else:
+                    pass
+        else:
+            at_list = paragraph_list[0].split('\n')
+            data['标题'] = ''
+            title_flag = True
+            for i in at_list:
+                if title_flag:
+                    data['标题'] += i.strip()
+                    if data['标题'].endswith('招标公告') or data['标题'].endswith('公告') or data['标题'].endswith('公示') \
+                            or data['标题'].endswith('通知'):
+                        title_flag = False
+                    continue
+                # 处理标题行出现招标相关信息
+                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
+                    data['招标人'] = i
+                elif i.startswith('招标代理机构'):
+                    data['招标代理'] = i
+                elif i.startswith('招标编号'):
+                    data['项目编号'] = i
+                elif i.startswith('招标条件'):
+                    data['招标条件'] = i
+                elif i.startswith('计划工期') or i.startswith('工期') or i.startswith('交货期') or i.startswith('供货期') or i.startswith('协议期限') or i.startswith('服务期'):
+                    data['计划工期'] = i
+                elif i.startswith('招标编号'):
+                    data['招标编号'] = i
+                elif i.startswith('招标范围'):
+                    data['招标范围'] = i
+            data['项目名称'] = data['标题']
 
         print(data)
         self.upload(data)
