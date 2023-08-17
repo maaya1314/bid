@@ -67,7 +67,7 @@ class BidZGDZ(TaskBase):
 
     def run(self):
         TIMEOUT = 60
-        url = "https://www.chdtp.com/pages/wzglS/cgxx/caigou.jsp"
+        url = "https://www.chdtp.com/pages/wzglS/cgxx/caigou.jsp?cgtype=2"
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -108,33 +108,35 @@ class BidZGDZ(TaskBase):
             context.close()
             browser.close()
 
-        # url_base = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action?cgggtype=0'
-        #
-        # url = url_base.format(1)
-        # self.log.info("开始采集第1页：{}".format(url))
-        # # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
-        # #                    verify=False)
-        # content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
-        data = {
-            'cgggtype': "0",
-            'jump': "2",
-            'page.pageSize': "20",
-            'page.currentpage': "1",
-            'page.totalCount': "37787"
-        }
-        url = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action'
-        data = json.dumps(data)
-        content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
+        url_base = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action?cgggtype=0'
+
+        url = url_base.format(1)
+        self.log.info("开始采集第1页：{}".format(url))
+        # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
+        #                    verify=False)
+        content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
+        # data = {
+        #     'cgggtype': "0",
+        #     'jump': "2",
+        #     'page.pageSize': "20",
+        #     'page.currentpage': "1",
+        #     'page.totalCount': "37787"
+        # }
+        # url = 'https://www.chdtp.com/webs/displayNewsCgxxAction.action'
+        # data = json.dumps(data)
+        # content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
         while True:
             if isinstance(content, tuple):
                 if content[0] == 412 or content[0] == 400:
                     self.get_cookies(content, url)
-                    content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
+                    content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
                 else:
                     self.log.info("未找到：" + url)
                     return
             else:
                 break
+        if not content:
+            return
         html = etree.HTML(content)
         all_re_page = html.xpath('string(//span[@class="page"])')
         total = html.xpath('string(//span[@class="page"])')
@@ -177,6 +179,7 @@ class BidZGDZ(TaskBase):
         list_html = etree.HTML(maincontent)
         items = list_html.xpath('//form[@name="resultForm"]//table//tr')
         for item in items:
+            time.sleep(random.randint(10, 15))
             if self.exit_flag:
                 return
             title = item.xpath("string(./td[2]/a[1]/@title)")

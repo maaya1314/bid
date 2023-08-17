@@ -268,8 +268,9 @@ class BidZGDZ(TaskBase):
                         title_flag = False
                     continue
                 # 处理标题行出现招标相关信息
-                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
-                    data['招标人'] = i
+                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人') or i.startswith('招标方'):
+                    if not data.get('招标人', ''):
+                        data['招标人'] = i
                 elif i.startswith('招标代理机构'):
                     data['招标代理'] = i
                 elif i.startswith('招标编号'):
@@ -308,7 +309,7 @@ class BidZGDZ(TaskBase):
                             if '招标编号：' in j:
                                 # if not data.get('项目编号', ''):
                                 data['项目编号'] = j.split('招标编号：')[-1]
-                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j:
+                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j:
                                 data['计划工期'] = j.split('计划工期：')[-1]
                             elif '招标范围：' in j:
                                 data['招标范围'] = j.split('招标范围：')[-1]
@@ -327,7 +328,7 @@ class BidZGDZ(TaskBase):
                 elif '联系方式' in col_list[0]:
                     flag = '招标'
                     for j in col_list[1:]:
-                        if '招标人：' in j or '采购单位' in j or '采购人' in j:
+                        if '招标人：' in j or '采购单位' in j or '采购人' in j or '招标方' in j:
                             flag = '招标'
                             if not data.get('招标人', ''):
                                 data['招标人'] = j.replace('招标人：', '')
@@ -365,7 +366,8 @@ class BidZGDZ(TaskBase):
                     continue
                 # 处理标题行出现招标相关信息
                 if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
-                    data['招标人'] = i
+                    if not data.get('招标人', ''):
+                        data['招标人'] = i
                 elif i.startswith('招标代理机构'):
                     data['招标代理'] = i
                 elif i.startswith('招标编号'):
