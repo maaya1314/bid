@@ -34,6 +34,392 @@ import jsonpath
 import math
 
 
+base_dict = {
+        "duration": {
+            "re": [''],
+            "xpath": [
+                '//th[contains(string(), "工期")]/../following::*[1]//td[count(//th[contains(string(), "工期")]/preceding-sibling::*)]',
+
+            ],
+        },
+        "scale": {
+            "re": [''],
+            "xpath": [
+                "//*[string()='结构类型及规模']/following-sibling::*[1]",
+                "//*[string()='项目规模']/following-sibling::*[1]",
+
+            ],
+        },
+        "project_title": {
+            "re": [''],
+            "xpath": [
+                "//div[@class='v3-notice-detail-left-title']",  # 云采招阳
+                "//div[@class='article-title']",  # 中煤
+                "//h1[@class='s-title']",  # 中国南方电网--阳光电子商务
+                "//div[@class='headline']/dl/dt",
+                'string(//h3)',  # 光大
+                "//div[@class='app']/h2",  # 中招
+            ]
+        },  # 项目标题
+        "project_number": {
+            "re": [
+                '询价编号：(.+?)<',
+                '采购单编号：(.+?)<',
+                '标段（包）编号：(.+?)<',
+                '项目编号：(.+?)</p',
+                '招标编号：(.+?)</span></p>',
+                '编号：((?!\<).+?)<',
+                '编号：([\s\S]+?)(?!<[\s\S]*?>)(采购)?项目名称',
+                '编号：(.+?)(?=）|\))',
+                '采购编号：(.+?)）',
+                '采购编号：(.+?)</span',
+                '招标编号：(.+?)</span></span>',
+                '编号：(.+?)</span>',
+                '项目编号：(.+?)<',
+                '招标编号<a></a>：<span style="text-decoration:underline;">（(.*?)）',
+                '项目标号：(.+?)<',
+
+            ],
+            "xpath": [
+                "//h5/@title",
+                "//*[string()='采购项目编码']/following-sibling::*[1]",
+                "//span[contains(text(),'项目编号')]/following-sibling::span[1]",
+                "//span[contains(text(),'项目编号')]/../following-sibling::span[1]",
+                "//span[contains(text(),'项目编号：')]", "//span[contains(text(),'采购编号')]/..",
+                "//span[contains(text(),'采购项目编号')]/..",
+                "//span[contains(text(),'项目编号')]/../../following-sibling::span[1]",
+                '//td[contains(string(), "招标编号")]/../following::*[1]//td[count(//td[contains(string(), "招标编号")]/preceding-sibling::*) + 1]',
+            ]
+        },  # 项目编号
+        "tender_unit": {
+            "re": [
+                '招 标 人：(.+?)<',
+                '招标人[：|为](.*?)</span>',
+                '招标人名称：(.+?)</span></p>',
+                '招标人名称：(.+?)<',
+                '招标人[：|为](.+?)</span></span>',
+                '招标人：(.*?)</span>',
+                '采 购.*?人：(.+?)</span>',
+                '采购机构：(.+?)</span>',
+                '招标人或其招标代理机构名称：(.+?)</span></span>',
+                '招标人或其招标代理机构名称：(.+?)</span>',
+                '采购组织：(.+?)<',
+            ],
+            "xpath": [
+                "string(//span[text()='招标人：']/following-sibling::*[1])",
+                'string(//span[contains(string(), "招标人：")]/following-sibling::*)',
+                "//span[contains(string(),'招 标 人：')]", '//span[contains(string(), "招 标 人：")]/following-sibling::*',
+                "//span[contains(string(),'招标人：')]",
+                "//span[contains(string(),'采 购 人：')]",
+                "//span[contains(string(),'采购人：')]",
+                "//p[contains(string(),'采购人：')]", '//span[contains(string(), "招 标 人：")]/following-sibling::*',
+            ]
+        },  # 招标单位
+        "tender_price": {
+            "re": ['采购金额[：|为](.+?)</span></span>', '估算额[：|为](.+?)</span></span>'],
+            "xpath": [
+                '//td[contains(string(), "概算价（万元）")]/../following::*[1]/td[count(//td[contains(string(), "概算价（万元）")]/preceding-sibling::td) + 1]']
+        },  # 标的金额
+        "publish_time": {
+            "re": [''],
+            "xpath": ["//span[contains(text(),'发布日期')]", "//th[contains(text(),'公示开始时间')]/following-sibling::td[1]"]
+        },  # 发布时间 需正则两步以上
+        "project_leader": {
+            "re": [
+                '联 系 人：(.+?)<',
+                '联系方式：[\s\S]*?联系人：(.+?)</p',
+                '招标采购中心联系人：(.+?)电话',
+                '联系方式[\s\S]*?联[\s\S]*?系[\s\S]*?人：(.+?)</span>',
+                '（签名）：(.+?)</span>',
+                '主要负责人或授权的项目负责人：(.+?)</span>',
+            ],
+            "xpath": [
+                'string(//*[text()="项目联系人："]/following-sibling::*)',
+                'string(//*[text()="联系人："]/following-sibling::*)',
+                'string(//th[contains(string(), "联系人")]/following-sibling::*)',
+                '//span[contains(string(), "联 系 人：")]/following::*[1]',
+                '//span[contains(string(), "联 系 人：")]/following-sibling::*',
+                'string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系人：")]/following-sibling::*[1])',
+                'string(//span[contains(string(), "招标人：")]/following::*//span[contains(string(), "联系人：")])',
+                "string(//span[contains(string(),'联 系 人：')])",
+                "//td[contains(string(),'项目联系人：')]/following-sibling::*[1]",
+                # "string(//span[contains(string(),'联系人：')])",
+            ]
+        },  # 招标项目负责人 需正则两步以上
+        "phone": {
+            "re": [
+                '电<.*?>话：(.+?)</p',
+                '联系方式[\s\S]*?电话：([\s\S]*?)</p',
+                '联系方式[\s\S]*?联系人[\s\S]*?电话：(.+?)</p',
+                '联系方式：[\s\S]*?电话：(.+?)</p',
+                '电.?话：(.+?)<',
+                '联系方式：(.+?)</p',
+            ],
+            "xpath": [
+                'string(//*[text()="联系电话："]/following-sibling::*)',
+                'string(//*[text()="手机号码："]/following-sibling::*)',
+                'string(//strong[contains(string(), "招标人")]/following::*//span[contains(string(), "联系电话：")]/following-sibling::*[1])',
+                'string(//th[contains(string(), "联系电话")]/following-sibling::*)',
+                '//span[contains(string(), "电 话：")]/following::*[1]', '//p[contains(string(), "电 话：")]',
+                "//span[contains(string(),'联系电话：')]/following-sibling::*",
+                "//td[contains(string(),'联系电话：')]/following-sibling::*[1]",
+                "//span[contains(text(),'电  话')]",
+                'string(//span[contains(string(), "招标人：")]/following::*//span[contains(string(), "联系电话：")])',
+                "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电')]/following-sibling::span[1]",
+                "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电话')]/..",
+                "//span[contains(text(),'联系方式')]/../following-sibling::p//span[contains(text(),'电话')]/..",
+                "//span[contains(text(),'招标人')]/../../../following-sibling::p//span[text()='联系方式：']/../following-sibling::span[1]",
+                "//span[contains(text(),'联系方式')]/../../../following-sibling::p//span[contains(text(),'联')]/../following-sibling::span[1]",
+                "//span[contains(text(),'联系方式')]/../../following-sibling::p//span[contains(text(),'电')]/..",
+                "//span[contains(text(),'联系电话：')]/../following-sibling::span[1]"]
+        },  # 联系电话
+        "project_location": {
+            "re": [
+                '招标项目所在地区：(.+?)\s'
+            ],
+            "xpath": ['']
+        },  # 项目所在地
+        "industry_type": {
+            "re": [''],
+            "xpath": ['//th[contains(text(),"项目类型")]/following-sibling::td[1]']
+        },  # 项目行业类型
+        "article_url": {
+            "re": [''],
+            "xpath": ['']
+        },  # 文章URL
+        "source": {
+            "re": [''],
+            "xpath": ['']
+        },  # 信息来源
+        "content": {
+            "re": [''],
+            "xpath": [
+                "//div[@id='printHtml']",  # 元博网
+                "//section[@id='divContent']",  # 孚日
+                "//textarea",  # 海尔
+                "//div[@class='detail_box qst_box']",  # 中国华能
+                "//div[@class='container pt-2 pb-5']",  # 四川五洲
+                "//div[@class='detail__content content-mode-left']",  # 广东省网上超市
+                "//div[@class='contain-main']/div[@class='er-main']/div[@class='er-container']",  # 雄安
+                "//div[@class='v3-notice-detail-box']",  # 云采招阳
+                "//div[@class='main-text']",  # 中煤
+                "//div[@class='form-content']",  # 中国海洋石油集团有限公司
+                "//div[@class='main-text']",  # 航空工业电子采购平台
+                "//div[@class='article-area']",  # 中国海洋石油集团有限公司
+                "//div[@class='liststyle']",  # 大唐集团电子商务平台
+                "//div[@id='moreall-gg']",  # 大唐集团电子商务平台
+                "//div[@class='wrap']",  # 中招联合招标采购平台
+                "//section[@class='article']",  # 西电集团电子采购平台
+                "//div[@id='ninfo-con-txt']",  # 深圳市国际招标有限公司
+                "//div[@class='neirong']",  # 中国一汽电子招标采购交易平台
+                "//div[@class='main_top main_top_CG']",   # 中国华电集团电子商务平台
+                "//div[@class='WordSection1']",  # 中招联合招标采购平台
+                "//div[@class='dg-notice-detail']",  # 国家开发投资公司电子采购平台
+                # "//div[@class='ewb-article-info']/table",  # 深圳市政府采网
+                "//div[@class='ewb-article-info']/div[@class='body']",  # 深圳市政府采网
+                # "//div[@class='ewb-article-info']//tbody",
+                "//div[@class='ewb-article-info']",  # 深圳市政府采网
+                "//div[@id='container']/div[@id='main']/div[@class='block'][1]|//div[@id='container']/div[@id='sidebar']/ul/div[@class='timeline']/div[@class='dotbox']",  # 光大环境招标采购电子交易平台
+                "//div[@id='container']",  # 大唐集团电子商务平台
+                "//div[@class='block'][1]|//div[@id='container']/div[@id='sidebar']/ul|//div[@class='ZhongBiaoContent']/ul",  # 光大环境招标采购电子交易平台
+                "//div[@class='notice-content-left']",   # 云采链线上采购一体化平台
+                # "//div[@class='content-header-wrapper']",  # 云采链线上采购一体化平台
+                "//div[@class='Section0']",  # 国义
+                "//div[@class='Section1']",
+                "string(.)",
+                "//p",
+                "//td[@class='text_zx']",
+                "//tr[@class='firstRow']/td",
+            ]
+        },  # 正文
+        "bid_finish_time": {
+            "re": [
+                '报名时间[\s\S]*?开始：(.+?)<',
+                '开标时间[\s\S]{,10}开始：(.+?)<',
+                '开标时间变更为(.+?)(?=上午|下午)',
+                '开标时间：(.+?)(?=上午|下午)',
+                '开标时间：(.+?)</span></p>',
+            ],
+            "xpath": ["//span[contains(text(),'开标时间')]/../../following-sibling::p[1]",
+                      "//span[contains(text(),'提交投标文件截止时间及开标时间')]/../../..",
+                      "//span[contains(text(),'开标时间')]/../../following-sibling::td[1]",
+                      "//span[contains(text(),'开标时间：')]",
+                      "//span[contains(text(),'开标时间')]/../../../following-sibling::p//span[contains(text(),'时间')]/../.."]
+        },  # 开标时间
+        "bid_end_time": {
+            "re": [
+                '投标时间[\s\S]*?结束：(.+?)<',
+                '投标时间[\s\S]{,10}结束：(.+?)<',
+                '延期开标：(.+?)<',
+                '现变更为.{,6}投标文件递交截止时间：(.+?)(?=（|<)',
+                '投标文件递交截止时间：(.+?)(?=（|<)',
+                '递交截止时间：(.+?)<',
+                '截止时间：(.+?)<',
+            ],
+            "xpath": [
+                "//span[contains(text(),'投标截止及开标时间')]",
+                "//span[text()='投标文件开始递交时间：']/..",
+                '//th[contains(string(), "投标文件递交截止时间")]/../following::*[1]//td[count(//th[contains(string(), "投标文件递交截止时间")]/preceding-sibling::*) + 1]',
+            ]
+        },  # 投标截止时间
+        "project_overview": {
+            "re": [
+                '(项目概况和招标范围[\s\S]+?)投标人资格要求',
+                '(项目概况与招标范围[\s\S]+?)投标人资格要求',
+                '(项目概况[\s\S]+?)投标人资格要求',
+                '项目概况([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '(项目概况与招标范围：[\s\S]+?)<strong>',
+                '(项目概况：[\s\S]+?)<strong>',
+                '概况：([\s\S]*?)（二）',
+                # '概况：([\s\S]*?)</p>',
+                '(项目概况[\s\S]*?)<strong>',
+                   ],
+
+            "xpath": [
+                "//span[text()='项目概况：']/following-sibling::*[1]",
+                "//label[text()=' 项目概况：']/following-sibling::*[1]",
+                # "//span[contains(text(),'项目概况')]",
+            ]
+        },  # 项目概况
+        "agency": {
+            "re": [
+                '招标代理机构：(.+?)<h',
+                '招标代理机构：(.+?)<br',
+                '招标代理机构名称：(.+?)<',
+                '招标代理机构：(.+?)</span>(?=</span>|</p>)',
+            ],
+            "xpath": [
+                "string(//span[text()='代理机构：']/following-sibling::*[1])",
+                '//span[contains(string(), "招标代理：")]/following-sibling::*[1]',
+                      "string(//span[contains(string(),'招标代理机构：')])",
+                      "//span[string()='招标代理机构信息']/../../../following-sibling::p//span[contains(text(),'名称')]",
+                      "//span[contains(text(),'招标代理机构')]/../following-sibling::span[1]",
+                      '//p[contains(string(), "招标代理机构：")]',
+            ]
+        },  # 代理机构
+        "bid_evaluation_rule": {
+            "re": [
+                '投标人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '供应商资格条件([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '资质要求([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '具备下列条件([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '申请人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '投标人资格要求(.+?)(?=2\. |3\. |4\. |5\. |6\. |7\. |8\. |9\. )',
+                '投标人资格要求(.+?)(?=2\.<|3\.<|4\.<|5\.<|6\.<|7\.<|8\.<|9\.<)',
+                '投标人资格条件(.+?)(?=2、 |3、 |4、 |5、 |6、 |7、 |8、 |9、 )',
+                '投标人资格条件(.+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '(资格要求：[\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '资格要求<.*?>：([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+                '投标人资格要求(.+?)<strong>',
+                '主要商务要求[\s\S]{0,20}?更正为([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
+
+            ],
+            "xpath": [
+                "//*[string()='资质（资格）要求说明']/following-sibling::*[1]",
+                "//label[text()=' 资格要求：']/following-sibling::*[1]",
+                "//span[text()='供应商基本要求：']/following-sibling::*[1]|//span[text()='供应商资质要求：']/following-sibling::*[1]|//span[text()='供应商业绩要求：']/following-sibling::*[1]|//span[text()='供应商其他要求：']/following-sibling::*[1]",
+                'string(//span[text()="供应商资质要求："]/following-sibling::*//a/@href)',
+            ]
+        },  # 评标规则
+        "bid_winner": {
+            "re": [
+                '成交单位：(.+?)</span></p>',
+                '成交单位：(.+?)</span></span>',
+                '成交人名称：(.+?)</span>',
+                '成交单位：(.+?)</span>',
+                '成交供应商：(.+?)</p',
+            ],
+            "xpath": [
+                '//td[string()="中标单位名称"]/../following::*[1]/td[count(//td[string()="中标单位名称"]/preceding-sibling::td) + 1]',
+                '//*[text()="成交候选人名称："]/following-sibling::*',
+                '//*[text()="中标人名称："]/following-sibling::*',
+                "//*[text()='成交人名称：']/following-sibling::*[1]",
+                'string(//span[contains(string(), "成交人：")]/following-sibling::*)',
+                "//td[contains(string(), '中标人名称')]/../following::*[1]/td[count(//td[contains(string(), '中标人名称')]/preceding-sibling::td) + 1]",
+                "//td[contains(string(), '成交供应商')]/../following::*[1]/td[count(//td[contains(string(), '成交供应商')]/preceding-sibling::td) + 1]",
+                "//td[contains(string(), '中标候选人名称')]/../following::*[1]/td[count(//td[contains(string(), '中标候选人名称')]/preceding-sibling::td) + 1]",
+                "//td[contains(string(), '供应商名称')]/../following::*[1]/td[count(//td[contains(string(), '供应商名称')]/preceding-sibling::td) + 1]",
+                "//td[string()='成交供应商']/../following::*[1]/td[count(//td[string()='成交供应商']/preceding-sibling::td) + 1]",
+                "//td[string()='成交单位']/../following::*/td[count(//td[string()='成交单位']/preceding-sibling::td) + 1]",
+                "string(//td[string()='投标人']/../following::*/td[count(//table[1]//td[string()='投标人']/preceding-sibling::td) + 1])",
+            ]
+        },  # 中标人
+        "win_bid_price": {
+            "re": [
+                '最终报价（单价报价之和）：(.+?)。',
+                '',
+            ],
+            "xpath": [
+                "//*[text()='成交价(元)：']/following-sibling::*[1]",
+                '//td[string()="中标价格"]/../following::*[1]/td[count(//td[string()="中标价格"]/preceding-sibling::td) + 1]',
+                '//td[contains(string(), "成交金额")]/../following::*[1]/td[count(//td[contains(string(), "成交金额")]/preceding-sibling::td) + 1]',
+                "string(//td[contains(string(), '投标总报价')]/../following::*/td[count(//table[1]//td[contains(string(), '投标总报价')]/preceding-sibling::td) + 1])",
+            ]
+        },  # 中标金额
+        "win_bid_announcement_time": {
+            "re": [
+                '公告日期：(.+?)<',
+            ],
+            "xpath": [
+                "//*[text()='公告开始时间：']/following-sibling::*[1]",
+                "//*[text()='公示开始时间：']/following-sibling::*[1]",
+
+            ]
+        },  # 中标公告发布时间
+        "channel": {
+            "re": [''],
+            "xpath": ['//div[@class="home"]']
+        },  # 所属频道
+        "attachment_url": {
+            "re": [
+                'var pdf ="(.*?)"',
+            ],
+            "xpath": [
+                # '//span[text()="附件下载："]/following-sibling::*//a/@href',
+                # "//a[text()='下载']/@href",
+                # "//a[text()='-点此下载-']/@href",
+                # "//*[text()='下载']/parent::*/@href",
+                # "//div[contains(text(), '附件') and contains(string(), 'docx')]//a/@href",
+                # "//a[contains(text(), '附件') and (contains(text(), 'doc') or contains(text(), 'xls') or contains(text(), 'zip'))]/@href",
+                # '//span[text()="附件1："]/following-sibling::*//@href',
+
+                # "//a[contains(string(),'下载')]/@href",
+                # "//iframe[@id='pdfContainer']/@src",  # 光大
+            ]
+        },  # 附件链接
+        "keyword": {
+            "re": [''],
+            "xpath": ['']
+        },  # 关键词
+        "harvested_time": {
+            "re": [''],
+            "xpath": ['']
+        },  # 采集时间
+        # "spare_1": {
+        #     "re": [''],
+        #     "xpath": ['']
+        # },  # 跟进记
+        # "spare_2": {
+        #     "re": [''],
+        #     "xpath": ['']
+        # },  # 跟进
+        # "spare_3": {
+        #     "re": [''],
+        #     "xpath": ['']
+        # },  # 预留字段3
+
+    }
+
+
+parse_dict = {
+    # "元博网-最新中标": base_dict,
+    # "元博网-最新招标": base_dict,
+    # "华能采购-招标公告": base_dict,
+    # "华能采购-中标结果公告": base_dict,
+    # '华电采购平台-招标公告':base_dict,
+    '大唐招标-招标公告': base_dict
+}
+
 class BidZGDZ(TaskBase):
     def __init__(self, debug=True):
         super(BidZGDZ, self).__init__()
@@ -48,6 +434,7 @@ class BidZGDZ(TaskBase):
         # self.parse_dict = parse_dict.get(self.file_name)
         self.collection_name = 'cdt_ec'
         self.key_field = 'article_url'
+        self.parse_dict = parse_dict.get(self.file_name)
 
     def get_cookies_and_content(self, url):
         # self.log.error("error response, url:{}".format(url))
@@ -240,150 +627,202 @@ class BidZGDZ(TaskBase):
         article = self.parsePDF("a.pdf")
         article = article.replace(' ', '')
         data['正文'] = article
-        # article = article.replace('1. ', '|s|1. ').replace('2. ', '|s|2. ').replace('3. ', '|s|3. ').\
-        #     replace('4. ', '|s|4. ').replace('5. ', '|s|5. ').replace('6. ', '|s|6. ').replace('7. ', '|s|7. ').\
-        #     replace('8. ', '|s|8. ').replace('9. ', '|s|9. ').replace('10. ', '|s|10. ')
 
-        # 分割段落
-        at_list = article.split('\n')
-        for at in range(len(at_list)):
-            if re.match('\d{1}\.', at_list[at]):
-                if not re.match('\d{1}\.\d{1}', at_list[at]):
-                    at_list[at] = '|s|' + at_list[at]
-            elif re.match('\d{1}', at_list[at]):
-                # 不允许开头为2个数字,只能1个数字
-                if not re.match('\d{2}', at_list[at]) and not re.match('\d{1}\.\d{1}', at_list[at]):
-                    at_list[at] = '|s|' + at_list[at]
-        article = '\n'.join(at_list)
-        paragraph_list = article.split('|s|')
-        if len(paragraph_list) > 1:
-            temp_list = paragraph_list[0].split('\n')
-            data['标题'] = ''
-            title_flag = True
-            for i in temp_list:
-                if title_flag:
-                    data['标题'] += i.strip()
-                    if data['标题'].endswith('招标公告') or data['标题'].endswith('公告') or data['标题'].endswith('公示') \
-                            or data['标题'].endswith('通知'):
-                        title_flag = False
+        for key, items in self.parse_dict.items():
+            # 正则优先
+            if not data.get(key):
+                data[key] = ""
+            re_list = items.get('re')
+            for r in re_list:
+                if not r:
                     continue
-                # 处理标题行出现招标相关信息
-                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人') or i.startswith('招标方'):
-                    if not data.get('招标人', ''):
-                        data['招标人'] = i
-                elif i.startswith('招标代理机构'):
-                    data['招标代理'] = i
-                elif i.startswith('招标编号'):
-                    data['项目编号'] = i
+                if data.get(key) and data.get(key, "") not in ("详见公告正文", "null"):
+                    break
+                try:
+                    re_value = re.findall(r, detail_content)
+                    for v in re_value:
+                        v = re.sub("<[\s\S]*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
+                        # 补丁
+                        if key == "project_number" and v and len(v) > 40 and 'ec.ceec.net.cn' not in detail_url and \
+                                'www.e-bidding.org' not in detail_url:
+                            v = ""
+                        elif key == "phone" and v and (len(v) > 30 or len(v) < 6):
+                            v = ""
+                        data[key] = v
+                        break
+                except:
+                    data[key] = ""
 
-            # paragraph_list[0].replace('\n', '')
-
-            data['项目名称'] = data['标题']
-            for i in range(len(paragraph_list)):
-                col_list = paragraph_list[i].split('\n')
-                if '招标条件' in col_list[0]:
-                    data['招标条件'] = ''
-                    for j in col_list[1:]:
-                        data['招标条件'] += j
-                elif '项目概况与招标范围' in col_list[0] or '项目概况与采购范围' in col_list[0]:
-                    at_list = paragraph_list[i].split('\n')
-                    for j in at_list:
-                        if '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j:
-                            data['计划工期'] = j.split('计划工期：')[-1]
-                    for at in range(len(at_list)):
-                        if re.match('\d{1}\.\d{1}', at_list[at].strip()):
-                            at_list[at] = '|s|' + at_list[at]
-                    paragraph_list[i] = '\n'.join(at_list)
-                    son_list = paragraph_list[i].split('|s|')
-                    if len(son_list) > 1:
-                        for j in son_list[1:]:  # 去掉标题行
-                            if '招标编号：' in j:
-                                # if not data.get('项目编号', ''):
-                                data['项目编号'] = j.split('招标编号：')[-1]
-                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j:
-                                data['计划工期'] = j.split('计划工期：')[-1]
-                            elif '招标范围：' in j:
-                                data['招标范围'] = j.split('招标范围：')[-1]
-                    else:
-                        for j in at_list:
-                            if '招标编号：' in j:
-                                # if not data.get('项目编号', ''):
-                                data['项目编号'] = j.split('招标编号：')[-1]
-                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j:
-                                data['计划工期'] = j.split('计划工期：')[-1]
-                            elif '招标范围：' in j:
-                                data['招标范围'] = j.split('招标范围：')[-1]
-                elif '投标人资格要求' in col_list[0] or '投标人的资格要求' in col_list[0]:
-                    data['投标人资格要求'] = ''
-                    for j in col_list[1:]:
-                        data['投标人资格要求'] += j
-                elif '招标文件的获取' in col_list[0]:
-                    data['招标文件的获取'] = ''
-                    for j in col_list[1:]:
-                        data['招标文件的获取'] += j
-                elif '投标文件的递交' in col_list[0]:
-                    data['投标文件的递交'] = ''
-                    for j in col_list[1:]:
-                        data['投标文件的递交'] += j
-                elif '联系方式' in col_list[0]:
-                    flag = '招标'
-                    for j in col_list[1:]:
-                        if '招标人：' in j or '采购单位' in j or '采购人' in j or '招标方' in j:
-                            flag = '招标'
-                            if not data.get('招标人', ''):
-                                data['招标人'] = j.replace('招标人：', '')
-                        elif '招标代理：' in j or '招标代理机构：' in j:
-                            flag = '招标代理'
-                            if not data.get('招标代理', ''):
-                                data['招标代理'] = j.replace('招标代理机构：', '').replace('招标代理：', '')
-                        elif '电话：' in j:
-                            if flag == '招标':
-                                if not data.get('招标人联系方式', ''):
-                                    data['招标人联系方式'] = j.replace('电话：', '')
-                            else:
-                                if not data.get('招标代理联系方式', ''):
-                                    data['招标代理联系方式'] = j.replace('电话：', '')
-                elif '提出异议、投诉的渠道和方式' in col_list[0]:
-                    # for j in col_list[1:]:
-                    #     pass
-                    pass
-                elif '监督部门' in col_list[0]:
-                    # for j in col_list[1:]:
-                    #     pass
-                    pass
-                else:
-                    pass
-        else:
-            at_list = paragraph_list[0].split('\n')
-            data['标题'] = ''
-            title_flag = True
-            for i in at_list:
-                if title_flag:
-                    data['标题'] += i.strip()
-                    if data['标题'].endswith('招标公告') or data['标题'].endswith('公告') or data['标题'].endswith('公示') \
-                            or data['标题'].endswith('通知'):
-                        title_flag = False
-                    continue
-                # 处理标题行出现招标相关信息
-                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
-                    if not data.get('招标人', ''):
-                        data['招标人'] = i
-                elif i.startswith('招标代理机构'):
-                    data['招标代理'] = i
-                elif i.startswith('招标编号'):
-                    data['项目编号'] = i
-                elif i.startswith('招标条件'):
-                    data['招标条件'] = i
-                elif i.startswith('计划工期') or i.startswith('工期') or i.startswith('交货期') or i.startswith('供货期') or i.startswith('协议期限') or i.startswith('服务期'):
-                    data['计划工期'] = i
-                elif i.startswith('招标编号'):
-                    data['招标编号'] = i
-                elif i.startswith('招标范围'):
-                    data['招标范围'] = i
-            data['项目名称'] = data['标题']
-
-        print(data)
-        self.upload(data)
+        # html = etree.HTML(detail_content)
+        # pdf_url = html.xpath('string(//embed[@id="embedid"]/@src)')
+        # pdf_url = pdf_url.split('file=')[-1].replace('%26', '&').replace('%3D', '=')
+        # if not pdf_url:
+        #     print('no pdf_url!')
+        #     return
+        # pdf_content = self.req(url=pdf_url, rsp_type="content")
+        # time.sleep(random.randint(10, 15))
+        # if isinstance(pdf_content, tuple):
+        #     if pdf_content[0] == "412":
+        #         self.get_cookies_and_content(detail_url)
+        #         pdf_content = self.req(url=pdf_url, rsp_type="content")
+        #     else:
+        #         self.log.info("未找到：" + pdf_url)
+        #         return
+        # if not pdf_content or isinstance(pdf_content, tuple):
+        #     self.log.error("{} no detail_content".format(detail_url))
+        #     return
+        #
+        # source_code = pdf_content
+        # data['源码'] = str(source_code).strip()
+        # with open("a.pdf", mode="wb") as f:
+        #     f.write(pdf_content)  # 内容写入文件
+        # article = self.parsePDF("a.pdf")
+        # article = article.replace(' ', '')
+        # data['正文'] = article
+        # # article = article.replace('1. ', '|s|1. ').replace('2. ', '|s|2. ').replace('3. ', '|s|3. ').\
+        # #     replace('4. ', '|s|4. ').replace('5. ', '|s|5. ').replace('6. ', '|s|6. ').replace('7. ', '|s|7. ').\
+        # #     replace('8. ', '|s|8. ').replace('9. ', '|s|9. ').replace('10. ', '|s|10. ')
+        #
+        # # 分割段落
+        # at_list = article.split('\n')
+        # for at in range(len(at_list)):
+        #     if re.match('\d{1}\.', at_list[at]):
+        #         if not re.match('\d{1}\.\d{1}', at_list[at]):
+        #             at_list[at] = '|s|' + at_list[at]
+        #     elif re.match('\d{1}', at_list[at]):
+        #         # 不允许开头为2个数字,只能1个数字
+        #         if not re.match('\d{2}', at_list[at]) and not re.match('\d{1}\.\d{1}', at_list[at]):
+        #             at_list[at] = '|s|' + at_list[at]
+        # article = '\n'.join(at_list)
+        # paragraph_list = article.split('|s|')
+        # if len(paragraph_list) > 1:
+        #     temp_list = paragraph_list[0].split('\n')
+        #     data['标题'] = ''
+        #     title_flag = True
+        #     for i in temp_list:
+        #         if title_flag:
+        #             data['标题'] += i.strip()
+        #             if data['标题'].endswith('招标公告') or data['标题'].endswith('公告') or data['标题'].endswith('公示') \
+        #                     or data['标题'].endswith('通知'):
+        #                 title_flag = False
+        #             continue
+        #         # 处理标题行出现招标相关信息
+        #         if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人') or i.startswith('招标方'):
+        #             if not data.get('招标人', ''):
+        #                 data['招标人'] = i
+        #         elif i.startswith('招标代理机构'):
+        #             data['招标代理'] = i
+        #         elif i.startswith('招标编号'):
+        #             data['项目编号'] = i
+        #
+        #     # paragraph_list[0].replace('\n', '')
+        #
+        #     data['项目名称'] = data['标题']
+        #     for i in range(len(paragraph_list)):
+        #         col_list = paragraph_list[i].split('\n')
+        #         if '招标条件' in col_list[0]:
+        #             data['招标条件'] = ''
+        #             for j in col_list[1:]:
+        #                 data['招标条件'] += j
+        #         elif '项目概况与招标范围' in col_list[0] or '项目概况与采购范围' in col_list[0]:
+        #             at_list = paragraph_list[i].split('\n')
+        #             for j in at_list:
+        #                 if '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j:
+        #                     data['计划工期'] = j.split('计划工期：')[-1]
+        #             for at in range(len(at_list)):
+        #                 if re.match('\d{1}\.\d{1}', at_list[at].strip()):
+        #                     at_list[at] = '|s|' + at_list[at]
+        #             paragraph_list[i] = '\n'.join(at_list)
+        #             son_list = paragraph_list[i].split('|s|')
+        #             if len(son_list) > 1:
+        #                 for j in son_list[1:]:  # 去掉标题行
+        #                     if '招标编号：' in j:
+        #                         # if not data.get('项目编号', ''):
+        #                         data['项目编号'] = j.split('招标编号：')[-1]
+        #                     elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j:
+        #                         data['计划工期'] = j.split('计划工期：')[-1]
+        #                     elif '招标范围：' in j:
+        #                         data['招标范围'] = j.split('招标范围：')[-1]
+        #             else:
+        #                 for j in at_list:
+        #                     if '招标编号：' in j:
+        #                         # if not data.get('项目编号', ''):
+        #                         data['项目编号'] = j.split('招标编号：')[-1]
+        #                     elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j:
+        #                         data['计划工期'] = j.split('计划工期：')[-1]
+        #                     elif '招标范围：' in j:
+        #                         data['招标范围'] = j.split('招标范围：')[-1]
+        #         elif '投标人资格要求' in col_list[0] or '投标人的资格要求' in col_list[0]:
+        #             data['投标人资格要求'] = ''
+        #             for j in col_list[1:]:
+        #                 data['投标人资格要求'] += j
+        #         elif '招标文件的获取' in col_list[0]:
+        #             data['招标文件的获取'] = ''
+        #             for j in col_list[1:]:
+        #                 data['招标文件的获取'] += j
+        #         elif '投标文件的递交' in col_list[0]:
+        #             data['投标文件的递交'] = ''
+        #             for j in col_list[1:]:
+        #                 data['投标文件的递交'] += j
+        #         elif '联系方式' in col_list[0]:
+        #             flag = '招标'
+        #             for j in col_list[1:]:
+        #                 if '招标人：' in j or '采购单位' in j or '采购人' in j or '招标方' in j:
+        #                     flag = '招标'
+        #                     if not data.get('招标人', ''):
+        #                         data['招标人'] = j.replace('招标人：', '')
+        #                 elif '招标代理：' in j or '招标代理机构：' in j:
+        #                     flag = '招标代理'
+        #                     if not data.get('招标代理', ''):
+        #                         data['招标代理'] = j.replace('招标代理机构：', '').replace('招标代理：', '')
+        #                 elif '电话：' in j:
+        #                     if flag == '招标':
+        #                         if not data.get('招标人联系方式', ''):
+        #                             data['招标人联系方式'] = j.replace('电话：', '')
+        #                     else:
+        #                         if not data.get('招标代理联系方式', ''):
+        #                             data['招标代理联系方式'] = j.replace('电话：', '')
+        #         elif '提出异议、投诉的渠道和方式' in col_list[0]:
+        #             # for j in col_list[1:]:
+        #             #     pass
+        #             pass
+        #         elif '监督部门' in col_list[0]:
+        #             # for j in col_list[1:]:
+        #             #     pass
+        #             pass
+        #         else:
+        #             pass
+        # else:
+        #     at_list = paragraph_list[0].split('\n')
+        #     data['标题'] = ''
+        #     title_flag = True
+        #     for i in at_list:
+        #         if title_flag:
+        #             data['标题'] += i.strip()
+        #             if data['标题'].endswith('招标公告') or data['标题'].endswith('公告') or data['标题'].endswith('公示') \
+        #                     or data['标题'].endswith('通知'):
+        #                 title_flag = False
+        #             continue
+        #         # 处理标题行出现招标相关信息
+        #         if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
+        #             if not data.get('招标人', ''):
+        #                 data['招标人'] = i
+        #         elif i.startswith('招标代理机构'):
+        #             data['招标代理'] = i
+        #         elif i.startswith('招标编号'):
+        #             data['项目编号'] = i
+        #         elif i.startswith('招标条件'):
+        #             data['招标条件'] = i
+        #         elif i.startswith('计划工期') or i.startswith('工期') or i.startswith('交货期') or i.startswith('供货期') or i.startswith('协议期限') or i.startswith('服务期'):
+        #             data['计划工期'] = i
+        #         elif i.startswith('招标编号'):
+        #             data['招标编号'] = i
+        #         elif i.startswith('招标范围'):
+        #             data['招标范围'] = i
+        #     data['项目名称'] = data['标题']
+        #
+        # print(data)
+        # self.upload(data)
 
 
 if __name__ == '__main__':
