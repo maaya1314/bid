@@ -257,6 +257,18 @@ base_dict = {
 
     "项目概况": {
         "re": [
+            '项目概况与招标范围：([\s\S]+?)\n汉字ma汉字',
+            '项目概况与招标范围:([\s\S]+?)\n汉字ma汉字',
+            '项目概况与招标范围：([\s\S]+?)\n汉字ro汉字',
+            '项目概况与招标范围:([\s\S]+?)\n汉字ro汉字',
+            '项目概况与招标范围：([\s\S]+?)\n汉字shi汉字',
+            '项目概况与招标范围:([\s\S]+?)\n汉字shi汉字',
+            '项目概况与采购范围：([\s\S]+?)\n汉字ma汉字',
+            '项目概况与采购范围:([\s\S]+?)\n汉字ma汉字',
+            '项目概况与采购范围：([\s\S]+?)\n汉字ro汉字',
+            '项目概况与采购范围:([\s\S]+?)\n汉字ro汉字',
+            '项目概况与采购范围：([\s\S]+?)\n汉字shi汉字',
+            '项目概况与采购范围:([\s\S]+?)\n汉字shi汉字',
             '(项目概况和招标范围[\s\S]+?)投标人资格要求',
             '(项目概况与招标范围[\s\S]+?)投标人资格要求',
             '(项目概况[\s\S]+?)投标人资格要求',
@@ -276,12 +288,12 @@ base_dict = {
     },  # 项目概况
     "投标人资格要求": {
         "re": [
-            '投标人的资格要求：(.+?)|ma|',
-            '投标人资格要求：(.+?)|ma|',
-            '投标人的资格要求：(.+?)|shi|',
-            '投标人资格要求：(.+?)|shi|',
-            '投标人的资格要求：(.+?)|ro|',
-            '投标人资格要求：(.+?)|ro|',
+            '投标人的资格要求：([\s\S]+?)\n汉字ma汉字',
+            '投标人资格要求：([\s\S]+?)\n汉字ma汉字',
+            '投标人的资格要求：([\s\S]+?)\n汉字shi汉字',
+            '投标人资格要求：([\s\S]+?)\n汉字shi汉字',
+            '投标人的资格要求：([\s\S]+?)\n汉字ro汉字',
+            '投标人资格要求：([\s\S]+?)\n汉字ro汉字',
             '投标人资格要求([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
             '供应商资格条件([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
             '资质要求([\s\S]+?)(?=一、|二、|三、|四、|五、|六、|七、|八、|九、)',
@@ -306,70 +318,70 @@ base_dict = {
     },  # 投标人资格要求
     "投标文件的递交": {
         "re": [
-            '投标文件的递交：(.+?)|ma|',
-            '投标文件的递交:(.+?)|ma|',
-            '投标文件的递交：(.+?)|shi|',
-            '投标文件的递交:(.+?)|shi|',
-            '投标文件的递交：(.+?)|ro|',
-            '投标文件的递交:(.+?)|ro|',
+            '投标文件的递交：([\s\S]+?)汉字ma汉字',
+            '投标文件的递交:([\s\S]+?)汉字ma汉字',
+            '投标文件的递交：([\s\S]+?)汉字shi汉字',
+            '投标文件的递交:([\s\S]+?)汉字shi汉字',
+            '投标文件的递交：([\s\S]+?)汉字ro汉字',
+            '投标文件的递交:([\s\S]+?)汉字ro汉字',
         ],
         "xpath": []
     },  # 投标文件的递交
     "招标文件的领取": {
         "re": [
-            '招标文件的获取：(.+?)|ma|',
-            '招标文件的获取:(.+?)|ma|',
-            '招标文件的获取：(.+?)|shi|',
-            '招标文件的获取:(.+?)|shi|',
-            '招标文件的获取：(.+?)|ro|',
-            '招标文件的获取:(.+?)|ro|',
+            '招标文件的获取：([\s\S]+?)汉字ma汉字',
+            '招标文件的获取:([\s\S]+?)汉字ma汉字',
+            '招标文件的获取：([\s\S]+?)汉字shi汉字',
+            '招标文件的获取:([\s\S]+?)汉字shi汉字',
+            '招标文件的获取：([\s\S]+?)汉字ro汉字',
+            '招标文件的获取:([\s\S]+?)汉字ro汉字',
         ],
         "xpath": []
     },  # 招标文件的领取
     "招标条件": {
         "re": [
-            '招标条件：(.+?)|ma|',
-            '招标条件:(.+?)|ma|',
-            '招标条件：(.+?)|shi|',
-            '招标条件:(.+?)|shi|',
-            '招标条件：(.+?)|ro|',
-            '招标条件:(.+?)|ro|',
+            '招标条件：([\s\S]+?)\n汉字ma汉字',
+            '招标条件:([\s\S]+?)\n汉字ma汉字',
+            '招标条件：([\s\S]+?)\n汉字shi汉字',
+            '招标条件:([\s\S]+?)\n汉字shi汉字',
+            '招标条件：([\s\S]+?)\n汉字ro汉字',
+            '招标条件:([\s\S]+?)\n汉字ro汉字',
         ],
         "xpath": []
     },  # 招标条件
     "招标范围": {
         "re": [
-            '招标范围：(.+?)|shi|',
-            '招标范围:(.+?)|shi|',
-            '招标范围：(.+?)|ro|',
-            '招标范围:(.+?)|ro|',
-            '招标范围：(.+?)|ma|',
-            '招标范围:(.+?)|ma|',
+            '招标范围：([\s\S]+?)\n汉字shi汉字',
+            '招标范围:([\s\S]+?)\n汉字shi汉字',
+            '招标范围：([\s\S]+?)\n汉字ro汉字',
+            '招标范围:([\s\S]+?)\n汉字ro汉字',
+            '招标范围：([\s\S]+?)\n汉字ma汉字',
+            '招标范围:([\s\S]+?)\n汉字ma汉字',
         ],
         "xpath": []
     },  # 招标范围
     "计划工期": {
         "re": [
-            '计划工期：(.+?)|shi|',
-            '计划工期:(.+?)|shi|',
-            '计划工期：(.+?)|ro|',
-            '计划工期:(.+?)|ro|',
-            '交货期：(.+?)|shi|',
-            '交货期:(.+?)|shi|',
-            '交货期：(.+?)|ro|',
-            '交货期:(.+?)|ro|',
-            '供货期：(.+?)|shi|',
-            '供货期:(.+?)|shi|',
-            '供货期：(.+?)|ro|',
-            '供货期:(.+?)|ro|',
-            '协议期限：(.+?)|shi|',
-            '协议期限:(.+?)|shi|',
-            '协议期限：(.+?)|ro|',
-            '协议期限:(.+?)|ro|',
-            '服务期：(.+?)|shi|',
-            '服务期:(.+?)|shi|',
-            '服务期：(.+?)|ro|',
-            '服务期:(.+?)|ro|',
+            '计划工期：([\s\S]+?)\n汉字ro汉字',
+            '计划工期:([\s\S]+?)\n汉字ro汉字',
+            '计划工期：([\s\S]+?)\n汉字shi汉字',
+            '计划工期:([\s\S]+?)\n汉字shi汉字',
+            '交货期：([\s\S]+?)\n汉字ro汉字',
+            '交货期:([\s\S]+?)\n汉字ro汉字',
+            '交货期：([\s\S]+?)\n汉字shi汉字',
+            '交货期:([\s\S]+?)\n汉字shi汉字',
+            '供货期：([\s\S]+?)\n汉字ro汉字',
+            '供货期:([\s\S]+?)\n汉字ro汉字',
+            '供货期：([\s\S]+?)\n汉字shi汉字',
+            '供货期:([\s\S]+?)\n汉字shi汉字',
+            '协议期限：([\s\S]+?)\n汉字ro汉字',
+            '协议期限:([\s\S]+?)\n汉字ro汉字',
+            '协议期限：([\s\S]+?)\n汉字shi汉字',
+            '协议期限:([\s\S]+?)\n汉字shi汉字',
+            '服务期：([\s\S]+?)\n汉字ro汉字',
+            '服务期:([\s\S]+?)\n汉字ro汉字',
+            '服务期：([\s\S]+?)\n汉字shi汉字',
+            '服务期:([\s\S]+?)\n汉字shi汉字',
         ],
         "xpath": [
             '//th[contains(string(), "工期")]/../following::*[1]//td[count(//th[contains(string(), "工期")]/preceding-sibling::*)]',
@@ -377,51 +389,51 @@ base_dict = {
     },  # 计划工期
     "招标人": {
         "re": [
-            '招标人：(.+?)|shi|',
-            '招标人:(.+?)|shi|',
-            '招标人：(.+?)|ro|',
-            '招标人:(.+?)|ro|',
-            '采购单位：(.+?)|shi|',
-            '采购单位:(.+?)|shi|',
-            '采购单位：(.+?)|ro|',
-            '采购单位:(.+?)|ro|',
-            '采购人：(.+?)|shi|',
-            '采购人:(.+?)|shi|',
-            '采购人：(.+?)|ro|',
-            '采购人:(.+?)|ro|',
-            '协议期限：(.+?)|shi|',
-            '协议期限:(.+?)|shi|',
-            '协议期限：(.+?)|ro|',
-            '协议期限:(.+?)|ro|',
-            '招标方：(.+?)|shi|',
-            '招标方:(.+?)|shi|',
-            '招标方：(.+?)|ro|',
-            '招标方:(.+?)|ro|',
-            '招 标 人：(.+?)\n',
+            '招标人：([\s\S]+?)\n汉字ro汉字',
+            '招标人:([\s\S]+?)\n汉字ro汉字',
+            '招标人：([\s\S]+?)\n汉字shi汉字',
+            '招标人:([\s\S]+?)\n汉字shi汉字',
+            '采购单位：([\s\S]+?)\n汉字ro汉字',
+            '采购单位:([\s\S]+?)\n汉字ro汉字',
+            '采购单位：([\s\S]+?)\n汉字shi汉字',
+            '采购单位:([\s\S]+?)\n汉字shi汉字',
+            '采购人：([\s\S]+?)\n汉字ro汉字',
+            '采购人:([\s\S]+?)\n汉字ro汉字',
+            '采购人：([\s\S]+?)\n汉字shi汉字',
+            '采购人:([\s\S]+?)\n汉字shi汉字',
+            '协议期限：([\s\S]+?)\n汉字ro汉字',
+            '协议期限:([\s\S]+?)\n汉字ro汉字',
+            '协议期限：([\s\S]+?)\n汉字shi汉字',
+            '协议期限:([\s\S]+?)\n汉字shi汉字',
+            '招标方：([\s\S]+?)\n汉字ro汉字',
+            '招标方:([\s\S]+?)\n汉字ro汉字',
+            '招标方：([\s\S]+?)\n汉字shi汉字',
+            '招标方:([\s\S]+?)\n汉字shi汉字',
+            '招 标 人：([\s\S]+?)\n',
             '招标人[：|为](.*?)\n',
-            '招标人名称：(.+?)\n',
-            '招标人[：|为](.+?)\n',
+            '招标人名称：([\s\S]+?)\n',
+            '招标人[：|为]([\s\S]+?)\n',
             '招标人：(.*?)\n',
-            '采 购.*?人：(.+?)\n',
-            '采购机构：(.+?)\n',
-            '招标人或其招标代理机构名称：(.+?)\n',
-            '招标人或其招标代理机构名称：(.+?)\n',
-            '采购组织：(.+?)\n',
+            '采 购.*?人：([\s\S]+?)\n',
+            '采购机构：([\s\S]+?)\n',
+            '招标人或其招标代理机构名称：([\s\S]+?)\n',
+            '招标人或其招标代理机构名称：([\s\S]+?)\n',
+            '采购组织：([\s\S]+?)\n',
         ],
         "xpath": [],
     },  # 招标人
     "招标代理": {
         "re": [
-            '招标代理：(.+?)|shi|',
-            '招标代理:(.+?)|shi|',
-            '招标代理：(.+?)|ro|',
-            '招标代理:(.+?)|ro|',
-            '招标代理机构：(.+?)|shi|',
-            '招标代理机构:(.+?)|shi|',
-            '招标代理机构：(.+?)|ro|',
-            '招标代理机构:(.+?)|ro|',
-            '招标代理机构：(.+?)\n',
-            '招标代理机构名称：(.+?)\n',
+            '招标代理：([\s\S]+?)\n汉字ro汉字',
+            '招标代理:([\s\S]+?)\n汉字ro汉字',
+            '招标代理：([\s\S]+?)\n汉字shi汉字',
+            '招标代理:([\s\S]+?)\n汉字shi汉字',
+            '招标代理机构：([\s\S]+?)\n汉字ro汉字',
+            '招标代理机构:([\s\S]+?)\n汉字ro汉字',
+            '招标代理机构：([\s\S]+?)\n汉字shi汉字',
+            '招标代理机构:([\s\S]+?)\n汉字shi汉字',
+            '招标代理机构：([\s\S]+?)\n',
+            '招标代理机构名称：([\s\S]+?)\n',
         ],
         "xpath": [],
     },  # 招标代理
@@ -662,8 +674,8 @@ class BidZGDZ(TaskBase):
             all_re_page = 1
         pages = all_re_page
         self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
-        self.list_parse(content, url)
-        for num in range(2, pages + 1):
+        # self.list_parse(content, url)
+        for num in range(36, pages + 1):
             form_data = {
                 'page': num,
                 'limit': 10,
@@ -724,6 +736,7 @@ class BidZGDZ(TaskBase):
             data['article_url'] = detail_url
             data['标题'] = title
             data['时间'] = publish_time
+            data['项目编号'] = item['message_no']
             data['所属频道'] = self.file_name
             # data[TABField.announcement] = item.xpath("string(./@title)")
             done_fields = []
@@ -737,13 +750,15 @@ class BidZGDZ(TaskBase):
         data['uuid'] = uuid
 
         html = etree.HTML(detail_content)
+        data['项目名称'] = html.xpath('string(//div[@id="moreall"]/h1)').strip().replace('\t', '').replace('\n', ' ')
         pdf_url = html.xpath('string(//embed[@id="embedid"]/@src)')
         pdf_url = pdf_url.split('file=')[-1].replace('%26', '&').replace('%3D', '=')
+        data['pdf_link'] = pdf_url
         if not pdf_url:
             print('no pdf_url!')
             return
         pdf_content = self.req(url=pdf_url, rsp_type="content")
-        time.sleep(random.randint(10, 15))
+        time.sleep(random.randint(2, 3))
         if isinstance(pdf_content, tuple):
             if pdf_content[0] == "412":
                 self.get_cookies_and_content(detail_url)
@@ -761,7 +776,7 @@ class BidZGDZ(TaskBase):
             f.write(pdf_content)  # 内容写入文件
         article = self.parsePDF("a.pdf")
         data['正文'] = article
-        article = article.replace(' ', '').replace('\t', '').replace('\n', '\n|s|')
+        article = article.replace(' ', '').replace('\r', '').replace('\xa0', '').replace('\t', '').replace('\n', '\n|s|').strip()
         # 段落分割1
         at_list = article.split('|s|')
         addition = ''
@@ -779,67 +794,207 @@ class BidZGDZ(TaskBase):
             # 一级标题
             if re.match('\d{1,2}\.', at_list[at]):
                 if not re.match('\d{1,2}\.\d{1,2}', at_list[at]):
-                    at_list[at] = '|ma|' + at_list[at]
+                    at_list[at] = '汉字ma汉字' + at_list[at]
             elif re.match('\d{1,2}', at_list[at]):
                 # 不允许开头超过3个数字
                 if not re.match('\d{3}', at_list[at]) and not re.match('\d{1,2}\.\d{1,2}', at_list[at]):
-                    at_list[at] = '|ma|' + at_list[at]
+                    at_list[at] = '汉字ma汉字' + at_list[at]
             # 二级标题
             if re.match('\d{1,2}\.\d{1,2}', at_list[at].strip()):
-                at_list[at] = '|shi|' + at_list[at]
+                at_list[at] = '汉字shi汉字' + at_list[at]
             # 无各级标题情况
             if re.match('[\s\S]{1,}：[\s\S]{1,}', at_list[at]) or re.match('[\s\S]{1,}:[\s\S]{1,}', at_list[at]):
-                at_list[at] = '|ro|' + at_list[at]
+                at_list[at] = '汉字ro汉字' + at_list[at]
         article = ''.join(at_list)
+        # print(article)
 
-        for key, items in self.parse_dict.items():
-            # 正则优先
-            if not data.get(key):
-                data[key] = ""
-            re_list = items.get('re')
-            for r in re_list:
-                if not r:
-                    continue
-                if data.get(key) and data.get(key, "") not in ("详见公告正文", "null"):
-                    break
-                try:
-                    re_value = re.findall(r, article)
-                    for v in re_value:
-                        v = re.sub("<[\s\S]*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
-                        # 补丁
-                        if key == "project_number" and v and len(v) > 40 and 'ec.ceec.net.cn' not in detail_url and \
-                                'www.e-bidding.org' not in detail_url:
-                            v = ""
-                        elif key == "phone" and v and (len(v) > 30 or len(v) < 6):
-                            v = ""
-                        data[key] = v
-                        break
-                except:
+        if article:
+            for key, items in self.parse_dict.items():
+                # 正则优先
+                if not data.get(key):
                     data[key] = ""
-        phone = data.get("电话")
-        if phone:
-            phone_list = re.findall(r'\d[a-zA-Z0-9\-、－—\转\(\)（）/ ]{1,}', phone)
-            phone = phone if not phone_list else phone_list[0]
-            phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "") \
-                .replace("项目负责", "").replace("人", "").strip()
-            if phone.endswith("（"):
-                try:
-                    phone = re.findall('[0-9-]{1,}', phone)[0]
-                except:
-                    phone = ""
-            if len(phone) < 6:
-                phone = ''
-            if ("）" in phone and "（" not in phone) or ("（" in phone and "）" not in phone):
-                phone.replace("）", "").replace("（", "")
+                re_list = items.get('re')
+                for r in re_list:
+                    if not r:
+                        continue
+                    if data.get(key) and data.get(key, "") not in ("详见公告正文", "null"):
+                        break
+                    try:
+                        re_value = re.findall(r, article)
+                        for v in re_value:
+                            v = re.sub("<[\s\S]*?>", "", v).replace("\r", "").replace("\n", "").replace('&nbsp;', '').strip()
+                            # 补丁
+                            if key == "project_number" and v and len(v) > 40 and 'ec.ceec.net.cn' not in detail_url and \
+                                    'www.e-bidding.org' not in detail_url:
+                                v = ""
+                            elif key == "phone" and v and (len(v) > 30 or len(v) < 6):
+                                v = ""
+                            if v:
+                                data[key] = v.replace('汉字ma汉字', '').replace('汉字shi汉字', '').replace('汉字ro汉字', '')
+                                break
+                    except:
+                        data[key] = ""
+            phone = data.get("联系电话")
+            if phone:
+                phone_list = re.findall(r'\d[a-zA-Z0-9\-、－—\转\(\)（）/ ]{1,}', phone)
+                phone = phone if not phone_list else phone_list[0]
+                phone = phone.replace("电话", "").replace("：", "").replace("联系方式", "").replace("联系", "") \
+                    .replace("项目负责", "").replace("人", "").strip()
+                if phone.endswith("（"):
+                    try:
+                        phone = re.findall('[0-9-]{1,}', phone)[0]
+                    except:
+                        phone = ""
+                if len(phone) < 6:
+                    phone = ''
+                if ("）" in phone and "（" not in phone) or ("（" in phone and "）" not in phone):
+                    phone.replace("）", "").replace("（", "")
 
-            data['招标人联系方式'] = phone
-            data['招标代理联系方式'] = phone
+                data['招标人联系方式'] = phone
+                data['招标代理联系方式'] = phone
+
+        if not data.get('项目概况', '') or len(data.get('项目概况', '')) < 20:
+            data['项目概况'] = html.xpath('string(//div[@id="moreall"]/table)').replace(' ', '').replace('\r', '').replace('\xa0', '').replace('\t', '').replace('\n', ' ').strip()
+
+        paragraph_list = article.replace('汉字shi汉字', '').replace('汉字ro汉字', '').split('汉字ma汉字')
+        if len(paragraph_list) > 1:
+            temp_list = paragraph_list[0].split('\n')
+            zhaobiaoren_flag = False
+            for i in temp_list:
+                if zhaobiaoren_flag:
+                    data['招标人'] = i
+                    zhaobiaoren_flag = False
+                    continue
+                # 处理标题行出现招标相关信息
+                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人') or i.startswith('招标方'):
+                    if not data.get('招标人', ''):
+                        data['招标人'] = i
+                        if i == '招标人' or i == '':
+                            zhaobiaoren_flag = True
+                elif i.startswith('招标代理机构'):
+                    if not data.get('招标代理', ''):
+                        data['招标代理'] = i
+                elif i.startswith('招标编号'):
+                    if not data.get('项目编号', ''):
+                        data['项目编号'] = i
+
+            for i in range(len(paragraph_list)):
+                col_list = paragraph_list[i].split('\n')
+                if '招标条件' in col_list[0] and not data.get('招标条件', ''):
+                    data['招标条件'] = ''
+                    for j in col_list[1:]:
+                        data['招标条件'] += j
+                elif '项目概况与招标范围' in col_list[0] or '项目概况与采购范围' in col_list[0]:
+                    at_list = paragraph_list[i].split('\n')
+                    for j in at_list:
+                        if '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j and not data.get('计划工期', ''):
+                            data['计划工期'] = j.split('计划工期：')[-1]
+                    for at in range(len(at_list)):
+                        if re.match('\d{1}\.\d{1}', at_list[at].strip()):
+                            at_list[at] = '|s|' + at_list[at]
+                    paragraph_list[i] = '\n'.join(at_list)
+                    son_list = paragraph_list[i].split('|s|')
+                    if len(son_list) > 1:
+                        for j in son_list[1:]:  # 去掉标题行
+                            if '招标编号：' in j and not data.get('项目编号', ''):
+                                # if not data.get('项目编号', ''):
+                                data['项目编号'] = j.split('招标编号：')[-1]
+                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j and not data.get('计划工期', ''):
+                                data['计划工期'] = j.split('计划工期：')[-1]
+                            elif '招标范围：' in j and not data.get('招标范围', ''):
+                                data['招标范围'] = j.split('招标范围：')[-1]
+                    else:
+                        for j in at_list:
+                            if '招标编号：' in j and not data.get('项目编号', ''):
+                                # if not data.get('项目编号', ''):
+                                data['项目编号'] = j.split('招标编号：')[-1]
+                            elif '计划工期：' in j or '交货期' in j or '供货期' in j or '协议期限' in j or '服务期' in j or '工期' in j and not data.get('计划工期', ''):
+                                data['计划工期'] = j.split('计划工期：')[-1]
+                            elif '招标范围：' in j and not data.get('招标范围', ''):
+                                data['招标范围'] = j.split('招标范围：')[-1]
+                elif ('投标人资格要求' in col_list[0] or '投标人的资格要求' in col_list[0]) and not data.get('投标人资格要求', ''):
+                    data['投标人资格要求'] = ''
+                    for j in col_list[1:]:
+                        data['投标人资格要求'] += j
+                elif '招标文件的获取' in col_list[0] and not data.get('招标文件的获取', ''):
+                    data['招标文件的领取'] = ''
+                    for j in col_list[1:]:
+                        data['招标文件的领取'] += j
+                elif '投标文件的递交' in col_list[0] and not data.get('投标文件的递交', ''):
+                    data['投标文件的递交'] = ''
+                    for j in col_list[1:]:
+                        data['投标文件的递交'] += j
+                elif '联系方式' in col_list[0]:
+                    flag = '招标'
+                    for j in col_list[1:]:
+                        if '招标人：' in j or '采购单位' in j or '采购人' in j or '招标方' in j:
+                            flag = '招标'
+                            if not data.get('招标人', '') and not data.get('招标人', ''):
+                                data['招标人'] = j.replace('招标人：', '')
+                        elif '招标代理：' in j or '招标代理机构：' in j and not data.get('招标代理', ''):
+                            flag = '招标代理'
+                            if not data.get('招标代理', ''):
+                                data['招标代理'] = j.replace('招标代理机构：', '').replace('招标代理：', '')
+                        elif '电话：' in j:
+                            if flag == '招标':
+                                if not data.get('招标人联系方式', ''):
+                                    data['招标人联系方式'] = j.replace('电话：', '')
+                            else:
+                                if not data.get('招标代理联系方式', ''):
+                                    data['招标代理联系方式'] = j.replace('电话：', '')
+                elif '提出异议、投诉的渠道和方式' in col_list[0]:
+                    # for j in col_list[1:]:
+                    #     pass
+                    pass
+                elif '监督部门' in col_list[0]:
+                    # for j in col_list[1:]:
+                    #     pass
+                    pass
+                else:
+                    pass
+        else:
+            at_list = paragraph_list[0].split('\n')
+            zhaobiaoren_flag = False
+            for i in at_list:
+                if zhaobiaoren_flag:
+                    data['招标人'] = i
+                    zhaobiaoren_flag = False
+                    continue
+                # 处理标题行出现招标相关信息
+                if i.startswith('招标人') or i.startswith('采购单位') or i.startswith('采购人'):
+                    if not data.get('招标人', ''):
+                        data['招标人'] = i
+                        if i == '招标人' or i == '':
+                            zhaobiaoren_flag = True
+                elif i.startswith('招标代理机构'):
+                    if not data.get('招标代理', ''):
+                        data['招标代理'] = i
+                elif i.startswith('招标编号'):
+                    if not data.get('项目编号', ''):
+                        data['项目编号'] = i
+                elif i.startswith('招标条件'):
+                    if not data.get('招标条件', ''):
+                        data['招标条件'] = i
+                elif i.startswith('计划工期') or i.startswith('工期') or i.startswith('交货期') or i.startswith('供货期') or i.startswith('协议期限') or i.startswith('服务期'):
+                    if not data.get('计划工期', ''):
+                        data['计划工期'] = i
+                elif i.startswith('招标编号'):
+                    if not data.get('招标编号', ''):
+                        data['招标编号'] = i
+                elif i.startswith('招标范围'):
+                    if not data.get('招标范围', ''):
+                        data['招标范围'] = i
+            data['项目名称'] = data['标题']
+
         print(data)
         self.upload(data)
 
         # html = etree.HTML(detail_content)
+        # data['项目名称'] = html.xpath('string(//div[@id="moreall"]/h1)')
+        # data['项目概况'] = html.xpath('string(//div[@id="moreall"]/table)')
         # pdf_url = html.xpath('string(//embed[@id="embedid"]/@src)')
         # pdf_url = pdf_url.split('file=')[-1].replace('%26', '&').replace('%3D', '=')
+        # data['pdf_link'] = pdf_url
         # if not pdf_url:
         #     print('no pdf_url!')
         #     return
@@ -901,7 +1056,7 @@ class BidZGDZ(TaskBase):
         #
         #     # paragraph_list[0].replace('\n', '')
         #
-        #     data['项目名称'] = data['标题']
+        #     # data['项目名称'] = data['标题']
         #     for i in range(len(paragraph_list)):
         #         col_list = paragraph_list[i].split('\n')
         #         if '招标条件' in col_list[0]:
