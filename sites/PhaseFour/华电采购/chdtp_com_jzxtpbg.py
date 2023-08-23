@@ -14,6 +14,7 @@ import random
 import datetime
 from lxml.html import etree
 
+from bid_7 import Bid7
 from libs.base import TaskBase
 
 sys.path.append('../../PhaseTwo')
@@ -23,7 +24,7 @@ sys.path.append('../../../..')
 # from bid_conf.conf_2 import parse_dict
 # from bid_2 import Bid
 # from bid_6 import Bid6
-# from bid_conf.conf_6 import parse_dict
+from bid_conf.conf_7 import parse_dict
 urllib3.disable_warnings()
 from playwright.sync_api import sync_playwright
 from sites.PhaseFour.华电采购.libs import util
@@ -31,7 +32,7 @@ import jsonpath
 import math
 
 
-class BidZGDZ(TaskBase):
+class BidZGDZ(Bid7):
     def __init__(self, debug=True):
         super(BidZGDZ, self).__init__()
         # Bid6.__init__(self, debug)
@@ -45,6 +46,7 @@ class BidZGDZ(TaskBase):
         # self.parse_dict = parse_dict.get(self.file_name)
         self.collection_name = 'chdtp_com_jzxtpbg'
         self.key_field = 'article_url'
+        self.parse_dict = parse_dict.get(self.file_name)
 
     def get_cookies_and_content(self, url):
         with sync_playwright() as playwright:
@@ -82,7 +84,7 @@ class BidZGDZ(TaskBase):
             browser.close()
             return content
 
-    def run(self):
+    def run(self, keyword):
         TIMEOUT = 60
         url = "https://www.chdtp.com/webs/displayNewsCgxxAction.action?cgggtype=0"
         self.headers = {
@@ -192,6 +194,37 @@ class BidZGDZ(TaskBase):
         #     self.list_parse(content, url)
         # self.log.info("{} 数据采集完毕！".format(self.file_name))
 
+        # with sync_playwright() as playwright:
+        #     browser = playwright.firefox.launch(headless=False)
+        #     context = browser.new_context()
+        #     page = context.new_page()
+        #     js = """
+        #         Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
+        #     """
+        #     page.add_init_script(js)  # 执行规避webdriver检测
+        #     page.goto(url)
+        #     page.wait_for_load_state("networkidle")
+        #     storage_state = context.storage_state()
+        #     cookie = ''
+        #     for cookie_info in storage_state['cookies']:
+        #         cookie_text = cookie_info['name'] + '=' + cookie_info['value']
+        #         cookie += cookie_text + ';'
+        #     self.headers['Cookie'] = cookie.rstrip(';')
+        #     # Get_the_data(page.content())
+        #
+        #     while True:
+        #         content = page.content()
+        #         next_page_flag, _cur_page = self.list_parse(content, url)
+        #         self.log.info(f"page {_cur_page} completed !")
+        #         time.sleep(random.randint(60, 120))
+        #         if next_page_flag:
+        #             page.locator('xpath=//span[@class="page"]/input[3]').click()
+        #             page.wait_for_load_state("networkidle")
+        #         else:
+        #             break
+        #
+        #     context.close()
+        #     browser.close()
         with sync_playwright() as playwright:
             browser = playwright.firefox.launch(headless=False)
             context = browser.new_context()
@@ -200,32 +233,23 @@ class BidZGDZ(TaskBase):
                 Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
             """
             page.add_init_script(js)  # 执行规避webdriver检测
-            page.goto(url)
-            page.wait_for_load_state("networkidle")
-            storage_state = context.storage_state()
-            cookie = ''
-            for cookie_info in storage_state['cookies']:
-                cookie_text = cookie_info['name'] + '=' + cookie_info['value']
-                cookie += cookie_text + ';'
-            self.headers['Cookie'] = cookie.rstrip(';')
-            # Get_the_data(page.content())
-            content = page.content()
-
-            while True:
-                next_page_flag = self.list_parse(content, url)
-                time.sleep(random.randint(60, 120))
-                if next_page_flag:
-                    page.locator('xpath=//span[@class="page"]/input[3]').click()
+            data_list = self.db.db[self.collection_name].find({}).batch_size(100)
+            for d in data_list:
+                if not d.get('uuid'):
+                    url = d['article_url']
+                    page.goto(url)
                     page.wait_for_load_state("networkidle")
-                else:
-                    break
-
-            context.close()
-            browser.close()
+                    content = page.content()
+                    data = {}
+                    data['article_url'] = url
+                    data['content'] = content
+                    self.detail_parse(content, url, data, done_fields=[])
+                    time.sleep(random.randint(40, 60))
 
     def list_parse(self, maincontent, url):
         urlbase = 'https://www.chdtp.com/staticPage/'
         list_html = etree.HTML(maincontent)
+        page = util.re_find_one("第 (\d+)/\d+ 页，共\d+条记录", maincontent)
         items = list_html.xpath('//form[@name="resultForm"]//table//tr')
         for item in items:
             if self.exit_flag:
@@ -253,38 +277,40 @@ class BidZGDZ(TaskBase):
             # content_text = html.xpath('string(//div[@class="detail_box qst_box"])')
             # content_text1 = html1.xpath('string(//div[@class="box"]/div/table)')
             data = {}
-            publish_time = item.xpath('string(./td[4])').replace('[', '').replace(']', '')
+            publish_time = item.xpath('string(./td[@class="td_4"])').replace('[', '').replace(']', '')
             data['article_url'] = detail_url
-            data['标题'] = title
-            data['时间'] = publish_time
-            # data['正文'] = content_text1.strip()
+            data['project_title'] = title
+            data['publish_time'] = publish_time
+            data['content'] = 'abcdefghijklmnopqrstuvwxyz1234567890'  # 占位，防止底层报错
             # data['源码'] = str(source_code).strip()
-            data['所属频道'] = self.file_name
+            data['channel'] = self.file_name
             # data[TABField.announcement] = item.xpath("string(./@title)")
             # done_fields = []
             # self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
             self.upload(data)
 
         if not list_html.xpath('//span[@class="page"]/input[@src="images/page/page-next.jpg" and @disabled]'):
-            return True
+            return True, page
         else:
-            return False
+            return False, page
 
     def detail_parse(self, detail_content, detail_url, data=None, done_fields=None):
         # print(data)
         if not data:
             data = {}
+        detail_content = re.sub("<script[\s\S]*?/script>", "", detail_content)
+        detail_content = re.sub("<style[\s\S]*?/style>", "", detail_content)
         detail_content = detail_content.replace(" ", " ").replace("&nbsp;", " ")
         html = etree.HTML(detail_content)
         url = data.get("article_url")
         uuid = util.get_md5(url)
         data['uuid'] = uuid
-        main_list = html.xpath('//div[@class="box"]/div[2]/table/tr')
+        main_list = html.xpath('//div[@class="box"]/div[2]/table/tbody/tr')
         # print("table_list:", len(main_list))
 
         # data['项目名称'] = data['标题']
         purchase_name = util.re_find_one("采购组织机构：<a[\s\S]*?>([\s\S]*?)</a>", detail_content)
-        data['招标人'] = purchase_name.strip()
+        data['tender_unit'] = purchase_name.strip()
 
         for i in main_list:
             temp = i.xpath('string(.//div[@class="tabmenu"])')
@@ -292,11 +318,11 @@ class BidZGDZ(TaskBase):
                 temp_list = i.xpath('.//div[@class="tabmenu"]/following-sibling::div//tr')
                 for j in temp_list:
                     if "采购单号" in j.xpath('string(./td[@class="td_1"])'):
-                        data['项目编号'] = j.xpath('string(./td[@class="td_2"])').strip()
+                        data['project_number'] = j.xpath('string(./td[@class="td_2"])').strip()
                     elif "备注" in j.xpath('string(./td[@class="td_1"])'):
-                        data['其他要求或说明'] = j.xpath('string(./td[@class="td_2"])').strip()
+                        data['other_requirements'] = j.xpath('string(./td[@class="td_2"])').strip()
             elif '资格条件' in temp:
-                data['招标条件'] = i.xpath('string(.//div[@class="tabmenu"]/following-sibling::div)').strip()
+                data['bid_condition'] = i.xpath('string(.//div[@class="tabmenu"]/following-sibling::div)').strip()
             elif '采购清单' in temp:
                 temp_list = i.xpath('.//div[@class="tabmenu"]/following-sibling::div//tr[1]/td')
                 col = len(temp_list)
@@ -319,15 +345,15 @@ class BidZGDZ(TaskBase):
                         if j.xpath('string(./@title)'):
                             cg2_list.append(j.xpath('string(./@title)').replace('\r', '').replace('\n', ' ').strip())
                     temp += 1
-                data['招标范围'] = '|'.join(cg1_list)
-                data['项目名称'] = '|'.join(cg2_list)
+                data['bid_scope'] = '|'.join(cg1_list)
+                data['project_name'] = '|'.join(cg2_list)
         # print(data)
-        self.upload(data)
+        self.upload(data, output_type="db")
 
 
 if __name__ == '__main__':
     params = {
-        "proxy_flag": False,
+        "proxy_flag": True,
         "query_time": "",
         "MainKeys": [
             ""

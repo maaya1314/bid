@@ -386,9 +386,11 @@ parse_dict = {
     "元博网-最新招标": base_dict,
     "华能采购-招标公告": base_dict,
     "华能采购-中标结果公告": base_dict,
-    '华电采购平台-招标公告':base_dict,
-    '华电采购平台-中标候选人公示':base_dict,
-
+    '华电采购平台-招标公告': base_dict,
+    '华电采购平台-中标候选人公示': base_dict,
+    '非招标公告-竞争性谈判报告': base_dict,
+    '非招标公告-询价公告': base_dict,
+    '非招标公告-单一来源公示': base_dict,
 }
 
 bid_budget_keyword_list = [

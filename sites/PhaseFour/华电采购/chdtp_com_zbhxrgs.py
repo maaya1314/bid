@@ -13,6 +13,7 @@ import requests
 import random
 import datetime
 from lxml.html import etree
+
 sys.path.append('../../PhaseTwo')
 sys.path.append('../../..')
 sys.path.append('../../../..')
@@ -27,9 +28,10 @@ from bid_tools import utils
 import jsonpath
 import math
 
+
 class BidZGDZ(Bid7):
     def __init__(self, debug=True):
-        Bid6.__init__(self, debug)
+        Bid7.__init__(self, debug)
         self.log = getLogger(self.__class__.__name__, console_out=True, level="debug")
         self.user_agent_list = ["Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1", "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"]
         self.headers = {}
@@ -61,10 +63,62 @@ class BidZGDZ(Bid7):
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
         }
+        # with sync_playwright() as playwright:
+        #     browser = playwright.firefox.launch(headless=False)
+        #     context = browser.new_context()
+        #     page = context.new_page()
+        #     page.goto(url)
+        #     page.wait_for_load_state("networkidle")
+        #     storage_state = context.storage_state()
+        #     cookie = ''
+        #     for cookie_info in storage_state['cookies']:
+        #         cookie_text = cookie_info['name'] + '=' + cookie_info['value']
+        #         cookie += cookie_text + ';'
+        #     self.headers['Cookie'] = cookie.rstrip(';')
+        #     context.close()
+        #     browser.close()
+        # # form_data = {
+        # #     'type': '103',
+        # #     'searchWay': 'onTitle',
+        # #     'search': '',
+        # #     'ifend': 'in',
+        # #     'start': 0,
+        # #     'limit': 50
+        # # }
+        # url_base = 'https://www.chdtp.com/webs/queryWebZbgg.action?zbggType={}'
+        # url = url_base.format(2)
+        # self.log.info("开始采集第1页：{}".format(url))
+        # # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
+        # #                    verify=False)
+        # content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
+        # html = etree.HTML(content)
+        # all_re_page = html.xpath('string(//span[@class="page"])')
+        # all_re_page = utils.re_find_one('(?<=第).*?(?=页，)', all_re_page)
+        # all_re_page = utils.re_find_one('[^/]+(?!.*/)', all_re_page)
+        # if all_re_page:
+        #     all_re_page = int(all_re_page)
+        # else:
+        #     all_re_page = 1
+        # pages = all_re_page
+        # self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
+        # self.list_parse(content, url)
+        # for num in range(2, pages + 1):
+        #     data_base = 'jump=1&page.pageSize=20&page.currentpage={}&page.totalCount=13094'
+        #     url = 'https://www.chdtp.com/webs/displayNewZbhxrgsZxzxAction.action'
+        #     data = data_base.format(num)
+        #     self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
+        #     content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
+        #     self.list_parse(content, url)
+        # self.log.info("{} 数据采集完毕！".format(self.file_name))
+
         with sync_playwright() as playwright:
             browser = playwright.firefox.launch(headless=False)
             context = browser.new_context()
             page = context.new_page()
+            js = """
+                Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
+            """
+            page.add_init_script(js)  # 执行规避webdriver检测
             page.goto(url)
             page.wait_for_load_state("networkidle")
             storage_state = context.storage_state()
@@ -73,74 +127,74 @@ class BidZGDZ(Bid7):
                 cookie_text = cookie_info['name'] + '=' + cookie_info['value']
                 cookie += cookie_text + ';'
             self.headers['Cookie'] = cookie.rstrip(';')
+            # Get_the_data(page.content())
+
+            while True:
+                content = page.content()
+                next_page_flag, _cur_page = self.list_parse(content, url)
+                self.log.info(f"page {_cur_page} completed !")
+                time.sleep(random.randint(60, 120))
+                if next_page_flag:
+                    page.locator('xpath=//span[@class="page"]/input[3]').click()
+                    page.wait_for_load_state("networkidle")
+                else:
+                    break
+
             context.close()
             browser.close()
-        # form_data = {
-        #     'type': '103',
-        #     'searchWay': 'onTitle',
-        #     'search': '',
-        #     'ifend': 'in',
-        #     'start': 0,
-        #     'limit': 50
-        # }
-        url_base = 'https://www.chdtp.com/webs/queryWebZbgg.action?zbggType={}'
-        url = url_base.format(2)
-        self.log.info("开始采集第1页：{}".format(url))
-        # content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, timeout=TIMEOUT,
-        #                    verify=False)
-        content = self.req(url=url, headers=self.headers, timeout=TIMEOUT)
-        html = etree.HTML(content)
-        all_re_page = html.xpath('string(//span[@class="page"])')
-        all_re_page = utils.re_find_one('(?<=第).*?(?=页，)', all_re_page)
-        all_re_page = utils.re_find_one('[^/]+(?!.*/)', all_re_page)
-        if all_re_page:
-            all_re_page = int(all_re_page)
-        else:
-            all_re_page = 1
-        pages = all_re_page
-        self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
-        self.list_parse(content, url)
-        for num in range(2, pages + 1):
-            data_base = 'jump=1&page.pageSize=20&page.currentpage={}&page.totalCount=13094'
-            url = 'https://www.chdtp.com/webs/displayNewZbhxrgsZxzxAction.action'
-            data = data_base.format(num)
-            self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
-            content = self.req(url=url, req_type='post', headers=self.headers, data=data, timeout=TIMEOUT, verify=False)
-            self.list_parse(content, url)
-        self.log.info("{} 数据采集完毕！".format(self.file_name))
 
     def list_parse(self, maincontent, url):
         urlbase = 'https://www.chdtp.com/staticPage/'
         list_html = etree.HTML(maincontent)
-        items = list_html.xpath('//form[@name="resultForm"]//table//tr/td[2]/a[1]')
+        page = utils.re_find_one("第 (\d+)/\d+ 页，共\d+条记录", maincontent)
+        # items = list_html.xpath('//form[@name="resultForm"]//table//tr/td[2]/a[1]')
+        items = list_html.xpath('//form[@name="resultForm"]//table//tr')
         for item in items:
             if self.exit_flag:
                 return
-            title = item.xpath("string(./@title)")
-            href_text = item.xpath("string(./@href)")
+            title = item.xpath("string(./td[2]/a[1]/@title)")
+            href_text = item.xpath("string(./td[2]/a[1]/@href)")
             href = utils.re_find_one("'(.*?)'", href_text)
-            detail_url = urljoin(urlbase, href)
-            detail_content = self.req(url=detail_url, headers=self.headers)
-            if not detail_content or detail_content == 404 or detail_content == 400:
-                self.log.error("{} no detail_content".format(detail_url))
-                continue
-            source_code = detail_content
-            detail_content = re.sub("<script[\s\S]*?/script>", "", detail_content, flags=re.I)
-            detail_content = re.sub("<style[\s\S]*?/style>", "", detail_content, flags=re.I)
-            html = etree.HTML(detail_content)
-            html1 = etree.HTML(re.sub('</p>', '</p>\n', detail_content))
+            detail_url = urlbase + href
+            # title = item.xpath("string(./@title)")
+            # href_text = item.xpath("string(./@href)")
+            # href = utils.re_find_one("'(.*?)'", href_text)
+            # detail_url = urljoin(urlbase, href)
+            # detail_content = self.req(url=detail_url, headers=self.headers)
+            # if not detail_content or detail_content == 404 or detail_content == 400:
+            #     self.log.error("{} no detail_content".format(detail_url))
+            #     continue
+            # source_code = detail_content
+            # detail_content = re.sub("<script[\s\S]*?/script>", "", detail_content, flags=re.I)
+            # detail_content = re.sub("<style[\s\S]*?/style>", "", detail_content, flags=re.I)
+            # html = etree.HTML(detail_content)
+            # html1 = etree.HTML(re.sub('</p>', '</p>\n', detail_content))
             # content_text = html.xpath('string(//div[@class="detail_box qst_box"])')
-            content_text1 = html1.xpath('string(//title/following-sibling::div)')
+            # content_text1 = html1.xpath('string(//title/following-sibling::div)')
             data = {}
-            publish_time = html.xpath('string(//div[@class="headline"]//dd)').replace('发布时间：', '')
+            publish_time = item.xpath('string(./td[@class="td_4"])').replace('[', '').replace(']', '')
             data['article_url'] = detail_url
             data['project_title'] = title
             data['publish_time'] = publish_time
-            data['content'] = content_text1.strip()
-            data['source_code'] = str(source_code).strip()
+            data['content'] = 'abcdefghijklmnopqrstuvwxyz1234567890'  # 占位，防止底层报错
+            # data['source_code'] = str(source_code).strip()
             # data[TABField.announcement] = item.xpath("string(./@title)")
-            done_fields = []
-            self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
+            # done_fields = []
+            # self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
+            self.upload(data, output_type='db')
+
+        if not list_html.xpath('//span[@class="page"]/input[@src="images/page/page-next.jpg" and @disabled]'):
+            return True, page
+        else:
+            return False, page
+
+    def detail_parse(self, detail_content, detail_url, data=None, done_fields=None):
+        if not data:
+            data = {}
+        detail_content = re.sub("<script[\s\S]*?/script>", "", detail_content)
+        detail_content = re.sub("<style[\s\S]*?/style>", "", detail_content)
+        detail_content = detail_content.replace(" ", " ").replace("&nbsp;", " ")
+        html = etree.HTML(detail_content)
 
 
 if __name__ == '__main__':

@@ -644,6 +644,7 @@ class BidZGDZ(TaskBase):
         }
 
         url = url_base.format(1)
+        self.max_retries = 3
         self.log.info("开始采集第1页：{}".format(url))
         content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
                            timeout=TIMEOUT, verify=False)
@@ -657,28 +658,33 @@ class BidZGDZ(TaskBase):
         pages = all_re_page
         self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
         # self.list_parse(content, url)
-        for num in range(17, pages + 1):
-            form_data = {
-                'page': num,
-                'limit': 10,
-                'messagetype': 0,
-                'startDate': '',
-                'endDate': ''
-            }
-            self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
-            content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
-                               timeout=TIMEOUT, verify=False)
-            if isinstance(content, tuple):
-                if content[0] == "412":
+        for num in range(312, pages + 1):
+            while True:
+                form_data = {
+                    'page': num,
+                    'limit': 10,
+                    'messagetype': 0,
+                    'startDate': '',
+                    'endDate': ''
+                }
+                self.log.info("总页数：{},开始采集第{}页：{}".format(all_re_page, num, url))
+                content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
+                                   timeout=TIMEOUT, verify=False)
+                if isinstance(content, tuple):
+                    if content[0] == "412":
+                        self.get_cookies_and_content(url)
+                        content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
+                                           timeout=TIMEOUT, verify=False)
+                    else:
+                        self.log.info("未找到：" + url)
+                        time.sleep(10)
+                        continue
+                if not content:
+                    time.sleep(120)
                     self.get_cookies_and_content(url)
-                    content = self.req(url=url, req_type='post', headers=self.headers, data=form_data, rsp_type="json",
-                                       timeout=TIMEOUT, verify=False)
+                    self.log.info(f"page {num} 无返回数据：" + url)
                 else:
-                    self.log.info("未找到：" + url)
-                    continue
-            if not content:
-                self.log.info(f"page {num} 无返回数据：" + url)
-                break
+                    break
             self.list_parse(content, url)
         self.log.info("{} 数据采集完毕！".format(self.file_name))
 
@@ -725,7 +731,9 @@ class BidZGDZ(TaskBase):
         pdf_url = pdf_url.split('file=')[-1].replace('%26', '&').replace('%3D', '=')
         data['pdf_link'] = pdf_url
         if not pdf_url:
-            print('no pdf_url!')
+            self.log.error(f'no pdf_url, article_url: {url}')
+            data['no_pdf'] = 1
+            self.upload(data)
             return
         pdf_content = self.req(url=pdf_url, rsp_type="content")
         time.sleep(random.randint(2, 3))
