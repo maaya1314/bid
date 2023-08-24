@@ -214,7 +214,8 @@ class BidZGDZ(Bid7):
         #
         #     while True:
         #         content = page.content()
-        #         next_page_flag, _cur_page = self.list_parse(content, url)
+        #         _cur_page = util.re_find_one("第 (\d+)/\d+ 页，共\d+条记录", content)
+        #         next_page_flag = self.list_parse(content, url)
         #         self.log.info(f"page {_cur_page} completed !")
         #         time.sleep(random.randint(60, 120))
         #         if next_page_flag:
@@ -225,6 +226,7 @@ class BidZGDZ(Bid7):
         #
         #     context.close()
         #     browser.close()
+        time.sleep(2)
         with sync_playwright() as playwright:
             browser = playwright.firefox.launch(headless=False)
             context = browser.new_context()
@@ -233,23 +235,39 @@ class BidZGDZ(Bid7):
                 Object.defineProperties(navigator, {webdriver:{get:()=>undefined}});
             """
             page.add_init_script(js)  # 执行规避webdriver检测
-            data_list = self.db.db[self.collection_name].find({}).batch_size(100)
-            for d in data_list:
-                if not d.get('uuid'):
-                    url = d['article_url']
-                    page.goto(url)
-                    page.wait_for_load_state("networkidle")
-                    content = page.content()
-                    data = {}
-                    data['article_url'] = url
-                    data['content'] = content
-                    self.detail_parse(content, url, data, done_fields=[])
-                    time.sleep(random.randint(40, 60))
+            while True:
+                try:
+                    data_list = self.db.db[self.collection_name].find({'所属频道': self.file_name}).batch_size(20)
+                    for d in data_list:
+                        if d.get('正文', '') == 'abcdefghijklmnopqrstuvwxyz1234567890':
+                            url = d['article_url']
+                            page.goto(url)
+                            page.wait_for_load_state("networkidle")
+                            content = page.content()
+                            data = {}
+                            data['article_url'] = url
+                            data['project_title'] = d['标题']
+                            data['publish_time'] = d['时间']
+                            # data['源码'] = str(source_code).strip()
+                            data['content'] = content.strip()
+                            data['channel'] = self.file_name
+                            self.detail_parse(content, url, data, done_fields=[])
+                            time.sleep(random.randint(40, 60))
+                    if not data_list.alive:
+                        # print("等待数据更新...")
+                        # time.sleep(60)
+                        data_list.close()
+                        break
+                    data_list.close()
+                except Exception as e:
+                    print("error:", e)
+                    data_list.close()
+                    time.sleep(10)
+                    continue
 
     def list_parse(self, maincontent, url):
         urlbase = 'https://www.chdtp.com/staticPage/'
         list_html = etree.HTML(maincontent)
-        page = util.re_find_one("第 (\d+)/\d+ 页，共\d+条记录", maincontent)
         items = list_html.xpath('//form[@name="resultForm"]//table//tr')
         for item in items:
             if self.exit_flag:
@@ -257,6 +275,8 @@ class BidZGDZ(Bid7):
             title = item.xpath("string(./td[2]/a[1]/@title)")
             href_text = item.xpath("string(./td[2]/a[1]/@href)")
             href = util.re_find_one("'(.*?)'", href_text)
+            if not href:
+                continue
             detail_url = urljoin(urlbase, href)
             # detail_content = self.req(url=detail_url, headers=self.headers)
             # if isinstance(detail_content, tuple):
@@ -287,12 +307,12 @@ class BidZGDZ(Bid7):
             # data[TABField.announcement] = item.xpath("string(./@title)")
             # done_fields = []
             # self.detail_parse(detail_content, detail_url, data, done_fields=done_fields)
-            self.upload(data)
+            self.upload(data, output_type='db')
 
         if not list_html.xpath('//span[@class="page"]/input[@src="images/page/page-next.jpg" and @disabled]'):
-            return True, page
+            return True
         else:
-            return False, page
+            return False
 
     def detail_parse(self, detail_content, detail_url, data=None, done_fields=None):
         # print(data)

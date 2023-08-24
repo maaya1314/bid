@@ -658,7 +658,7 @@ class BidZGDZ(TaskBase):
         pages = all_re_page
         self.log.info("总页数：{},开始采集第1页：{}".format(all_re_page, url))
         # self.list_parse(content, url)
-        for num in range(312, pages + 1):
+        for num in range(626, pages + 1):
             while True:
                 form_data = {
                     'page': num,
